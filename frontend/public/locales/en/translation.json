@@ -1,0 +1,17 @@
+{
+  "appName": "OmoBridge",
+  "tagline": "Connecting rural producers and tourism in South Omo",
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "tourism": "Tourism",
+    "services": "Services",
+    "about": "About",
+    "cart": "Cart"
+  },
+  "common": {
+    "welcome": "Welcome to OmoBridge",
+    "viewMore": "View More",
+    "search": "Search"
+  }
+}

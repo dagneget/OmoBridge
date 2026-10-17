@@ -1,0 +1,10 @@
+{
+  "description": "Connect with Ethiopian artisans and cultural hosts to shop authentic local products and book immersive tourism experiences in one trusted marketplace.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

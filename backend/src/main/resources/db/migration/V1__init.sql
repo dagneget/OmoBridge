@@ -1,0 +1,1 @@
+-- V1__init.sql: Initial database schema placeholder for OmoBridge
