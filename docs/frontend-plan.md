@@ -558,11 +558,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Tests: Node 22 npm run typecheck, npm run lint, npm run build, npm test → passed (119 tests, 23 files; 9 price component cases).
   Blocked: Real-browser 360 px, keyboard reading order, zoom and contrast verification remain pending; no browser runner installed. Automated axe checks pass with color contrast excluded. No route/layout changes.
 
-- [ ] **F-508 · My orders** · T1
+- [~] **F-508 · My orders** · T1
   Needs: F-506 · Backend: B-805, B-804
   Build: list and detail with status timeline, items with snapshot names and prices, payment status, tracking link.
   Done when: another user's order is not reachable.
-  Owner: —
+  Owner: @codex · Started: 2026-10-18 · Branch: `feat/my-orders` (isolated worktree)
 
 - [ ] **F-509 · Cancel order** · T2
   Needs: F-508 · Backend: B-804, B-905
