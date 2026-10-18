@@ -34,6 +34,10 @@ export class NormalizedApiError extends Error {
  * Normalizes an Axios error or generic error into NormalizedApiError
  */
 export function normalizeApiError(error: unknown): NormalizedApiError {
+  if (error instanceof NormalizedApiError) {
+    return error;
+  }
+
   if (axios.isCancel(error)) {
     return new NormalizedApiError({
       message: 'Request was cancelled',

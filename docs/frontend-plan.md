@@ -171,7 +171,7 @@ Update the counts when you finish a task.
 | Phase | Area | Done / Total |
 |---|---|---|
 | FP0 | Foundation and audit | 8 / 8 |
-| FP1 | App shell, design system, PWA core | 2 / 10 |
+| FP1 | App shell, design system, PWA core | 3 / 10 |
 | FP2 | Authentication and roles | 0 / 9 |
 | FP3 | Public tourism | 0 / 11 |
 | FP4 | Bookings | 0 / 5 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **10 / 134** |
+| | **Total** | **11 / 134** |
 
 ### What can run in parallel
 
@@ -278,11 +278,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: component tests and axe checks pass.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/baseComponents.test.tsx (15/15 passed including axe audits, 47/47 total), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-103 · Forms foundation** · T1
+- [x] **F-103 · Forms foundation** · T1
   Needs: F-102, F-005
   Build: React Hook Form + Zod helpers; server field-error mapping; phone input with Ethiopian number hint; submit state and double-submit protection.
   Done when: a form shows field errors from a mocked 400/422 response.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/formsFoundation.test.tsx (5/5 passed, 52/52 total), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-104 · Formatting utilities** · T1
   Needs: F-002
@@ -1192,6 +1192,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-008 | Completed | Docs skeleton docs/frontend.md created with complete architecture, routes matrix, conventions, run guide; FP0 completed |
 | 2026-10-18 | @claude-agent | F-101 | Completed | Public, Auth, Dashboard layouts, 34 lazy chunks code-splitting, ErrorBoundary, 404 page verified |
 | 2026-10-18 | @claude-agent | F-102 | Completed | Base accessible components (Button, Input, Select, Checkbox, Modal, Toast, Table, Card, Badge, StatusChip, Tabs, Skeleton, EmptyState, Pagination, FormField) verified with unit & axe audits |
+| 2026-10-18 | @claude-agent | F-103 | Completed | Forms foundation (React Hook Form + Zod, Ethiopian phone normalization/validation, server 400/422 field-error mapping, double-submit protection) verified |
 
 ## 12. Change log (requirements)
 

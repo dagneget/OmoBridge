@@ -14,3 +14,4 @@ export * from './Skeleton';
 export * from './EmptyState';
 export * from './Pagination';
 export * from './ErrorBoundary';
+export * from './PhoneInput';
