@@ -412,11 +412,12 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: Leaflet is not in the initial bundle; the fallback shows when offline.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/mapComponent.test.tsx (3/3 passed, 123/123 total), typecheck (clean), lint (clean), build (clean, separate leaflet-vendor chunk)
 
-- [ ] **F-305 · Hotels and resorts** · T1
+- [!] **F-305 · Hotels and resorts** · T1
   Needs: F-302 · Backend: B-303
   Build: list and detail (Buska Hotel, Green Resort, Paradise Lodge and others from the API): location, contact, price from, amenities.
   Done when: renders from the API with a map.
-  Owner: —
+  Blocked: Backend `GET /api/v1/tourism/hotels` throws 500 `LazyInitializationException` during JSON serialization of lazy enterprise relation (see Section 10 #17). Frontend fully implemented with search, amenities, rates, and Leaflet MapComponent in `src/pages/public/HotelsPage.tsx` and verified via `src/test/hotelsPage.test.tsx` (5/5 passed against typed MSW mock).
+  Owner: @claude-agent · Started: 2026-10-18
 
 - [ ] **F-306 · Transport services** · T2
   Needs: F-302 · Backend: B-304
@@ -1174,6 +1175,7 @@ Confirm each against the real backend before the affected task. Do not invent en
 | 14 | F-1004 | What is the real USSD short code? (`*844#` in the backend report is a placeholder; real codes are assigned by the operator.) | Resolved: Configurable via `VITE_USSD_SHORT_CODE` (defaulting to `*844#`) |
 | 15 | Deployment | Which origin will serve the app (HTTPS needed for the service worker) and is CORS configured for it? | Resolved: Development origin `http://localhost:5173` allowed by backend `SecurityConfig`; production uses HTTPS reverse proxy |
 | 16 | F-1103 | PWAs cannot track GPS reliably in the background. Is a native wrapper out of scope, with SMS checkpoints as the fallback? | Resolved: Native wrapper out of MVP scope; foreground geolocation tracking with offline queue + SMS keywords fallback (`ARRIVED`, `LEFT`) |
+| 17 | F-305 | `GET /api/v1/tourism/hotels` throws backend 500 (`LazyInitializationException` on lazy `Hotel.enterprise` during JSON serialization) | Resolved: Frontend built and tested against OpenAPI typed MSW mock and seed hotels; backend gap documented; task marked [!] |
 
 ## 11. Activity log
 
@@ -1210,6 +1212,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-302 | Completed | TourismPage with 7 seed packages, category tabs, real-time search, unit prices, loading/empty/error states verified |
 | 2026-10-18 | @claude-agent | F-303 | Completed | ExperienceDetailsPage with prominent cultural rules, safety notes, story, hours, community consent ref & date, and booking CTA verified |
 | 2026-10-18 | @claude-agent | F-304 | Completed | Lazy-loaded MapComponent with offline fallback, coordinates display, directions link, and code-split leaflet-vendor bundle verified |
+| 2026-10-18 | @claude-agent | F-305 | Blocked [!] | HotelsPage implemented with search, amenities, rate display, and Map modal; blocked from live backend verification by 500 LazyInitializationException on GET /api/v1/tourism/hotels (logged in Section 10 #17); verified 5/5 against OpenAPI MSW mock |
 
 ## 12. Change log (requirements)
 
