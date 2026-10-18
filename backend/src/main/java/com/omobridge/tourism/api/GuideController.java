@@ -42,7 +42,7 @@ public class GuideController {
     }
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('TOURISM_GUIDE')")
+    @PreAuthorize("hasRole('TOUR_GUIDE')")
     @Operation(summary = "Get current guide profile")
     public ResponseEntity<ApiResponse<GuideResponse>> getCurrentGuideProfile(
             @AuthenticationPrincipal UserPrincipal principal) {

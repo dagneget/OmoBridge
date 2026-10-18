@@ -1007,6 +1007,11 @@ These are design gates, not reasons to discard the plan. Record the final decisi
 | 2026-10-18 | Important post-commit notifications/integrations use a transactional outbox with retries and idempotency | P2, P11 |
 ## Backend follow-up fixes
 
-- [~] **B-FIX-001 · Guide self-profile role authorization**
+- [!] **B-FIX-001 · Guide self-profile role authorization**
   Owner: @codex · Started: 2026-10-18
+  Implemented: TOUR_GUIDE role check and nine security-chain regression cases; docs/api.md updated.
+  Tests: Java 21 ./mvnw -Dtest=GuideProfileAuthorizationTest test → 9 passed. Full ./mvnw test → 140 tests, 0 failures, 3 errors.
+  Blocked: Full-suite verification fails in DeliveryAndTrackingIntegrationTest setup: deleting orders violates payments_order_id_fkey. No delivery/test-data cleanup changes included. Migration: none.
   Scope: Correct GET /api/v1/tourism/guides/me to TOUR_GUIDE; verify guide success, anonymous 401, and other-role 403 using the real security chain. No schema changes.
+
+Activity: 2026-10-18 · @codex · B-FIX-001 · Implemented; verification blocked by three delivery integration setup errors. Focused authorization tests: 9 passed.
