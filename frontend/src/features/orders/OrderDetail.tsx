@@ -1,3 +1,4 @@
+import RefundDetails from '../payments/RefundDetails';
 import { useOrderScope } from './sessionScope';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
@@ -294,6 +295,12 @@ function PaymentStatus({
             <dd>{payment.paymentNo ?? t('unknown')}</dd>
           </div>
         </dl>
+      )}
+      {payment?.paymentId && (
+        <RefundDetails
+          paymentId={payment.paymentId}
+          enabled={enabled && !query.isError}
+        />
       )}
       {!payment && !query.isFetching && !query.isError && <p>{t('unknown')}</p>}
       <button

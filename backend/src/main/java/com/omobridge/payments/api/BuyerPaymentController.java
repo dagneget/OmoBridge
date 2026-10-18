@@ -9,6 +9,7 @@ import com.omobridge.identity.domain.UserRepository;
 import com.omobridge.payments.api.dto.CreatePaymentAttemptRequest;
 import com.omobridge.payments.api.dto.PaymentAttemptResponse;
 import com.omobridge.payments.api.dto.PaymentResponse;
+import com.omobridge.payments.api.dto.PaymentRefundSummaryResponse;
 import com.omobridge.payments.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -100,6 +101,34 @@ public class BuyerPaymentController {
             @PathVariable UUID paymentId, @AuthenticationPrincipal UserPrincipal principal) {
         var response = paymentService.getMyPayment(paymentId, getActorUser(principal).getId());
         return ResponseEntity.ok(ApiResponse.ok(response));
+    }
+
+    @GetMapping("/booking/{bookingId}")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get payment belonging to both the authenticated payer and booking buyer")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Own payment"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Unavailable")
+    })
+    public ResponseEntity<ApiResponse<PaymentResponse>> getPaymentByBookingId(
+            @PathVariable UUID bookingId, @AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                paymentService.getPaymentByBookingId(bookingId, getActorUser(principal).getId())));
+    }
+
+    @GetMapping("/{paymentId}/refunds")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get own payment refund totals and paginated refund records")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Refund summary"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Unavailable")
+    })
+    public ResponseEntity<ApiResponse<PaymentRefundSummaryResponse>> getMyRefunds(
+            @PathVariable UUID paymentId,
+            @ParameterObject @PageableDefault(size = 20, sort = {"createdAt", "id"}, direction = Sort.Direction.DESC)
+            Pageable pageable, @AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                paymentService.getMyRefunds(paymentId, getActorUser(principal).getId(), pageable)));
     }
 
 }

@@ -22,6 +22,11 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
     @EntityGraph(attributePaths = {"order", "booking", "payer"})
     Optional<Payment> findByBookingId(UUID bookingId);
 
+    @EntityGraph(attributePaths = {"order", "booking"})
+    @Query("select p from Payment p where p.booking.id = :bookingId and p.payer.id = :payerId "
+            + "and p.booking.buyer.id = :payerId")
+    Optional<Payment> findByBookingIdAndPayerId(@Param("bookingId") UUID bookingId, @Param("payerId") UUID payerId);
+
     List<Payment> findByPayerIdOrderByCreatedAtDesc(UUID payerId);
 
     @EntityGraph(attributePaths = {"order", "booking"})

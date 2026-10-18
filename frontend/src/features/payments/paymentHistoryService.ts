@@ -52,6 +52,23 @@ export const paymentHistoryService = {
       throw new Error('Invalid payment history');
     return result;
   },
+  async booking(
+    bookingId: string,
+    signal?: AbortSignal,
+  ): Promise<PaymentResponse> {
+    if (!validPaymentId(bookingId)) throw new Error('Payment unavailable');
+    const { data } = await httpClient.get<
+      Schemas['ApiResponsePaymentResponse']
+    >(`/api/v1/payments/booking/${bookingId}`, { signal });
+    if (
+      data.success !== true ||
+      !data.data ||
+      !validRecord(data.data) ||
+      data.data.bookingId !== bookingId
+    )
+      throw new Error('Invalid booking payment');
+    return data.data;
+  },
   async get(id: string, signal?: AbortSignal): Promise<PaymentResponse> {
     if (!validPaymentId(id)) throw new Error('Payment unavailable');
     const { data } = await httpClient.get<

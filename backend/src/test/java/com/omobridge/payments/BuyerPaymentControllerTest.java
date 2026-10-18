@@ -95,9 +95,31 @@ class BuyerPaymentControllerTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"/api/v1/payments", "/api/v1/payments/11111111-1111-4111-8111-111111111111",
-            "/api/v1/payments/order/11111111-1111-4111-8111-111111111111"})
+            "/api/v1/payments/order/11111111-1111-4111-8111-111111111111",
+            "/api/v1/payments/booking/11111111-1111-4111-8111-111111111111",
+            "/api/v1/payments/11111111-1111-4111-8111-111111111111/refunds"})
     void shouldRejectAnonymousPaymentReads(String path) throws Exception {
         mockMvc.perform(get(path)).andExpect(status().isUnauthorized());
         verifyNoInteractions(paymentService);
     }
+    @Test
+    void shouldScopeRefundSummaryToPrincipal() throws Exception {
+        var summary = new com.omobridge.payments.api.dto.PaymentRefundSummaryResponse(paymentId,
+                new BigDecimal("25.00"), "ETB", BigDecimal.ZERO, new BigDecimal("25.00"),
+                com.omobridge.payments.api.dto.PaymentRefundSummaryResponse.Coverage.NONE,
+                com.omobridge.common.response.PageResponse.from(new PageImpl<>(List.of())));
+        when(paymentService.getMyRefunds(eq(paymentId), eq(payerId), any(Pageable.class))).thenReturn(summary);
+        mockMvc.perform(get("/api/v1/payments/" + paymentId + "/refunds").with(authentication(auth())))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.coverage").value("NONE"));
+        verify(paymentService).getMyRefunds(eq(paymentId), eq(payerId), any(Pageable.class));
+    }
+
+    @Test
+    void shouldScopeBookingPaymentToPrincipal() throws Exception {
+        when(paymentService.getPaymentByBookingId(orderId, payerId)).thenReturn(response());
+        mockMvc.perform(get("/api/v1/payments/booking/" + orderId).with(authentication(auth())))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.paymentId").value(paymentId.toString()));
+        verify(paymentService).getPaymentByBookingId(orderId, payerId);
+    }
+
 }

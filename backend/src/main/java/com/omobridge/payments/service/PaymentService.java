@@ -18,6 +18,8 @@ import com.omobridge.payments.api.dto.CreatePaymentAttemptRequest;
 import com.omobridge.payments.api.dto.PaymentAttemptResponse;
 import com.omobridge.payments.api.dto.PaymentReconciliationReport;
 import com.omobridge.payments.api.dto.PaymentResponse;
+import com.omobridge.payments.api.dto.PaymentRefundSummaryResponse;
+import com.omobridge.common.response.PageResponse;
 import com.omobridge.payments.api.dto.RefundRequest;
 import com.omobridge.payments.api.dto.RefundResponse;
 import com.omobridge.payments.domain.CommunityFundEntryType;
@@ -49,6 +51,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 
 @Slf4j
 @Service
@@ -339,6 +342,41 @@ public class PaymentService {
         var payment = paymentRepository.findByIdAndPayerId(paymentId, payerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
         return mapToPaymentResponse(payment);
+    }
+
+    @Transactional(readOnly = true)
+    public PaymentResponse getPaymentByBookingId(UUID bookingId, UUID payerId) {
+        var payment = paymentRepository.findByBookingIdAndPayerId(bookingId, payerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment unavailable"));
+        return mapToPaymentResponse(payment);
+    }
+
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
+    public PaymentRefundSummaryResponse getMyRefunds(UUID paymentId, UUID payerId, Pageable pageable) {
+        var payment = paymentRepository.findByIdAndPayerId(paymentId, payerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment unavailable"));
+        if (pageable.isUnpaged()) {
+            throw new IllegalArgumentException("Refund history must be paginated");
+        }
+        var bounded = PageRequest.of(pageable.getPageNumber(), Math.min(pageable.getPageSize(), 100),
+                Sort.by(Sort.Direction.DESC, "createdAt", "id"));
+        var completed = refundRepository.sumCompletedRefundsByPaymentId(paymentId);
+        var notRefunded = payment.getAmount().subtract(completed);
+        if (notRefunded.signum() < 0) {
+            throw new BusinessRuleException("Refund records exceed the payment amount");
+        }
+        var coverage = completed.signum() == 0 ? PaymentRefundSummaryResponse.Coverage.NONE
+                : notRefunded.signum() == 0 ? PaymentRefundSummaryResponse.Coverage.FULL
+                : PaymentRefundSummaryResponse.Coverage.PARTIAL;
+        var refunds = refundRepository.findByPaymentId(paymentId, bounded).map(this::mapToRefundResponse);
+        return new PaymentRefundSummaryResponse(paymentId, payment.getAmount(), payment.getCurrency(),
+                completed, notRefunded, coverage, PageResponse.from(refunds));
+    }
+
+    private RefundResponse mapToRefundResponse(Refund refund) {
+        return new RefundResponse(refund.getId(), refund.getRefundNo(), refund.getPayment().getId(),
+                refund.getAmount(), refund.getCurrency(), refund.getStatus(),
+                refund.getReason(), refund.getCreatedAt());
     }
 
     @Transactional(readOnly = true)

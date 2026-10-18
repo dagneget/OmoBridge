@@ -1,3 +1,4 @@
+import RefundDetails from '../../features/payments/RefundDetails';
 import { useState } from 'react';
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -531,6 +532,8 @@ export default function BookingConfirmationPage() {
           </div>
         </div>
       </Modal>
+
+      <RefundDetails bookingId={booking.id} />
 
       {/* Telebirr Payment Modal */}
       <TelebirrPaymentModal

@@ -1501,6 +1501,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/payments/{paymentId}/refunds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get own payment refund totals and paginated refund records */
+        get: operations["getMyRefunds"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/payments/order/{orderId}": {
         parameters: {
             query?: never;
@@ -1510,6 +1527,23 @@ export interface paths {
         };
         /** Get payment record for an order */
         get: operations["getPaymentByOrderId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/booking/{bookingId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get payment belonging to both the authenticated payer and booking buyer */
+        get: operations["getPaymentByBookingId"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3588,6 +3622,37 @@ export interface components {
             data?: components["schemas"]["PaymentResponse"];
             /** Format: date-time */
             timestamp?: string;
+        };
+        ApiResponsePaymentRefundSummaryResponse: {
+            success?: boolean;
+            message?: string;
+            data?: components["schemas"]["PaymentRefundSummaryResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        PageResponseRefundResponse: {
+            content?: components["schemas"]["RefundResponse"][];
+            /** Format: int32 */
+            pageNumber?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            isFirst?: boolean;
+            isLast?: boolean;
+        };
+        PaymentRefundSummaryResponse: {
+            /** Format: uuid */
+            paymentId?: string;
+            paymentAmount?: number;
+            currency?: string;
+            completedRefundAmount?: number;
+            notRefundedAmount?: number;
+            /** @enum {string} */
+            coverage?: "NONE" | "PARTIAL" | "FULL";
+            refunds?: components["schemas"]["PageResponseRefundResponse"];
         };
         ApiResponseListOrderSummaryResponse: {
             success?: boolean;
@@ -6434,6 +6499,44 @@ export interface operations {
             };
         };
     };
+    getMyRefunds: {
+        parameters: {
+            query?: {
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
+            };
+            header?: never;
+            path: {
+                paymentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Refund summary */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePaymentRefundSummaryResponse"];
+                };
+            };
+            /** @description Unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePaymentRefundSummaryResponse"];
+                };
+            };
+        };
+    };
     getPaymentByOrderId: {
         parameters: {
             query?: never;
@@ -6447,6 +6550,37 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePaymentResponse"];
+                };
+            };
+        };
+    };
+    getPaymentByBookingId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Own payment */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePaymentResponse"];
+                };
+            };
+            /** @description Unavailable */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
