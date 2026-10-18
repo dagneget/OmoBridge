@@ -23,7 +23,7 @@ import {
   Users,
   AlertCircle,
 } from 'lucide-react';
-import { Button, Card, Skeleton } from '../../components/common';
+import { Button, Card, Skeleton, MapComponent } from '../../components/common';
 import { tourismService } from '../../features/tourism/tourismService';
 import { queryKeys } from '../../services/queryKeys';
 import { formatETB, formatDateTime } from '../../utils/formatters';
@@ -308,6 +308,17 @@ export default function ExperienceDetailsPage() {
                   <p className="leading-relaxed italic">
                     Meeting point coordinates and local certified guide dispatch details are provided upon booking confirmation. Local guides meet visitors at the central community entrance.
                   </p>
+                )}
+
+                {pkg.latitude != null && pkg.longitude != null && (
+                  <div className="pt-2">
+                    <MapComponent
+                      latitude={pkg.latitude}
+                      longitude={pkg.longitude}
+                      title={pkg.name}
+                      address={pkg.locationText}
+                    />
+                  </div>
                 )}
               </div>
             </div>

@@ -173,7 +173,7 @@ Update the counts when you finish a task.
 | FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 7 / 10 |
 | FP2 | Authentication and roles | 9 / 9 |
-| FP3 | Public tourism | 3 / 11 |
+| FP3 | Public tourism | 4 / 11 |
 | FP4 | Bookings | 0 / 5 |
 | FP5 | Catalog, cart, checkout | 0 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **27 / 134** |
+| | **Total** | **28 / 134** |
 
 ### What can run in parallel
 
@@ -406,11 +406,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: all fields render; cultural rules are prominent.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/packageDetails.test.tsx (5/5 passed, 120/120 total), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-304 · Map component** · T1
+- [x] **F-304 · Map component** · T1
   Needs: F-101
   Build: lazy-loaded Leaflet map, marker, "open directions" link, offline-safe fallback when tiles do not load.
   Done when: Leaflet is not in the initial bundle; the fallback shows when offline.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/mapComponent.test.tsx (3/3 passed, 123/123 total), typecheck (clean), lint (clean), build (clean, separate leaflet-vendor chunk)
 
 - [ ] **F-305 · Hotels and resorts** · T1
   Needs: F-302 · Backend: B-303
@@ -1209,6 +1209,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-301 | Completed | HomePage with hero, seed packages from API, role registration cards, language toggle, and offline cache resilience verified |
 | 2026-10-18 | @claude-agent | F-302 | Completed | TourismPage with 7 seed packages, category tabs, real-time search, unit prices, loading/empty/error states verified |
 | 2026-10-18 | @claude-agent | F-303 | Completed | ExperienceDetailsPage with prominent cultural rules, safety notes, story, hours, community consent ref & date, and booking CTA verified |
+| 2026-10-18 | @claude-agent | F-304 | Completed | Lazy-loaded MapComponent with offline fallback, coordinates display, directions link, and code-split leaflet-vendor bundle verified |
 
 ## 12. Change log (requirements)
 
