@@ -175,7 +175,7 @@ Update the counts when you finish a task.
 | FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 8 / 10 |
 | FP2 | Authentication and roles | 9 / 9 |
-| FP3 | Public tourism | 11 / 11 |
+| FP3 | Public tourism | 10 / 11 |
 | FP4 | Bookings | 5 / 5 |
 | FP5 | Catalog, cart, checkout | 6 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
@@ -190,7 +190,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **54 / 134** |
+| | **Total** | **56 / 134** |
 
 ### What can run in parallel
 
@@ -1297,6 +1297,6 @@ Activity: 2026-10-18 · @claude-agent · F-808 · Completed · Unpaid delivery c
 
 ## Integration milestones (outside the 134 feature tasks)
 
-- [~] **I-01 · Publish the four-agent integration baseline**
+- [x] **I-01 · Publish the four-agent integration baseline**
   Owner: @codex · Started: 2026-10-18 · Branch: `integration/four-agent-baseline`
-  Scope: Combine committed primary enterprise/tourism work with the tested Codex feature history; preserve active F-809 changes outside this worktree; reconcile shared contracts/mocks/routes and verify the combined app.
+  Completed: 2026-10-18 · Verified source: `d388615`. Primary cutoff `37dc470` includes F-809/F-810; later agent features remain separate. Frontend 507 tests, typecheck/lint/build and Firefox 360 px keyboard/role checks pass; backend 140 tests pass with an isolated database. See [baseline handoff](frontend-integration-baseline.md).

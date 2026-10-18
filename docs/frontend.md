@@ -381,3 +381,8 @@ F-506 verification: Node 22 typecheck, lint, build and all 336 Vitest tests (42 
 Tracking remains unavailable because the live buyer order contract supplies no tracking token or mapping. Backend payment lookup also lacks ownership enforcement; the UI verifies the order first but cannot secure direct API calls. F-508 remains `[!]` for those integrations. See `frontend/src/features/orders/README.md` for endpoints, query lifecycle and handoff details.
 
 F-508 verification: Node 22 typecheck, lint, build and all 379 Vitest tests (44 files) pass. Firefox exact 360 × 800 CSS viewport verifies keyboard navigation, list/detail loading/empty/error/offline states, snapshots, history, refresh recovery and foreign-order rejection without a payment request; no feature overflow or axe violations including contrast. Seven backend order/checkout tests pass including cross-buyer 404. The complete backend suite still reports 129 tests with four existing errors (three delivery cleanup foreign-key errors and one PostgreSQL container startup failure).
+
+
+### Integrated session startup
+
+`App` and nested checkout/order guards share `useAuthBootstrap`, deduplicating stored-session verification under React StrictMode. Protected dashboard reloads now verify the stored token. Profile responses and HTTP authorization errors from an older token cannot overwrite or expire a newer login. Regression coverage lives in `authBootstrap.test.tsx` and `httpClient.test.ts`. See [integration baseline](frontend-integration-baseline.md) for combined verification and adoption instructions.
