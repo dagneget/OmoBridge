@@ -50,6 +50,7 @@ const LiveTrackingPage = lazy(() => import('../pages/tracking/LiveTrackingPage')
 const EnterpriseDashboardPage = lazy(() => import('../pages/dashboard/EnterpriseDashboardPage'));
 const FarmersManagementPage = lazy(() => import('../pages/dashboard/enterprise/FarmersManagementPage'));
 const PricingManagementPage = lazy(() => import('../pages/dashboard/enterprise/PricingManagementPage'));
+const SupplyIntakePage = lazy(() => import('../pages/dashboard/enterprise/SupplyIntakePage'));
 const FarmerDashboardPage = lazy(() => import('../pages/dashboard/FarmerDashboardPage'));
 const DeliveryDashboardPage = lazy(() => import('../pages/dashboard/DeliveryDashboardPage'));
 const GuideDashboardPage = lazy(() => import('../pages/dashboard/GuideDashboardPage'));
@@ -177,6 +178,14 @@ export default function AppRoutes() {
                 element={
                   <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
                     <PricingManagementPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/supply"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <SupplyIntakePage />
                   </RoleGuard>
                 }
               />
