@@ -505,11 +505,12 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Tests: Node 22 npm run typecheck, npm run lint, npm run build, npm test → passed (131 tests, 26 files; 11 catalog/service cases).
   Blocked: Real-browser 360 px, keyboard, contrast and service-worker offline-after-visit verification pending (no browser runner); backend localhost:8080 unavailable for live integration. Source contract checked. Standalone mock mode also requires earlier commit 519b08f.
 
-- [ ] **F-502 · Product detail** · T1
+- [~] **F-502 · Product detail** · T1
   Needs: F-501, F-507 · Backend: B-704, B-605
   Build: story, price breakdown, producer share, link to the trace page, stock status.
   Done when: all sections render and the trace link works.
-  Owner: —
+  Owner: @codex · Started: 2026-10-18
+  Dependency note: F-501/F-507 implementations included; their real-browser verification remains pending. Public API source and generated types verified; live OpenAPI check attempted.
 
 - [ ] **F-503 · Cart store** · T1
   Needs: F-501
@@ -1257,3 +1258,5 @@ Activity: 2026-10-18 · @codex · F-107 · Implemented; placement and device ver
 
   Verified: @codex · 2026-10-18 · Node 22 typecheck, lint, build and npm test pass (183 tests, 31 files), including install-offer persistence across route navigation. Hotel commit 9702020 included; hotel fixture data preserved with UUID identifiers.
   Blocked: Merge into frontend/full-build waits for the other agent’s uncommitted shared task-board edits. Real-device installation, 360 px keyboard and contrast checks remain pending.
+
+Activity: 2026-10-18 · @codex · F-502 · Claimed · FP5 ownership delegated by user; product detail on isolated branch using existing catalog/pricing implementations.
