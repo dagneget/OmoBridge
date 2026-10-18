@@ -1409,7 +1409,13 @@ export default function ProductionBatchWizardPage() {
                           data-testid={`batch-row-${batch.id}`}
                         >
                           <td className="py-3.5 px-4 font-mono font-bold text-slate-900 dark:text-white">
-                            {batch.batchCode}
+                            <Link
+                              to={`/dashboard/enterprise/production/${batch.id}`}
+                              className="text-emerald-700 dark:text-emerald-400 hover:underline inline-flex items-center gap-1"
+                              data-testid={`batch-link-${batch.id}`}
+                            >
+                              <span>{batch.batchCode}</span>
+                            </Link>
                           </td>
                           <td className="py-3.5 px-4">
                             <span

@@ -753,17 +753,19 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Owner: @antigravity · Completed: 2026-10-18
   Test: `vitest run src/test/productionBatchWizard.test.tsx` (10/10 passed)
 
-- [ ] **F-905 · Batch detail and lifecycle** · T1
+- [x] **F-905 · Batch detail and lifecycle** · T1
   Needs: F-904 · Backend: B-603, B-606
   Build: complete or cancel a batch (explain that cancellation returns stock through reversal records); trace validation view from output back to farmer deliveries.
   Done when: statuses and the trace chain render.
-  Owner: —
+  Owner: @antigravity · Completed: 2026-10-18
+  Test: `vitest run src/test/productionBatchDetail.test.tsx` (9/9 passed)
 
-- [ ] **F-906 · Trace record management** · T1
+- [x] **F-906 · Trace record management** · T1
   Needs: F-905 · Backend: B-605, B-607
   Build: edit the public story, toggle "show farmer names" with an explanation of consent, QR print.
   Done when: the preview matches the public page.
-  Owner: —
+  Owner: @antigravity · Completed: 2026-10-18
+  Test: `vitest run src/test/productionBatchDetail.test.tsx` (9/9 passed)
 
 - [ ] **F-907 · Create product from output** · T1
   Needs: F-905 · Backend: B-702, B-703
