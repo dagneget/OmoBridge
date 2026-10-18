@@ -175,7 +175,7 @@ Update the counts when you finish a task.
 | FP2 | Authentication and roles | 9 / 9 |
 | FP3 | Public tourism | 4 / 11 |
 | FP4 | Bookings | 0 / 5 |
-| FP5 | Catalog, cart, checkout | 1 / 9 |
+| FP5 | Catalog, cart, checkout | 2 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 0 / 10 |
@@ -513,11 +513,13 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Verified: Live OpenAPI fields/path and 404; contract-based populated mock. Firefox exact 360 px viewport: no detail overflow, axe including contrast passes, keyboard Tab/Enter trace navigation works, cached offline and unavailable states render. Loading/error/retry/access and cold offline covered in tests. Public route needs no role guard.
   Scope: Server producer purchase cost displayed without inferred percentage; no authoritative client totals. Empty live catalog means populated UI uses MSW. F-501/F-507 implementations included; their broader outstanding checks remain recorded separately. Primary checkout untouched.
 
-- [~] **F-503 · Cart store** · T1
+- [x] **F-503 · Cart store** · T1
   Needs: F-501
   Build: browser-persisted cart (product ids and quantities only); grouped by seller; revalidate against the server; mark items that became unavailable or changed in price.
   Done when: reload keeps the cart; a removed product is flagged.
-  Owner: @codex · Started: 2026-10-18
+  Done: @codex · 2026-10-18 · Tests: Node 22 typecheck, lint, build, npm test → passed (246 tests, 35 files).
+  Verified: Firefox full reload retained IDs/quantities; network revalidation succeeded; missing product flagged unavailable; logout cleared memory/storage. Built service-worker route test confirms fresh reads bypass the public cache. Store only; screen/360 px/translation/role guard checks do not apply until F-504.
+  Scope: Only IDs and quantities persisted; grouping/stock/price snapshots are server-derived and transient. Historical price changes across reload cannot be detected without persisting prices; first read establishes baseline. Fresh reads use existing HTTP adapter plus no-cache/NetworkOnly after a Firefox fetch-adapter timeout cleanup failure was reproduced and avoided. Account/tab boundaries and overlapping requests tested.
 
 - [ ] **F-504 · Cart page** · T1
   Needs: F-503
@@ -1232,6 +1234,8 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @codex | F-502 | Completed | Product detail, existing price breakdown, encoded trace link and four data states; 202 tests pass; Firefox 360 px/contrast/keyboard checked; live catalog empty. |
 
 | 2026-10-18 | @codex | F-503 | Claimed | Persistent ID/quantity cart with fresh server revalidation; isolated branch. |
+
+| 2026-10-18 | @codex | F-503 | Completed | Persistent cart intent, seller grouping, network revalidation, price/stock/removed flags and account/tab cleanup; 246 tests and Firefox reload smoke pass. |
 
 ## 12. Change log (requirements)
 

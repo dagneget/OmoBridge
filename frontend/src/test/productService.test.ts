@@ -39,3 +39,11 @@ describe('Public product detail service', () => {
     await expect(productService.getProduct('id')).rejects.toThrow('Invalid product detail response');
   });
 });
+
+it('cart validation requests network revalidation without changing the HTTP adapter', async () => {
+  const get = vi.spyOn(httpClient, 'get').mockResolvedValue({ data: { success: true, data: { id: 'id' } } });
+  await productService.getProduct('id', undefined, { fresh: true });
+  expect(get).toHaveBeenCalledWith('/api/v1/public/products/id', {
+    signal: undefined, headers: { 'Cache-Control': 'no-cache' },
+  });
+});

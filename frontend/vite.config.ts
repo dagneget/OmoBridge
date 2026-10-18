@@ -50,6 +50,13 @@ export default defineConfig({
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/, /^\/v3\/api-docs/, /^\/swagger-ui/],
         runtimeCaching: [
+          // Cart revalidation must reach the network, even after a catalog visit.
+          {
+            urlPattern: ({ url, request }) => request.method === 'GET' &&
+              url.pathname.startsWith('/api/v1/public/products') &&
+              (request.cache === 'no-store' || request.headers.get('Cache-Control')?.includes('no-cache') === true),
+            handler: 'NetworkOnly',
+          },
           // 1. Private / transactional data is strictly NetworkOnly
           {
             urlPattern: ({ url }) =>

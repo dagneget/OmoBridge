@@ -1,3 +1,4 @@
+import './features/cart'
 import AppRoutes from './routes'
 import { InstallCard } from './components/pwa'
 

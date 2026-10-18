@@ -2,10 +2,10 @@ import httpClient from '../../services/httpClient';
 import type { ProductResponse, StandardApiResponse } from '../../types/api';
 
 export const productService = {
-  async getProduct(id: string, signal?: AbortSignal): Promise<ProductResponse> {
+  async getProduct(id: string, signal?: AbortSignal, options?: { fresh?: boolean }): Promise<ProductResponse> {
     const response = await httpClient.get<StandardApiResponse<ProductResponse>>(
       `/api/v1/public/products/${encodeURIComponent(id)}`,
-      { signal }
+      { signal, ...(options?.fresh ? { headers: { 'Cache-Control': 'no-cache' } } : {}) }
     );
     const product = response.data.data;
     if (response.data.success === false || !product || typeof product !== 'object' || Array.isArray(product)) {

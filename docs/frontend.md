@@ -115,7 +115,7 @@ frontend/
 
 ### Pricing & Checkout Authority
 - **The backend is the sole authority for money, prices, and stock.**
-- Checkout sends only item UUIDs and integer quantities: `[{ productId, quantity }]`. The client never calculates authoritative totals.
+- Checkout sends only item UUIDs and positive quantities (up to three decimal places): `[{ productId, quantity }]`. The client never calculates authoritative totals.
 - Payments initiate with `POST /api/v1/payments/attempt` supplying an `idempotencyKey`. The UI polls or awaits server-reported payment status.
 
 ### Offline & Queue Scopes
@@ -318,3 +318,21 @@ Node 22 typecheck, lint, build and all 202 frontend tests pass. Firefox at an ex
 360 CSS-pixel viewport passes detail overflow/contrast checks, keyboard trace
 navigation, cached-offline and unavailable states. Live OpenAPI verified; the
 running catalog is empty, so populated detail used contract-based MSW fixtures.
+
+## Cart state (F-503)
+
+The cart feature exports a Zustand store/hook, seller grouping and checkout-intent
+selectors. Only product UUIDs and positive quantities (up to three decimal places)
+are persisted. Server product/price/stock metadata stays in memory. Fresh product
+checks bypass the public service-worker cache, flag removed/unpublished items,
+stock shortages, changed prices/currency and failed checks. No totals are computed.
+Price-change comparison starts with the first server read after each reload.
+
+App startup registers cart logout/account-switch and cross-tab cleanup even before
+the cart screen is visited. Mutations invalidate prior checks; superseded requests
+cannot restore stale eligibility. Checkout must still revalidate and rely on the
+backend for stock and money. Cart controls and screen remain F-504.
+
+[Cart API and integration guide](../frontend/src/features/cart/README.md).
+Node 22 typecheck, lint, build and all 246 tests in 35 files pass. Real Firefox
+reload, fresh validation, removed-product and logout smoke checks pass using MSW.
