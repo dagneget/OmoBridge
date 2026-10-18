@@ -39,7 +39,7 @@ frontend/
 │   │   ├── auth/           # Auth store, login/register forms, guards
 │   │   ├── bookings/       # Booking state and actions
 │   │   ├── cart/           # Multi-seller cart state
-│   │   ├── delivery/       # Location queue, GPS tracker, status updates
+│   │   ├── delivery/       # Provider job queries, GPS tracker, offline location queue, status updates
 │   │   ├── payments/       # Telebirr/CBE payment attempts & polling
 │   │   ├── products/       # Product list and catalog queries
 │   │   ├── supply/         # Supply deliveries, inspections, payables
@@ -105,7 +105,7 @@ frontend/
 | `/dashboard/enterprise/inspection` | `InspectionPage` | `MICRO_ENTERPRISE`, `SYSTEM_ADMIN` | Quality inspection, grading, live sum validation, payable posting |
 | `/dashboard/enterprise/payables` | `FarmerPayablesPage` | `MICRO_ENTERPRISE`, `SYSTEM_ADMIN` | Farmer payables ledger, balance statements, payout disbursements |
 | `/dashboard/enterprise/*` | `EnterpriseDashboardPage` | `MICRO_ENTERPRISE`, `SYSTEM_ADMIN` | Enterprise catch-all module router |
-| `/dashboard/delivery/*` | `DeliveryDashboardPage` | `DELIVERY_PROVIDER`, `SYSTEM_ADMIN` | Assigned jobs, GPS checkpoint logging, offline sync |
+| `/dashboard/delivery/*` | `DeliveryDashboardPage` | `DELIVERY_PROVIDER`, `SYSTEM_ADMIN` | Assigned jobs with status, pickup and drop-off, fee and order count (F-1101); GPS checkpoint logging and offline sync still to come (F-1103/F-1104) |
 | `/dashboard/guide/*` | `GuideDashboardPage` | `TOUR_GUIDE`, `SYSTEM_ADMIN` | Assigned tours, availability sessions, schedule |
 | `/dashboard/admin/*` | `AdminDashboardPage` | `SYSTEM_ADMIN`, `TOURISM_AUTHORITY` | Account verification, approvals, platform oversight |
 
@@ -123,6 +123,12 @@ frontend/
 - **The backend is the sole authority for money, prices, and stock.**
 - Checkout sends only item UUIDs and integer quantities: `[{ productId, quantity }]`. The client never calculates authoritative totals.
 - Payments initiate with `POST /api/v1/payments/attempt` supplying an `idempotencyKey`. The UI polls or awaits server-reported payment status.
+
+### Delivery Provider Identity
+- `GET /api/v1/delivery/providers/{providerId}/jobs` is keyed by `DeliveryProvider.id`, **not** `User.id`.
+- The signed-in provider's own id is read from an optional `deliveryProviderId` on the auth profile (`resolveProviderId` in `features/delivery/providerIdentity.ts`).
+- **Known backend gap F-1101-E1:** `/api/v1/auth/me` returns `UserProfileResponse`, which has no provider field, and there is no `GET /api/v1/delivery/providers/me` route (guides do have `GET /api/v1/tourism/guides/me`). Until the backend supplies it, the provider home shows an explicit "provider profile is not ready" state and makes **no** request. It deliberately does not fall back to the user id, which would 404 and mask the missing contract.
+- Job ownership is enforced server-side (`DeliveryService.getProviderJobs` rejects actors who do not own the provider record). The client never accepts a provider id from the URL or from user input.
 
 ### Offline & Queue Scopes
 - Service worker precaches app shell and fonts.

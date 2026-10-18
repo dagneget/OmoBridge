@@ -183,14 +183,14 @@ Update the counts when you finish a task.
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
-| FP11 | Delivery provider app | 0 / 8 |
+| FP11 | Delivery provider app | 1 / 8 |
 | FP12 | Guide dashboard | 0 / 4 |
 | FP13 | Admin and authority | 0 / 5 |
 | FP14 | Reviews | 0 / 3 |
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **54 / 134** |
+| | **Total** | **55 / 134** |
 
 ### What can run in parallel
 
@@ -853,11 +853,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
 
 ### FP11: Delivery provider app
 
-- [~] **F-1101 · Provider home and job list** · T1
+- [x] **F-1101 · Provider home and job list** · T1
   Needs: F-207 · Backend: B-1003
   Build: assigned jobs with status and pickup and drop-off.
   Done when: only own jobs appear.
-  Owner: @opencode · Started: 2026-10-18
+  Done: @opencode · 2026-10-18 · Tests: `npm test` → 45 files / 256 passed (15 new); `npm run typecheck` and `npm run build` clean. Endpoint `GET /api/v1/delivery/providers/{providerId}/jobs`; ownership enforced server-side, client passes only the session's own provider id. Loading/empty/error/403/offline states covered; axe audit passes. Blocked on backend gap F-1101-E1 for the id itself.
 
 - [ ] **F-1102 · Job detail and status updates** · T1
   Needs: F-1101 · Backend: B-1003
@@ -1231,6 +1231,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 |---|---|---|---|---|
 | 2026-10-18 | — | — | Plan created | 134 tasks across 18 phases |
 | 2026-10-18 | @opencode | F-1101 | Claimed | Provider home and job list. Verified F-207 `RoleGuard` exists, so the dependency is met. Backend gap F-1101-E1 logged: providers cannot self-discover `providerId`. |
+| 2026-10-18 | @opencode | F-1101 | Done | Added `features/delivery` (`deliveryService`, `deliveryStatus`, `providerIdentity`) and rebuilt `DeliveryDashboardPage` with the assigned-jobs list, status filter, and loading/empty/error/403/offline states. i18n keys added under `delivery.*` in `en` and `am`. Tests 45 files / 256 passed (15 new); typecheck, lint and build clean; axe audit passes on the populated screen. The job list is fully wired to the real endpoint but cannot render live data until the backend supplies `deliveryProviderId` (gap F-1101-E1) — the screen shows an explicit "provider profile is not ready" state and deliberately does **not** fall back to `user.id`, which would 404. No shared files changed: the page already existed at `/dashboard/delivery` behind `RoleGuard`. |
 | 2026-10-18 | @claude-agent | F-001 | Completed | Pre-implementation audit completed, decisions logged in ADR-004 |
 | 2026-10-18 | @claude-agent | F-002 | Completed | Tooling baseline, Vitest, testing-library, strict TS, scripts, openapi-typescript verified |
 | 2026-10-18 | @claude-agent | F-003 | Completed | Design tokens, Tailwind v4 import, Ethiopic/Amharic script support, dark/light themes, touch targets verified |
