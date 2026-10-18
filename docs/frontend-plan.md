@@ -1247,3 +1247,7 @@ Activity: 2026-10-18 · @codex · F-507 · Implemented; browser verification pen
 Activity: 2026-10-18 · @codex · F-501 · Implemented; browser/live verification pending · Public product catalog, combined filters, display pagination, stock states and public GET cache path; 131 tests pass. F-304 remains with its existing owner.
 
 Activity: 2026-10-18 · @codex · F-107 · Implemented; placement and device verification pending · Independent PWA install component and handoff; all 136 frontend tests pass.
+
+- [~] **F-INT-001 · Integrate completed frontend support work**
+  Owner: @codex · Started: 2026-10-18
+  Scope: Combine mock fixes, catalog, pricing and install card; mount one install card at the app root; run combined frontend checks. Preserve active hotel work.
