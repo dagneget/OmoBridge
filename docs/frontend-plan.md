@@ -171,11 +171,11 @@ Update the counts when you finish a task.
 | Phase | Area | Done / Total |
 |---|---|---|
 | FP0 | Foundation and audit | 8 / 8 |
-| FP1 | App shell, design system, PWA core | 7 / 10 |
+| FP1 | App shell, design system, PWA core | 8 / 10 |
 | FP2 | Authentication and roles | 9 / 9 |
-| FP3 | Public tourism | 6 / 11 |
+| FP3 | Public tourism | 7 / 11 |
 | FP4 | Bookings | 5 / 5 |
-| FP5 | Catalog, cart, checkout | 2 / 9 |
+| FP5 | Catalog, cart, checkout | 4 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 0 / 10 |
@@ -302,7 +302,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: tests or manual checks show private API responses are never cached and public pages load offline after one visit.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/pwaConfig.test.ts (2/2 passed), sw.js Workbox rules verified with NetworkOnly on auth/payments/orders/delivery and StaleWhileRevalidate on catalog/locales
 
-- [!] **F-107 · Install experience** · T2
+- [x] **F-107 · Install experience** · T2
   Needs: F-105
   Build: capture the install prompt, show a small install card, iOS "Add to Home Screen" instructions, hide when already installed.
   Done when: works in Android Chrome; the card hides after install.
@@ -429,11 +429,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: renders from the API.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/transportPage.test.tsx (7/7 passed), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-307 · Local guides** · T2
+- [x] **F-307 · Local guides** · T2
   Needs: F-302 · Backend: B-307
   Build: list and detail of approved guides (languages, expertise, rate, availability).
   Done when: unapproved guides never appear.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/guidesPage.test.tsx (9/9 passed), typecheck (clean), lint (clean), build (clean)
 
 - [x] **F-308 · Safety, essential information and contact** · T1
   Needs: F-101 · Backend: B-305
@@ -497,7 +497,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
 
 ### FP5: Catalog, cart, checkout
 
-- [!] **F-501 · Product list** · T1
+- [x] **F-501 · Product list** · T1
   Needs: F-006 · Backend: B-704
   Build: published products with filter, search, stock status, pagination.
   Done when: unpublished products never appear.
@@ -543,7 +543,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: countdown and expiry states render correctly.
   Owner: —
 
-- [!] **F-507 · Price transparency component** · T1
+- [x] **F-507 · Price transparency component** · T1
   Needs: F-102, F-104
   Build: reusable breakdown (items, tax, platform fee, delivery fee, total, producer share) used by bookings, products and orders.
   Done when: renders server numbers exactly; no client-side math beyond formatting.
@@ -1240,6 +1240,8 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @codex | F-502 | Completed on isolated branch | 1cfcb73: product detail, price breakdown and trace link; 202 tests, typecheck/lint/build and Firefox 360 px/keyboard/contrast checks pass. Awaiting integration. |
 | 2026-10-18 | @codex | F-503 | Completed on isolated branch | 6ad5b33: persistent cart intent, seller grouping, fresh checks and account cleanup; 246 tests, typecheck/lint/build and Firefox reload/removed-product/logout checks pass. Awaiting integration. |
 | 2026-10-18 | @codex | F-107, F-501, F-507 | Implemented; verification pending | Shared board synchronized from isolated branches; remaining browser/device checks retained as [!], with delivery references. |
+
+| 2026-10-18 | @codex | F-107, F-501, F-507 | Marked [x] at user request | Implementation complete on referenced branches; outstanding verification and merge notes remain applicable. |
 
 ## 12. Change log (requirements)
 
