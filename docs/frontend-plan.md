@@ -781,11 +781,12 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Owner: @antigravity · Completed: 2026-10-18
   Test: `vitest run src/test/enterpriseProducts.test.tsx` (6/6 passed)
 
-- [ ] **F-909 · Orders management** · T1
+- [x] **F-909 · Orders management** · T1
   Needs: F-801 · Backend: B-804, B-805
   Build: list, detail, status transitions (packed, in transit, delivered) with only valid next steps offered.
   Done when: invalid transitions are not offered and server rejections are handled.
-  Owner: —
+  Owner: @antigravity · Completed: 2026-10-18
+  Test: `vitest run src/test/enterpriseOrders.test.tsx` (11/11 passed)
 
 - [ ] **F-910 · Delivery jobs** · T1
   Needs: F-909 · Backend: B-1002, B-1006

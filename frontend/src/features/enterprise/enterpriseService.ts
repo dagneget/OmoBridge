@@ -32,6 +32,7 @@ import type {
   ProductUpdateRequest,
   ProductStockAdjustmentRequest,
   ProductStockMovementResponse,
+  OrderDetailResponse,
 } from '../../types/api';
 
 export const enterpriseService = {
@@ -189,6 +190,29 @@ export const enterpriseService = {
       `/api/v1/enterprises/${enterpriseId}/orders`
     );
     return res.data?.data || (res.data as unknown as OrderSummaryResponse[]) || [];
+  },
+
+  getEnterpriseOrderDetail: async (
+    enterpriseId: string,
+    orderId: string
+  ): Promise<OrderDetailResponse> => {
+    const res = await httpClient.get<StandardApiResponse<OrderDetailResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/orders/${orderId}`
+    );
+    return res.data?.data || (res.data as unknown as OrderDetailResponse);
+  },
+
+  updateOrderStatus: async (
+    enterpriseId: string,
+    orderId: string,
+    newStatus: string,
+    reason?: string
+  ): Promise<OrderDetailResponse> => {
+    const res = await httpClient.patch<StandardApiResponse<OrderDetailResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/orders/${orderId}/status`,
+      { newStatus, reason }
+    );
+    return res.data?.data || (res.data as unknown as OrderDetailResponse);
   },
 
   getEnterpriseLots: async (enterpriseId: string, status?: string): Promise<InventoryLotResponse[]> => {

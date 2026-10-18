@@ -92,6 +92,7 @@ export const queryKeys = {
     farmers: (enterpriseId: string) => [...queryKeys.enterprise.all, 'farmers', enterpriseId] as const,
     deliveries: (enterpriseId: string) => [...queryKeys.enterprise.all, 'deliveries', enterpriseId] as const,
     orders: (enterpriseId: string) => [...queryKeys.enterprise.all, 'orders', enterpriseId] as const,
+    order: (enterpriseId: string, orderId: string) => [...queryKeys.enterprise.all, 'order', enterpriseId, orderId] as const,
     lots: (enterpriseId: string, status?: string) => [...queryKeys.enterprise.all, 'lots', enterpriseId, status || 'all'] as const,
     lot: (enterpriseId: string, lotId: string) => [...queryKeys.enterprise.all, 'lot', enterpriseId, lotId] as const,
     movements: (enterpriseId: string, lotId: string) => [...queryKeys.enterprise.all, 'movements', enterpriseId, lotId] as const,

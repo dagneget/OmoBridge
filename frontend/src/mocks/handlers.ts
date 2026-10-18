@@ -23,6 +23,7 @@ import {
   mockFarmerPayments,
   mockProductionBatches,
   mockEnterpriseProducts,
+  mockOrderDetails,
 } from './fixtures/enterprise';
 
 export const handlers = [
@@ -354,6 +355,77 @@ export const handlers = [
     return HttpResponse.json({
       success: true,
       data: mockEnterpriseOrders,
+    });
+  }),
+
+  http.get('*/api/v1/enterprises/:enterpriseId/orders/:orderId', ({ params }) => {
+    const { orderId } = params;
+    const order = mockOrderDetails[String(orderId)];
+    if (!order) {
+      return HttpResponse.json({ success: false, message: 'Order not found' }, { status: 404 });
+    }
+    return HttpResponse.json({
+      success: true,
+      data: order,
+    });
+  }),
+
+  http.patch('*/api/v1/enterprises/:enterpriseId/orders/:orderId/status', async ({ params, request }) => {
+    const { orderId } = params;
+    const body = (await request.json().catch(() => ({}))) as { newStatus?: string; reason?: string };
+    const order = mockOrderDetails[String(orderId)];
+    if (!order) {
+      return HttpResponse.json({ success: false, message: 'Order not found' }, { status: 404 });
+    }
+
+    const currentStatus = order.status || 'PLACED';
+    const newStatus = body.newStatus;
+    if (!newStatus) {
+      return HttpResponse.json({ success: false, message: 'newStatus is required' }, { status: 400 });
+    }
+
+    const allowedTransitions: Record<string, string[]> = {
+      PLACED: ['PAID', 'CANCELLED'],
+      PAID: ['PACKED', 'CANCELLED'],
+      PACKED: ['IN_TRANSIT', 'CANCELLED'],
+      IN_TRANSIT: ['DELIVERED', 'CANCELLED'],
+      DELIVERED: [],
+      CANCELLED: [],
+    };
+
+    if (!allowedTransitions[currentStatus]?.includes(newStatus)) {
+      return HttpResponse.json(
+        {
+          success: false,
+          message: `Invalid status transition from ${currentStatus} to ${newStatus}`,
+        },
+        { status: 400 }
+      );
+    }
+
+    order.status = newStatus as any;
+    if (!order.statusHistories) {
+      order.statusHistories = [];
+    }
+    order.statusHistories.push({
+      id: `hist-${Date.now()}`,
+      previousStatus: currentStatus as any,
+      newStatus: newStatus as any,
+      changedByUserName: 'Enterprise Manager',
+      reason: body.reason || `Status updated to ${newStatus}`,
+      createdAt: new Date().toISOString(),
+    });
+
+    // Also update mockEnterpriseOrders summary
+    const summaryOrder = mockEnterpriseOrders.find((o) => o.orderId === orderId);
+    if (summaryOrder) {
+      summaryOrder.status = newStatus as any;
+    }
+
+    return HttpResponse.json({
+      success: true,
+      message: `Order status updated to ${newStatus}`,
+      data: order,
     });
   }),
 

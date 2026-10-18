@@ -19,6 +19,7 @@ import {
   Factory,
   Compass,
   CalendarCheck,
+  ShoppingBag,
 } from 'lucide-react';
 import { useAuthStore } from '../../features/auth/authStore';
 import { enterpriseService } from '../../features/enterprise/enterpriseService';
@@ -267,6 +268,14 @@ export default function EnterpriseDashboardPage() {
           >
             <Package className="w-4 h-4" />
             <span>Products</span>
+          </Link>
+          <Link
+            to="/dashboard/enterprise/orders"
+            className="px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5"
+            data-testid="tab-enterprise-orders"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            <span>Orders</span>
           </Link>
           <Link
             to="/dashboard/enterprise/tourism"
