@@ -107,7 +107,7 @@ Existing statuses below are a snapshot, not new claims. The `Needs` column is pr
 | F-606 | Not started | T2 | Refund display | F-508 |
 | F-607 | Not started | T1 | Payment and tracking tests | F-602, F-605 |
 | F-1401 | Done | T2 | Leave a review | F-404, F-508 |
-| F-1402 | Not started | T3 | My reviews | F-1401 |
+| F-1402 | Done | T3 | My reviews | F-1401 |
 | F-1403 | Done | T2 | Review tests | F-1401 |
 | F-1701 | Not started | T1 | Critical-flow component tests | T1 feature tasks |
 | F-1702 | Not started | T2 | Contract tests | F-007 |
@@ -210,3 +210,6 @@ Codex progress update · 2026-10-19: F-1401 claimed in the isolated integration 
 
 
 Codex delivery update · 2026-10-19: F-1401 and F-1403 are complete on `integration/four-agent-baseline` / `354d0db` with backend prerequisite `b431e6b`. All 682 frontend tests, 14 focused backend tests, typecheck/lint/build and 360 px keyboard/axe review checks pass. Next: F-1402 My reviews, which needs an authenticated reviewer-scoped list contract. Preserve OpenCode’s F-605/F-607 dependency and all other active ownership.
+
+
+Codex delivery update · 2026-10-19: F-1402 is complete on `integration/four-agent-baseline` / `b8035a1`, completing FP14. The Account review list uses a real principal-scoped paginated endpoint and regenerated OpenAPI types, including non-public reviews. Validation: 714 frontend tests, 22 focused backend checks, typecheck/lint/build, two-query page budget and 360 px keyboard/privacy/axe checks pass. F-607 remains dependent on OpenCode’s F-605; F-506 expiry and F-508 tracking remain blocked. Next Codex work should focus on available FP17 checks while preserving other agents’ ownership.
