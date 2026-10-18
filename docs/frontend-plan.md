@@ -170,7 +170,7 @@ Update the counts when you finish a task.
 
 | Phase | Area | Done / Total |
 |---|---|---|
-| FP0 | Foundation and audit | 4 / 8 |
+| FP0 | Foundation and audit | 5 / 8 |
 | FP1 | App shell, design system, PWA core | 0 / 10 |
 | FP2 | Authentication and roles | 0 / 9 |
 | FP3 | Public tourism | 0 / 11 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **4 / 134** |
+| | **Total** | **5 / 134** |
 
 ### What can run in parallel
 
@@ -238,11 +238,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: changing an OpenAPI field breaks type check until regenerated.
   Done: @claude-agent · 2026-10-18 · Tests: npm run api:check (clean, 0 drift), vitest run src/test/apiTypes.test.ts (4/4 passed), typecheck (clean)
 
-- [ ] **F-005 · HTTP layer** · T1
+- [x] **F-005 · HTTP layer** · T1
   Needs: F-004 · Backend: B-002, B-003, B-205
   Build: axios instance with base URL and Bearer token; error normalizer for the backend error format; handling for 401, 403, 409, 422, 429; idempotency-key helper; GET-only retry with backoff; request cancellation.
   Done when: unit tests cover each status and the error shape.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/httpClient.test.ts (10/10 passed), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-006 · Server-state layer** · T1
   Needs: F-005
@@ -1186,6 +1186,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-002 | Completed | Tooling baseline, Vitest, testing-library, strict TS, scripts, openapi-typescript verified |
 | 2026-10-18 | @claude-agent | F-003 | Completed | Design tokens, Tailwind v4 import, Ethiopic/Amharic script support, dark/light themes, touch targets verified |
 | 2026-10-18 | @claude-agent | F-004 | Completed | Generated OpenAPI types, typed schema helpers, api:check drift test verified |
+| 2026-10-18 | @claude-agent | F-005 | Completed | Axios HTTP client, token injection, language header, 401/403/409/422/429 normalized, idempotency helper, retry safe |
 
 ## 12. Change log (requirements)
 
