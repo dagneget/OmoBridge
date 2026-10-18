@@ -1016,6 +1016,11 @@ These are design gates, not reasons to discard the plan. Record the final decisi
 
 Activity: 2026-10-18 · @codex · B-FIX-001 · Implemented; verification blocked by three delivery integration setup errors. Focused authorization tests: 9 passed.
 
-- [~] **B-FIX-002 · Delivery integration test cleanup**
+- [!] **B-FIX-002 · Delivery integration test cleanup**
   Owner: @codex · Started: 2026-10-18
-  Scope: Clear dependent payment/review fixtures before delivery tests delete orders; run delivery and full backend suites. Testcontainer data only; no application/schema changes.
+  Scope: Clear dependent payment fixtures before delivery tests delete orders. Testcontainer data only; no application/schema changes.
+  Implemented: Remove community fund, refund, provider event, payment attempt, and payment fixtures in dependency order before order cleanup.
+  Tests: Java 21 ./mvnw -Dtest=BuyerPaymentIntegrationTest,DeliveryAndTrackingIntegrationTest -Dsurefire.runOrder=alphabetical test → 7 passed; reversealphabetical → 7 passed. ReviewsAndAiIntegrationTest alone → 3 passed.
+  Blocked: Full ./mvnw test attempted twice → 138 tests, 0 failures, 1 error each time: ReviewsAndAiIntegrationTest PostgreSQL container startup failed with Docker broken pipe before test execution. Original three delivery cleanup errors are resolved. Migration: none.
+
+Activity: 2026-10-18 · @codex · B-FIX-002 · Delivery cleanup repaired and tested in both class orders; full-suite verification blocked by Docker startup for reviews (which pass in isolation).
