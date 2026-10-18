@@ -27,7 +27,11 @@ import {
   useWakeLock,
   createIdbLocationQueue,
   syncJobLocations,
+  createIdbStatusQueue,
+  syncJobStatuses,
   type LocationQueue,
+  type StatusQueue,
+  type StatusReplayOutcome,
   type CapturedLocation,
 } from '../../../features/delivery';
 import type { DeliveryJobStatus } from '../../../features/delivery';
@@ -239,6 +243,91 @@ export default function ProviderJobDetailPage() {
   }, [refreshQueuedCount]);
 
   // Drain the queue as soon as there is a connection again.
+  /*
+   * F-1105: a status tapped while offline is queued rather than lost. The buttons stay usable
+   * offline precisely so a driver who just dropped the goods is not blocked by a dead network.
+   */
+  const statusQueueRef = useRef<StatusQueue | null>(null);
+  const [statusQueue, setStatusQueue] = useState<StatusQueue | null>(null);
+  const [statusConflicts, setStatusConflicts] = useState<StatusReplayOutcome[]>([]);
+  const [pendingStatusCount, setPendingStatusCount] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    void createIdbStatusQueue().then((created) => {
+      if (cancelled) return;
+      statusQueueRef.current = created;
+      setStatusQueue(created);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const refreshPendingStatuses = useCallback(() => {
+    if (!statusQueue || !jobId) return;
+    void statusQueue.count(jobId).then(setPendingStatusCount);
+  }, [statusQueue, jobId]);
+
+  useEffect(() => {
+    refreshPendingStatuses();
+  }, [refreshPendingStatuses]);
+
+  // Replay queued status changes as soon as there is a connection again.
+  useEffect(() => {
+    if (!statusQueue || !jobId || !isOnline) return;
+    let cancelled = false;
+
+    void syncJobStatuses({
+      queue: statusQueue,
+      jobId,
+      apply: (targetJobId, newStatus, reason) =>
+        deliveryService.updateJobStatus(targetJobId, newStatus, reason).then(() => undefined),
+      refreshJob: async () => {
+        await refetch();
+      },
+    }).then((result) => {
+      if (cancelled) return;
+      setPendingStatusCount(result.remaining);
+      if (result.conflicts.length > 0) {
+        setStatusConflicts(result.conflicts);
+        // The server moved the job without us; adopt whatever it now says.
+        setRejection(
+          result.conflicts
+            .map((c) => (c.kind === 'conflict' ? c.serverMessage : ''))
+            .filter(Boolean)
+            .join(' ')
+        );
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [statusQueue, jobId, isOnline, refetch]);
+
+  const applyOrQueueStatus = useCallback(
+    (nextStatus: DeliveryJobStatus) => {
+      if (!isOnline) {
+        const target = statusQueueRef.current;
+        if (!target || !jobId) return;
+        void target
+          .enqueue(jobId, nextStatus, reason || undefined)
+          .then(() => target.count(jobId))
+          .then(setPendingStatusCount);
+        setNotice(
+          tr('delivery.statusQueued', 'Saved. It will be sent when the connection returns.')
+        );
+        return;
+      }
+      mutation.mutate({ status: nextStatus });
+    },
+    // `tr` is intentionally omitted: it is a fresh closure every render, so including it
+    // would rebuild this callback every render and restart the status replay effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isOnline, jobId, reason, mutation]
+  );
+
   useEffect(() => {
     if (!queue || !jobId || !isOnline) return;
     let cancelled = false;
@@ -536,6 +625,41 @@ export default function ProviderJobDetailPage() {
               {tr('delivery.nextSteps', FALLBACK.nextSteps)}
             </h2>
 
+            {pendingStatusCount > 0 && (
+              <p
+                role="status"
+                data-testid="status-pending-notice"
+                className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-900 dark:text-amber-200"
+              >
+                {tr(
+                  'delivery.statusPendingCount',
+                  '{{count}} change is waiting to be sent.'
+                ).replace('{{count}}', String(pendingStatusCount))}
+              </p>
+            )}
+
+            {statusConflicts.length > 0 && (
+              <div
+                role="alert"
+                data-testid="status-conflict-notice"
+                className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive"
+              >
+                <p className="font-medium">
+                  {tr(
+                    'delivery.statusConflictTitle',
+                    'Some saved changes could not be applied.'
+                  )}
+                </p>
+                <ul className="mt-1 list-disc pl-5 space-y-0.5">
+                  {statusConflicts
+                    .filter((conflict): conflict is Extract<StatusReplayOutcome, { kind: 'conflict' }> => conflict.kind === 'conflict')
+                    .map((conflict) => (
+                      <li key={conflict.id}>{conflict.serverMessage}</li>
+                    ))}
+                </ul>
+              </div>
+            )}
+
             {notice && (
               <p
                 role="status"
@@ -574,7 +698,7 @@ export default function ProviderJobDetailPage() {
                     value={reason}
                     onChange={(event) => setReason(event.target.value)}
                     placeholder={tr('delivery.reasonHint', FALLBACK.reasonHint)}
-                    disabled={isPending || !isOnline}
+                    disabled={isPending}
                     rows={2}
                     data-testid="status-reason"
                     className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
@@ -588,8 +712,8 @@ export default function ProviderJobDetailPage() {
                       <button
                         key={status}
                         type="button"
-                        onClick={() => mutation.mutate({ status })}
-                        disabled={isPending || !isOnline}
+                        onClick={() => applyOrQueueStatus(status)}
+                        disabled={isPending}
                         data-testid={`status-action-${status.toLowerCase()}`}
                         className={`inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium touch-target cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed border ${
                           status === 'DELIVERED'

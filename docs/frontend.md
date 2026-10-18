@@ -106,7 +106,7 @@ frontend/
 | `/dashboard/enterprise/payables` | `FarmerPayablesPage` | `MICRO_ENTERPRISE`, `SYSTEM_ADMIN` | Farmer payables ledger, balance statements, payout disbursements |
 | `/dashboard/enterprise/*` | `EnterpriseDashboardPage` | `MICRO_ENTERPRISE`, `SYSTEM_ADMIN` | Enterprise catch-all module router |
 | `/dashboard/delivery/jobs/:jobId` | `ProviderJobDetailPage` | `DELIVERY_PROVIDER`, `SYSTEM_ADMIN` | Job detail with only the legal next statuses; server-authoritative status updates (F-1102) |
-| `/dashboard/delivery/*` | `DeliveryDashboardPage` | `DELIVERY_PROVIDER`, `SYSTEM_ADMIN` | Assigned jobs with status, pickup and drop-off, fee and order count (F-1101); GPS capture and offline sync still to come (F-1103/F-1104) |
+| `/dashboard/delivery/*` | `DeliveryDashboardPage` | `DELIVERY_PROVIDER`, `SYSTEM_ADMIN` | Assigned jobs with status, pickup and drop-off, fee and order count (F-1101); the detail screen drives status updates, GPS capture and both offline queues (F-1102–F-1105) |
 | `/dashboard/guide/*` | `GuideDashboardPage` | `TOUR_GUIDE`, `SYSTEM_ADMIN` | Assigned tours, availability sessions, schedule |
 | `/dashboard/admin/*` | `AdminDashboardPage` | `SYSTEM_ADMIN`, `TOURISM_AUTHORITY` | Account verification, approvals, platform oversight |
 
@@ -153,12 +153,20 @@ frontend/
 - **"Job already delivered" is a 200 with a stored count of `0`, not an error.** `DeliveryService.ingestLocations` never dedupes, so a non-empty batch that yields `0` can only mean the job is terminal server-side. Those points are dropped and the job is marked finished, otherwise the queue retries forever and never drains. The server's answer wins over the locally known status, because a job can be finished by a dispatcher or the SMS checkpoint fallback while the device is offline.
 - The provider home and the F-1501 sync centre reuse `syncAllJobs`; nothing here is specific to the detail screen.
 
+### Offline Status Queue
+- `features/delivery/statusQueue.ts` and `statusSync.ts` give status changes the same treatment as location points, but the rules differ because a status is an *intent* rather than a measurement.
+- **Status buttons stay enabled offline** (F-1105 changed what F-1102 originally built). A driver who has just dropped the goods is the most likely person to have no signal, and a queued `DELIVERED` is far better than a lost one. The offline notice explains that nothing was sent yet.
+- Changes are replayed **oldest first**, ordered by `queuedAt` (device clock), with insertion order breaking ties. The backend only accepts a transition legal from the job's *current* state, so an out-of-order replay would reject changes that were valid when made.
+- **A rejection is removed, not retried; a transport failure is kept.** A 4xx means the server understood and refused, and a refused transition can never become valid later — the job only moves forward. Keeping it would block every change queued behind it. A network error means the server never had an opinion, so the change survives for the next attempt and replay stops there.
+- Every conflict is shown to the provider using **the server's message and current state** (`role="alert"`), and the job is re-fetched so the screen adopts whatever the job actually became. A dispatcher or the SMS checkpoint fallback moving the job while the device was offline is the common cause.
+- Both queues share one IndexedDB database (`features/delivery/deliveryDb.ts`). They must: IndexedDB refuses to open a database at a lower version than it is already at, so two modules each owning a version would break as soon as one added a store.
+
 ### Offline & Queue Scopes
 - Service worker precaches app shell and fonts.
 - Public GET endpoints use network-first with stale-while-revalidate.
 - Offline mutations are strictly scoped to:
   1. Driver GPS location point collection (`recorded_at` device timestamp).
-  2. Delivery status updates (`PICKED_UP`, `DELIVERED`).
+  2. Delivery status updates — queued and replayed, with conflicts surfaced (F-1105).
 - Payments, bookings, orders, and registrations are **strictly online-only** with helpful offline notices.
 
 ### Styling & Typography

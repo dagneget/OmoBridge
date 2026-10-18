@@ -51,3 +51,15 @@ export {
 export type { LocationQueue, LocationQueueEntry } from './locationQueue';
 export { syncJobLocations, syncAllJobs } from './locationSync';
 export type { LocationSyncResult, LocationBatchUploader } from './locationSync';
+export {
+  createMemoryStatusQueue,
+  createIdbStatusQueue,
+  sortStatusChanges,
+} from './statusQueue';
+export type { StatusQueue, QueuedStatusChange } from './statusQueue';
+export { syncJobStatuses, syncAllJobStatuses } from './statusSync';
+export type {
+  StatusSyncResult,
+  StatusReplayOutcome,
+  StatusChangeApplier,
+} from './statusSync';

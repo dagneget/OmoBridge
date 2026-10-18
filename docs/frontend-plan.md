@@ -183,14 +183,14 @@ Update the counts when you finish a task.
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
-| FP11 | Delivery provider app | 4 / 8 |
+| FP11 | Delivery provider app | 5 / 8 |
 | FP12 | Guide dashboard | 0 / 4 |
 | FP13 | Admin and authority | 0 / 5 |
 | FP14 | Reviews | 0 / 3 |
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **58 / 134** |
+| | **Total** | **59 / 134** |
 
 ### What can run in parallel
 
@@ -877,11 +877,15 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: a test goes offline, records points, reconnects and uploads them in order.
   Done: @opencode · 2026-10-18 · Tests: `npm test` → 50 files / 316 passed (15 new); `npm run typecheck`, `oxlint` and `npm run build` clean. Required scenario covered: points enqueued out of order while offline are uploaded in `recordedAt` order on reconnect. IndexedDB adapter with a compound `(jobId, recordedAt)` index; batches capped at 50 client-side because the backend has no size cap or rate limiter. "Job already delivered" is handled as the backend's HTTP 200 + stored count 0, which can only mean the job is terminal server-side, so those points are dropped instead of retried forever. **Not covered:** the IndexedDB adapter itself, because jsdom lacks IndexedDB and `fake-indexeddb` needs a package change — requested from Codex in `docs/handoffs/F-1104.md`.
 
-- [ ] **F-1105 · Offline status queue** · T2
+- [x] **F-1105 · Offline status queue** · T2
   Needs: F-1102
   Build: queue status updates while offline; on reconnect, apply and show conflicts using the server's current state.
   Done when: a rejected queued update is shown to the provider.
-  Owner: —
+  Done: @opencode · 2026-10-18 · Tests: `npm test` → 52 files / 332 passed (10 new); typecheck, lint, build ✓
+  Notes: status buttons are now **enabled offline** and queue locally (F-1102 previously disabled
+  them); its test was updated to match. A rejection is dropped and surfaced using the server's own
+  message and current job state; a transport failure stays queued. See `docs/frontend.md`
+  §Offline Status Queue.
 
 - [ ] **F-1106 · SMS checkpoint fallback** · T2
   Needs: F-1102 · Backend: B-1107
@@ -1310,3 +1314,4 @@ Activity: 2026-10-18 · @claude-agent · F-808 · Completed · Unpaid delivery c
 | 2026-10-18 | @opencode | F-1103 | Done | Added `features/delivery/locationCapture.ts` (a framework-agnostic capture engine) and `useLocationCapture.ts` (permission state, screen wake lock, capture lifecycle), plus a Location sharing card on the provider job screen. Points match the backend `LocationIngestionRequest` and carry the device clock, which is what the server sorts replayed batches by. `watchPosition` has no interval, so accepted fixes are throttled to one per 30 s with `enableHighAccuracy: false` — the explicit battery requirement. Impossible GPS jumps, non-finite and out-of-range coordinates, and replayed fixes are dropped. Capture is offered only while the job is active and the watch is torn down on a terminal status. In-memory only; F-1104 owns the IndexedDB queue and upload. Tests 49 files / 301 passed (21 new); typecheck, lint, build clean. |
 | 2026-10-18 | @opencode | F-1104 | Done | Added `features/delivery/locationQueue.ts` (queue interface, IndexedDB + in-memory adapters) and `locationSync.ts`, plus `deliveryService.ingestLocations`. Design was taken from reading the backend rather than assumed: `ingestLocations` never dedupes and returns the stored count, and returns 0 with HTTP 200 for a DELIVERED/CANCELLED job — so a non-empty batch yielding 0 can only mean the job is terminal server-side. Those points are dropped and the job is marked finished, which is what stops the queue retrying forever when a dispatcher or the SMS fallback closes a job while the device is offline. Batches are capped at 50 on the client because the server has no size cap and no rate limiter. Failed requests keep their points; a mid-sync failure keeps only the un-sent batches. Capture now feeds the queue through an `onPoint` sink instead of accumulating in memory. Tests 50 files / 316 passed (15 new). Not covered: the IndexedDB adapter, since jsdom has no IndexedDB and `fake-indexeddb` requires a package change — requested from Codex. |
 | 2026-10-18 | @opencode | F-1107 | Blocked | Wrote `e2e/provider-offline.spec.ts` and `playwright.config.ts` for the browser-level offline scenario, but `@playwright/test` is not installed and is in no agent's allocation, so the spec has never run. Marked `[!]` rather than done. Delivered a runnable equivalent, `src/test/providerOfflineSync.test.tsx` (6 tests, 51 files / 322 total passing), which drives the real component, queue and service and asserts the real axios request bodies: out-of-order offline points upload in `recordedAt` order, a 120-point backlog splits 50/50/20 and arrives chronological, a 5xx keeps the point queued for replay, and the server's `stored: 0` discards without retrying. Fixed a data-loss bug found on the way: `ingestLocations` coerced a missing response field to `0`, which the sync layer reads as "job finished", so any malformed 200 would have deleted a provider's queued history — it now throws. Excluded the e2e files from tsconfig so the build stays green until the dependency exists. |
+| 2026-10-18 | @opencode | F-1105 | Done | Added `features/delivery/statusQueue.ts` + `statusSync.ts` and extracted `deliveryDb.ts` so both queues share one IndexedDB database — they must, because IndexedDB refuses to open a database at a lower version than it is already at. The rule that shapes this feature: **a rejection is dropped, a transport failure is kept.** A 4xx means the server understood and refused, and a refused transition can never become valid later (the job only moves forward), so keeping it would block every change queued behind it; a network error means the server never had an opinion, so it survives and replay stops there. Changes replay oldest-first by `queuedAt` because the backend only accepts a transition legal from the job's current state. Every conflict is shown with the server's own message and the job is re-fetched, so a dispatcher moving the job while the device was offline is visible rather than silent. Deliberate behaviour change: status buttons are now **enabled offline** and queue locally — a driver who has just dropped the goods is the most likely person to have no signal — so F-1102's test asserting they were disabled was updated to assert queuing instead. Tests 52 files / 332 passed (10 new); typecheck, lint, build clean. |

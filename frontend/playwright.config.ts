@@ -13,6 +13,13 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './e2e',
+  /*
+   * `*.e2e.ts` rather than `*.spec.ts`: Vitest's default `include` matches `**/*.spec.ts`, so a
+   * Playwright spec in this directory would be picked up by `npm test` and fail on the missing
+   * `@playwright/test` import. Using an explicit suffix keeps the e2e specs out of the unit
+   * run without touching vite.config.ts, which is a shared build file.
+   */
+  testMatch: '**/*.e2e.ts',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,

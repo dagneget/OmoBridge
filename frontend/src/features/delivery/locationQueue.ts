@@ -1,5 +1,4 @@
-import { openDB, type IDBPDatabase } from 'idb';
-
+import { openDeliveryDb, LOCATION_STORE, isIndexedDbAvailable, prefixRange } from './deliveryDb';
 import type { CapturedLocation } from './locationCapture';
 
 /**
@@ -102,28 +101,6 @@ export function createMemoryLocationQueue(): LocationQueue {
   };
 }
 
-const DB_NAME = 'omobridge-delivery';
-const STORE_NAME = 'locationQueue';
-const DB_VERSION = 1;
-
-function isIndexedDbAvailable(): boolean {
-  try {
-    return typeof indexedDB !== 'undefined' && indexedDB !== null;
-  } catch {
-    return false;
-  }
-}
-
-async function openQueueDb(): Promise<IDBPDatabase> {
-  return openDB(DB_NAME, DB_VERSION, {
-    upgrade(db) {
-      if (db.objectStoreNames.contains(STORE_NAME)) return;
-      const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-      store.createIndex('by-job-recorded', ['jobId', 'recordedAt']);
-    },
-  });
-}
-
 /**
  * IndexedDB-backed queue.
  *
@@ -135,20 +112,20 @@ export async function createIdbLocationQueue(): Promise<LocationQueue> {
     return createMemoryLocationQueue();
   }
 
-  const db = await openQueueDb();
+  const db = await openDeliveryDb();
 
   const listForJob = async (jobId: string): Promise<LocationQueueEntry[]> => {
     // The compound index is (jobId, recordedAt), so a bounded range scan returns this job's
     // points already ordered by device timestamp.
-    const range = IDBKeyRange.bound([jobId, ''], [jobId, '\uffff']);
-    const entries = (await db.getAllFromIndex(STORE_NAME, 'by-job-recorded', range)) as LocationQueueEntry[];
+    const range = prefixRange(jobId);
+    const entries = (await db.getAllFromIndex(LOCATION_STORE, 'by-job-recorded', range)) as LocationQueueEntry[];
     // sortQueueEntries adds the id tie-break for equal timestamps.
     return sortQueueEntries(entries);
   };
 
   const remove = async (ids: number[]): Promise<void> => {
     if (ids.length === 0) return;
-    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const tx = db.transaction(LOCATION_STORE, 'readwrite');
     await Promise.all(ids.map((id) => tx.store.delete(id)));
     await tx.done;
   };
@@ -157,7 +134,7 @@ export async function createIdbLocationQueue(): Promise<LocationQueue> {
     async enqueue(jobId, points) {
       if (points.length === 0) return;
       const queuedAt = new Date().toISOString();
-      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const tx = db.transaction(LOCATION_STORE, 'readwrite');
       await Promise.all(
         points.map((point) =>
           tx.store.add({
@@ -175,16 +152,12 @@ export async function createIdbLocationQueue(): Promise<LocationQueue> {
     remove,
 
     async count(jobId) {
-      if (!jobId) return db.count(STORE_NAME);
-      return db.countFromIndex(
-        STORE_NAME,
-        'by-job-recorded',
-        IDBKeyRange.bound([jobId, ''], [jobId, '\uffff'])
-      );
+      if (!jobId) return db.count(LOCATION_STORE);
+      return db.countFromIndex(LOCATION_STORE, 'by-job-recorded', prefixRange(jobId));
     },
 
     async jobIds() {
-      const tx = db.transaction(STORE_NAME, 'readonly');
+      const tx = db.transaction(LOCATION_STORE, 'readonly');
       const keys = await tx.store.index('by-job-recorded').getAllKeys();
       await tx.done;
       return [...new Set((keys as [string, string][]).map((key) => key[0]))];

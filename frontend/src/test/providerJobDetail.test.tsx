@@ -298,8 +298,14 @@ describe('Provider job detail and status updates (F-1102)', () => {
       expect(spy).not.toHaveBeenCalled();
     });
 
-    it('keeps a cached job visible but blocks status changes while offline', async () => {
+    /*
+     * F-1105 changed this deliberately: a status tapped with no connection is queued rather than
+     * blocked, because a driver who has just dropped the goods is the most likely person to be
+     * offline. The offline notice still explains that nothing was sent.
+     */
+    it('keeps a cached job visible and queues a status change made offline', async () => {
       vi.spyOn(deliveryService, 'getProviderJobs').mockResolvedValue([makeJob()]);
+      const update = vi.spyOn(deliveryService, 'updateJobStatus');
 
       renderDetail();
       await waitFor(() => expect(screen.getByTestId('status-action-picked_up')).toBeInTheDocument());
@@ -307,13 +313,18 @@ describe('Provider job detail and status updates (F-1102)', () => {
       onlineSpy.value = false;
       window.dispatchEvent(new Event('offline'));
 
-      // The provider keeps context, is told why updates are blocked, and cannot act.
       expect(await screen.findByTestId('offline-notice')).toBeInTheDocument();
       expect(screen.getByText('Banna co-op store')).toBeInTheDocument();
+
+      // The action stays available and is stored locally instead of sent.
       await waitFor(() =>
-        expect(screen.getByTestId('status-action-picked_up')).toBeDisabled()
+        expect(screen.getByTestId('status-action-picked_up')).not.toBeDisabled()
       );
-      expect(screen.getByTestId('status-reason')).toBeDisabled();
+      fireEvent.click(screen.getByTestId('status-action-picked_up'));
+      expect(await screen.findByTestId('status-pending-notice')).toHaveTextContent(
+        '1 change is waiting to be sent'
+      );
+      expect(update).not.toHaveBeenCalled();
     });
 
     it('explains the missing provider id rather than requesting a job (gap F-1101-E1)', async () => {
