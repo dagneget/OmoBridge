@@ -615,11 +615,18 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   gap F-604-E1. Live update, lost connection and invalid token are all covered by tests, as the
   done-when requires.
 
-- [ ] **F-605 · Tracking from order detail** · T1
+- [!] **F-605 · Tracking from order detail** · T1
   Needs: F-604, F-508 · Backend: B-1005
   Build: the buyer opens tracking from their order.
   Done when: the link appears only for orders with a delivery job.
-  Owner: —
+  Assessed: @opencode · 2026-10-19
+  **Blocked on the backend (gap F-508-T1).** The done-when is conditional — show the link only for orders with a
+  delivery job — but `OrderDetailResponse` carries no tracking reference *and* no delivery job id, so there is
+  nothing to make that condition on. Any link shown would have to be guessed at, and a tracking URL built from a
+  guessed token 404s or, worse, points at another buyer's delivery. The buyer-to-delivery mapping does not exist
+  server-side (`Order` has no delivery job relation reachable from the buyer-facing endpoint), so this needs a
+  backend field before it is a frontend task. F-604's tracking page is ready and takes a token the moment one is
+  exposed; regenerating types then wiring the link is the remaining work.
 
 - [ ] **F-606 · Refund display** · T2
   Needs: F-508 · Backend: B-905
