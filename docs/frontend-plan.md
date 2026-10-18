@@ -173,7 +173,7 @@ Update the counts when you finish a task.
 | FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 7 / 10 |
 | FP2 | Authentication and roles | 9 / 9 |
-| FP3 | Public tourism | 1 / 11 |
+| FP3 | Public tourism | 2 / 11 |
 | FP4 | Bookings | 0 / 5 |
 | FP5 | Catalog, cart, checkout | 0 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **25 / 134** |
+| | **Total** | **26 / 134** |
 
 ### What can run in parallel
 
@@ -394,11 +394,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: renders with seed data and offline after one visit.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/homePage.test.tsx (3/3 passed, 110/110 total), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-302 · Service packages list** · T1
+- [x] **F-302 · Service packages list** · T1
   Needs: F-006 · Backend: B-302
   Build: list of packages with name, category icon and price with its unit (for example per person, per day); filter by category; search; skeletons and empty state.
   Done when: seed packages (ukuli bula ceremony, village visit, camping, evangadi dance, long hike with local guide, cow bleeding ceremony, photography) appear with their prices.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/tourismPackagesList.test.tsx (5/5 passed, 115/115 total), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-303 · Package detail** · T1
   Needs: F-302 · Backend: B-302, B-305
@@ -1207,6 +1207,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-209 | Completed | JoinPage with role registration cards (producer, enterprise, courier, guide, buyer), USSD notice, and 360px viewport responsiveness verified |
 | 2026-10-18 | @claude-agent | F-208 | Completed | AccountPage with profile view, language preference persistence, linked enterprise & farmer profiles verified; FP2 100% completed |
 | 2026-10-18 | @claude-agent | F-301 | Completed | HomePage with hero, seed packages from API, role registration cards, language toggle, and offline cache resilience verified |
+| 2026-10-18 | @claude-agent | F-302 | Completed | TourismPage with 7 seed packages, category tabs, real-time search, unit prices, loading/empty/error states verified |
 
 ## 12. Change log (requirements)
 
