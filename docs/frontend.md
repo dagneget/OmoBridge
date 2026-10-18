@@ -69,11 +69,18 @@ frontend/
 
 ---
 
-## 3. Routes & Roles Matrix
-
 | Route Path | Page Component | Access / Roles | Description |
 |---|---|---|---|
 | `/` | `HomePage` | Public | Hero, featured tourism, catalog highlights, value prop |
+| `/join`, `/register` | `JoinPage` | Public | Role selector cards (Farmer, Enterprise, Courier, Guide, Buyer) |
+| `/login`, `/auth/login` | `LoginPage` | Public | Sign in with phone and password, throttling countdown |
+| `/register/buyer` | `RegisterBuyerPage` | Public | Buyer & eco-tourist instant registration |
+| `/register/producer` | `RegisterProducerPage` | Public | Rural producer / farmer registration with USSD guidance |
+| `/register/enterprise` | `RegisterEnterprisePage` | Public | Micro-enterprise cooperative onboarding |
+| `/register/delivery` | `RegisterDeliveryPage` | Public | Delivery courier onboarding with vehicle and route corridor |
+| `/register/guide` | `RegisterGuidePage` | Public | Certified tour guide registration with languages and rate |
+| `/account` | `AccountPage` | Authenticated | Profile details, language preference persistence, linked profiles |
+| `/forbidden` | `ForbiddenPage` | Public / Authenticated | 403 Forbidden screen, role switcher, back to dashboard |
 | `/tourism` | `TourismPage` | Public | Tourism experiences, packages, culture guide |
 | `/experiences/:id` | `ExperienceDetailsPage` | Public | Tour package detail, story, price breakdown, sessions |
 | `/hotels` | `HotelsPage` | Public | Verified lodge and hotel listings in South Omo |
@@ -88,15 +95,13 @@ frontend/
 | `/track/:token` | `LiveTrackingPage` | Public | Live GPS route tracking with polling fallback |
 | `/trace/:token` | `PublicTracePage` | Public | QR batch origin story, farmer consent, lab purity |
 | `/design-tokens` | `DesignTokensPage` | Public | Design tokens showcase, themes, Amharic rendering |
-| `/login` | `LoginPage` | Public | Sign in with phone/email and password |
-| `/auth/register/producer` | `RegisterProducerPage` | Public | Rural producer / farmer registration |
-| `/auth/register/enterprise` | `RegisterEnterprisePage` | Public | Cooperative or tourism enterprise onboarding |
-| `/auth/register/delivery` | `RegisterDeliveryPage` | Public | Delivery provider registration |
-| `/dashboard/farmer` | `FarmerDashboard` | `PRODUCER` | Delivered crops, balance statement, USSD guide |
-| `/dashboard/enterprise` | `EnterpriseDashboard` | `ENTERPRISE` | Supply deliveries, inventory lots, payments, reports |
-| `/dashboard/delivery` | `DeliveryDashboard` | `DELIVERY_PROVIDER` | Assigned jobs, GPS checkpoint logging, offline sync |
-| `/dashboard/guide` | `GuideDashboard` | `TOUR_GUIDE` | Assigned tours, availability sessions, schedule |
-| `/dashboard/admin` | `AdminDashboard` | `ADMIN` | Account verification, approvals, platform oversight |
+| `/offline` | `OfflinePage` | Public | Offline fallback screen when uncached route requested |
+| `/dashboard` | `DashboardIndexRedirect`| Authenticated | Redirects to default dashboard for active role |
+| `/dashboard/farmer/*` | `FarmerDashboardPage` | `PRODUCER_FARMER`, `SYSTEM_ADMIN` | Delivered crops, balance statement, USSD guide |
+| `/dashboard/enterprise/*` | `EnterpriseDashboardPage` | `MICRO_ENTERPRISE`, `SYSTEM_ADMIN` | Supply deliveries, inventory lots, payments, reports |
+| `/dashboard/delivery/*` | `DeliveryDashboardPage` | `DELIVERY_PROVIDER`, `SYSTEM_ADMIN` | Assigned jobs, GPS checkpoint logging, offline sync |
+| `/dashboard/guide/*` | `GuideDashboardPage` | `TOUR_GUIDE`, `SYSTEM_ADMIN` | Assigned tours, availability sessions, schedule |
+| `/dashboard/admin/*` | `AdminDashboardPage` | `SYSTEM_ADMIN`, `TOURISM_AUTHORITY` | Account verification, approvals, platform oversight |
 
 ---
 
