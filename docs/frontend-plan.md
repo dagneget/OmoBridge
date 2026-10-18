@@ -528,11 +528,14 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: countdown and expiry states render correctly.
   Owner: —
 
-- [ ] **F-507 · Price transparency component** · T1
+- [!] **F-507 · Price transparency component** · T1
   Needs: F-102, F-104
   Build: reusable breakdown (items, tax, platform fee, delivery fee, total, producer share) used by bookings, products and orders.
   Done when: renders server numbers exactly; no client-side math beyond formatting.
-  Owner: —
+  Owner: @codex · Started: 2026-10-18
+  Implemented: Generated-type product/booking/order component; server amounts only; local English/Amharic namespace; loading/empty/error/offline states; semantic description lists.
+  Tests: Node 22 npm run typecheck, npm run lint, npm run build, npm test → passed (119 tests, 23 files; 9 price component cases).
+  Blocked: Real-browser 360 px, keyboard reading order, zoom and contrast verification remain pending; no browser runner installed. Automated axe checks pass with color contrast excluded. No route/layout changes.
 
 - [ ] **F-508 · My orders** · T1
   Needs: F-506 · Backend: B-805, B-804
@@ -1230,3 +1233,5 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
   Scope: frontend/src/mocks/ and mswMocks.test.ts; align login/me roles, tourism transport/sessions, UUID fixtures and detail 404 behavior. No page/route changes.
 
 Activity: 2026-10-18 · @codex · F-FIX-001 · Completed · Login/me contracts and canonical roles, public catalog/transport paths, UUID fixtures, session date filtering, detail 404s, browser worker and developer handoff; 128 frontend tests pass.
+
+Activity: 2026-10-18 · @codex · F-507 · Implemented; browser verification pending · PriceBreakdown ready for product, booking and order integration; frontend checks and all 119 tests pass.

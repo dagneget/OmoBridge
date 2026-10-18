@@ -258,3 +258,16 @@ this fix does not certify their response contracts or financial behavior.
 Verification commands (Node 22): `npm run typecheck`, `npm run lint`,
 `npm run build`, then `npm test`. Browser interaction and visual/accessibility
 checks remain the responsibility of the screen tasks consuming these mocks.
+
+## Price transparency component (F-507)
+
+`frontend/src/components/pricing` exports `PriceBreakdown` and its props. It
+accepts generated product breakdown, booking, and order responses; displays only
+server amounts; and never sums costs or multiplies quantities. Component-local
+English and Amharic strings avoid edits to shared page locales. See
+[usage and integration details](../frontend/src/components/pricing/README.md).
+
+Loading, empty, error, and offline-with-data states are covered by component
+tests, along with server-total preservation and semantic accessibility. No route
+or existing screen is changed. Browser layout/contrast and 360 px verification
+remain pending because this environment has no browser runner installed.
