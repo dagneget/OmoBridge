@@ -1,0 +1,77 @@
+import { http, HttpResponse } from 'msw';
+import type { CheckoutRequest, CheckoutResponse } from '../types/api';
+import { mockUsers, createMockAuthResponse } from './fixtures/users';
+
+// Deliberately fixed demo scenario: one honey unit. No production totals are calculated here.
+export const mockCheckout: CheckoutResponse = {
+  checkoutGroupId: 'aaaa0000-0000-4000-8000-000000000001',
+  groupNo: 'CHK-DEMO-001',
+  status: 'CREATED',
+  totalAmount: 470,
+  currency: 'ETB',
+  orders: [
+    {
+      orderId: 'aaaa0000-0000-4000-8000-000000000002',
+      orderNo: 'ORD-DEMO-001',
+      enterpriseId: '11111111-1111-4111-8111-000000000001',
+      enterpriseName: 'South Omo Beekeeping Union',
+      status: 'PLACED',
+      subtotal: 420,
+      tax: 15,
+      platformFee: 35,
+      deliveryFee: 0,
+      totalAmount: 470,
+      currency: 'ETB',
+      itemCount: 1,
+      createdAt: '2026-10-18T10:00:00Z',
+    },
+  ],
+};
+const confirmed = new Map<string, CheckoutResponse>();
+export const checkoutHandler = http.post(
+  '*/api/v1/checkout',
+  async ({ request }) => {
+    const user = Object.values(mockUsers).find(
+      (candidate) =>
+        request.headers.get('Authorization') ===
+        `Bearer ${createMockAuthResponse(candidate).accessToken}`,
+    );
+    if (!user)
+      return HttpResponse.json(
+        { message: 'Authentication required' },
+        { status: 401 },
+      );
+    const body = (await request.json()) as CheckoutRequest;
+    if (
+      !body?.idempotencyKey ||
+      !body.deliveryAddress?.trim() ||
+      !body.deliveryPhone?.trim()
+    )
+      return HttpResponse.json(
+        { message: 'Delivery details required' },
+        { status: 400 },
+      );
+    const key = `${user.id}:${body.idempotencyKey}`;
+    const previous = confirmed.get(key);
+    if (previous)
+      return HttpResponse.json(
+        { success: true, data: previous },
+        { status: 201 },
+      );
+    if (
+      body.items?.length !== 1 ||
+      body.items[0].productId !== 'ffffffff-ffff-4fff-8fff-000000000001' ||
+      body.items[0].quantity !== 1
+    ) {
+      return HttpResponse.json(
+        { message: 'Demo checkout supports one honey unit only' },
+        { status: 422 },
+      );
+    }
+    confirmed.set(key, mockCheckout);
+    return HttpResponse.json(
+      { success: true, data: mockCheckout },
+      { status: 201 },
+    );
+  },
+);

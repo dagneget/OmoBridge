@@ -57,12 +57,19 @@ export default defineConfig({
               (request.cache === 'no-store' || request.headers.get('Cache-Control')?.includes('no-cache') === true),
             handler: 'NetworkOnly',
           },
+          // Checkout mutations always bypass runtime caches.
+          {
+            urlPattern: ({ url }) => url.pathname === '/api/v1/checkout',
+            handler: 'NetworkOnly',
+            method: 'POST',
+          },
           // 1. Private / transactional data is strictly NetworkOnly
           {
             urlPattern: ({ url }) =>
               url.pathname.startsWith('/api/v1/auth') ||
               url.pathname.startsWith('/api/v1/payments') ||
               url.pathname.startsWith('/api/v1/orders') ||
+              url.pathname.startsWith('/api/v1/checkout') ||
               url.pathname.startsWith('/api/v1/bookings') ||
               url.pathname.startsWith('/api/v1/delivery') ||
               url.pathname.startsWith('/api/v1/enterprise') ||

@@ -351,3 +351,11 @@ English/Amharic and all data states are covered. All 267 tests in 36 files pass,
 plus typecheck/lint/build. Firefox 360 px checks pass for overflow, contrast,
 keyboard add/edit/remove/clear, loading, empty, error/recovery and offline behavior.
 See [cart integration guide](../frontend/src/features/cart/README.md).
+
+## F-505 checkout implementation (isolated branch)
+
+`features/checkout` now supplies the authenticated `/checkout` form, address/phone/notes, optional map pin with keyboard coordinates, fresh cart validation, per-item availability errors and a server-confirmed multi-seller summary. Order requests use generated OpenAPI types and a body idempotency key. Ambiguous retries freeze the payload and reuse that key; account changes discard stale responses. Checkout GET/POST bypass service-worker caches. No client totals are authoritative.
+
+The page starts stored-session verification locally where needed; shared startup/layout files were left untouched. See `frontend/src/features/checkout/README.md` for the fixed MSW demo scenario, in-memory retry lifetime and F-506 handoff. Backend idempotency ownership and structured stock-error gaps are recorded in the task board. This branch remains isolated pending integration with the other frontend agent's work.
+
+F-505 verification: Node 22 typecheck, lint, build and all 300 Vitest tests (39 files) pass. Firefox at an exact 360 × 800 CSS viewport verifies keyboard delivery entry, coordinates, submit/retry, all data states, same-payload retry and confirmed cart cleanup; no feature overflow or axe violations including contrast. Backend suite: 129 tests, zero assertion failures, four errors (three delivery cleanup foreign-key errors and one PostgreSQL container startup error). No backend changes.

@@ -175,7 +175,7 @@ Update the counts when you finish a task.
 | FP2 | Authentication and roles | 9 / 9 |
 | FP3 | Public tourism | 4 / 11 |
 | FP4 | Bookings | 0 / 5 |
-| FP5 | Catalog, cart, checkout | 5 / 9 |
+| FP5 | Catalog, cart, checkout | 6 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 0 / 10 |
@@ -529,11 +529,14 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Verified: Product-detail add controls; seller groups; fractional quantity/save drafts; remove/clear/focus; price/stock/unavailable warnings; all four states; English/Amharic fallback. Firefox exact 360 px viewport has no cart overflow or axe violations including contrast; keyboard add/edit/remove/clear works; loading, empty, error/recovery and offline states exercised. Live OpenAPI rechecked; populated UI uses contract-based MSW. Public local cart needs no role guard.
   Delivery: feat/cart-page (isolated branch, awaiting merge). Checkout navigation points to the existing route; order creation remains F-505. No authoritative totals are computed.
 
-- [~] **F-505 · Checkout** · T1
+- [x] **F-505 · Checkout** · T1
   Needs: F-504, F-207 · Backend: B-802, B-205
   Build: delivery address with a map pin, contact details; submit only product ids and quantities with an idempotency key; show insufficient-stock errors per item; all-or-nothing behavior.
   Done when: tests cover success, insufficient stock, repeated submit, and a tampered cart.
-  Owner: @codex · Started: 2026-10-18 · Branch: `feat/checkout` (isolated worktree)
+  Done: @codex · 2026-10-18 · Tests: Node 22 typecheck, lint, build and npm test → passed (300 tests, 39 files).
+
+  Verification: Firefox 360 × 800 CSS viewport, keyboard delivery/coordinates/submit/retry, empty/loading/error/offline, stock checks, locked identical retries and confirmed cart cleanup; no horizontal overflow or feature contrast violations. Browser uses MSW; real financial transactions and physical devices were not tested.
+  Delivery: `feat/checkout` (isolated branch, awaiting merge). F-506 owns countdown/payment navigation. Backend full suite ran: 129 tests, 0 assertion failures, 4 errors (three known delivery cleanup foreign-key errors and one PostgreSQL container startup error); no backend changes.
 
 - [ ] **F-506 · Checkout result** · T1
   Needs: F-505 · Backend: B-801, B-803
@@ -1196,6 +1199,9 @@ Confirm each against the real backend before the affected task. Do not invent en
 
 | F-501-P1 | F-501 | Public catalog returns an array, with no pagination metadata. | Source verified: display pagination over the returned list; server pagination remains needed for scale. No invented page parameters. |
 
+| F-505-I1 | F-505 | Is checkout idempotent replay scoped to the authenticated buyer and original payload? | Open: `CheckoutService.checkout` looks up only `idempotencyKey` and returns the group without checking buyer/payload. Backend must enforce ownership and reject mismatches. Frontend keys are random and session-scoped; no backend code changed. |
+| F-505-S1 | F-505 | Can insufficient-stock failures identify affected product IDs? | Open: the service returns a free-text `BUSINESS_RULE_VIOLATION`, without a structured product ID. Frontend refreshes public product checks for per-item errors and retains a generic rejection if a transient race cannot be reproduced. |
+
 ## 11. Activity log
 
 Add a row for every claim, completion and blocker. Newest at the bottom.
@@ -1275,3 +1281,5 @@ Activity: 2026-10-18 · @codex · F-107 · Implemented; placement and device ver
   Blocked: Merge into frontend/full-build waits for the other agent’s uncommitted shared task-board edits. Real-device installation, 360 px keyboard and contrast checks remain pending.
 
 Activity: 2026-10-18 · @codex · F-502 · Claimed · FP5 ownership delegated by user; product detail on isolated branch using existing catalog/pricing implementations.
+
+Activity: 2026-10-18 · @codex · F-505 · Completed on isolated branch · Typed checkout, delivery map/keyboard pin, fresh per-item cart checks, same-key retries, complete seller confirmation and network-only worker routing. All 300 frontend tests pass; backend baseline errors recorded above.

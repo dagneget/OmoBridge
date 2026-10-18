@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw';
+import { checkoutHandler } from './checkoutHandler';
 import type { LoginRequest } from '../types/api';
 import { mockUsers, createMockAuthResponse, MOCK_PASSWORD } from './fixtures/users';
 import {
@@ -59,6 +60,7 @@ const authHandlers = ['/api/v1/auth', '/api/auth'].flatMap((base) => [
 
 export const handlers = [
   ...authHandlers,
+  checkoutHandler,
   // Tourism: Packages
   http.get('*/api/v1/tourism/packages', ({ request }) => {
     const category = new URL(request.url).searchParams.get('category')?.trim().toUpperCase();
