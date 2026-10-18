@@ -161,6 +161,16 @@ frontend/
 - Every conflict is shown to the provider using **the server's message and current state** (`role="alert"`), and the job is re-fetched so the screen adopts whatever the job actually became. A dispatcher or the SMS checkpoint fallback moving the job while the device was offline is the common cause.
 - Both queues share one IndexedDB database (`features/delivery/deliveryDb.ts`). They must: IndexedDB refuses to open a database at a lower version than it is already at, so two modules each owning a version would break as soon as one added a store.
 
+### Live Tracking (Public)
+- `/track/:token` → `pages/tracking/LiveTrackingPage.tsx`, backed by `features/tracking` (`trackingService`, `trackingState`). It was a stub that printed the token and never called the API; it is now wired to `GET /api/v1/delivery/track/{trackingToken}`.
+- **Polling, not SSE.** F-604 asked for an SSE stream with a polling fallback, but the backend has no SSE endpoint, no `SseEmitter` and no WebSocket anywhere, so a stream would have meant inventing a contract. The page polls every **15 s** and stops as soon as the job reaches a terminal status. Gap logged as F-604-E1.
+- The token is the only credential — there is no login — so the screen shows only what the tracking response contains: a job number, a status, a position and a trail. No names, no phone numbers, no addresses. A privacy note says anyone with the link can see it.
+- **"Last updated" and the stale warning answer different questions.** The former is when the *device* produced its last fix (`lastRecordedAt`); polling can be perfectly fresh while the vehicle has not moved for an hour. A fix older than **5 minutes** raises the stale warning; "no fix yet" and "the timestamp cannot be parsed" are separate states, not staleness.
+- **The trail is sorted by `recordedAt`, not arrival order.** Late points keep the timestamp they were captured with, so a point queued offline and uploaded an hour later lands in the right place in the breadcrumb rather than at the end of it. Entries without usable coordinates are dropped rather than plotted at 0,0.
+- A 404 is the server saying "no such token" and is **not retried** — the common cause is an expired or mistyped link, which needs an explanation rather than a spinner.
+- `MapComponent`/`LeafletMapInner` gained an optional `trail` prop (a polyline under the marker). Existing callers pass nothing and get exactly the single-marker map they had.
+- **This is the one place F-604's spec could not be met as written**; everything else — route, Leaflet map, timeline, last-updated, stale warning, late points — is implemented.
+
 ### SMS Checkpoint Fallback
 - `features/delivery/smsCheckpoint.ts` mirrors `InboundSmsService` exactly, so the format cannot drift from what the server parses: the backend finds the job with `(DEL-[0-9A-Z-]+)` (case-insensitive), then picks a status from keywords checked **in this order** — DELIVERED, TRANSIT, PICKED.
 - Each status gets one unambiguous keyword (`DELIVERED`, `TRANSIT`, `COLLECTED`). A message naming two statuses would be resolved by the parser's check order rather than the driver's intent, so the alternatives the backend also accepts are listed but never composed into a message.

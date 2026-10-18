@@ -94,5 +94,43 @@
     "locationUnavailable": "መሣሪያዎ የአካባቢ ምልክት ማቅረብ አልተቻለም። የአካባቢ አገልግሎቶች ማስጀመርተዎትን ያረጋግጡ።",
     "syncUploaded": "{{count}} የተቀመጡ ቦታዎች ተልኳል።",
     "syncJobFinished": "ይህ ስራ አስቀድሞም ተጠናቅቷል፤ ስለዚህ የተቀመጡ ቦታዎቹ ጣርተዋል።"
+  },
+  "tracking": {
+    "title": "የቀጥታ የማድረስ ተከታታይነት",
+    "subtitle": "ይህን ማድረስ በደቡብ ኦሞ እንዴት እንደሚደርስ ይከታተሉ።",
+    "jobNumber": "የተከታተይ ቁጥር",
+    "lastUpdated": "የተዘመነው",
+    "staleWarning": "ይህ ቦታ ከረጅም ጊዜ ጀምሮ አልተለወጠም፤ ስለዚህ አሁን ያለበትን ቦታ ላይገልጽም።",
+    "offlineNotice": "አስተባባሪ ነዎት፤ ስለዚህ ያየው የመጨረሻ ቦታ ነው።",
+    "noPositionTitle": "እስካሁን የተላከ ቦታ የለም",
+    "noPositionBody": "አሽከርካሪው አካባቢውን ሲጋራ እዚህ ይታያል።",
+    "timelineTitle": "እድገት",
+    "currentStep": "አሁን ያለው አስረጃ",
+    "failedNotice": "ይህ ማድረስ መጠናቀቅ አልቻለም። ድርጅቱን ያቀረበውን ሰው ያግኙ።",
+    "cancelledNotice": "ይህ ማድረስ ተሰርቷል።",
+    "completeNotice": "ይህ ማድረስ የመጨረሻ ሁኔታው ደርሷል፤ ስለዚህ የቀጥታ ማዘመን ወጥቷል።",
+    "privacyNote": "ይህን አገናኝ ያለው ሰው ሁሉ የዚህ ማድረስን ሁኔታና ቦታ ማየት ይችላል። በብዛት አያጋሩት።",
+    "poweredBy": "በOmoBridge የተሠራ",
+    "invalidTitle": "ይህ የተከታተይ አገናኝ አልተሞላም",
+    "invalidBody": "የተላከልዎን አገናኝ ያረጋግጡ። ቁጥርዎ መጨረሻ ላይ መሆን አለበት።",
+    "notFoundTitle": "ይህን ማድረስ ማግኘት አልቻልንም",
+    "notFoundBody": "አገናኙ ሊያልቅ ወይም ቁጥሩ ሊጠፋ ይችላል። የተላከልዎን ሰው አዲስ ይጠይቁ።",
+    "backHome": "ወደ OmoBridge መመለስ",
+    "unavailableTitle": "የቀጥታ ተከታታይነት አሁን አይገኝም",
+    "unavailableBody": "የተከታተይ አገልጋዩን ማስረከብ አልቻልንም። ማድረስዎ አይጠፋም።",
+    "retry": "እንደገና ይሞክሩ",
+    "step": {
+      "assigned": "በማድረስ ቡድን ተወስዷል",
+      "picked_up": "ተወስዷል",
+      "in_transit": "በመሄድ ላይ",
+      "delivered": "ደርሷል"
+    }
+  },
+  "relative": {
+    "justNow": "አሁን ጥርስ",
+    "seconds": "ከ{{count}} ሰከንድ በፊት",
+    "minutes": "ከ{{count}} ደቂቃ በፊት",
+    "hours": "ከ{{count}} ሰዓት በፊት",
+    "days": "ከ{{count}} ቀን በፊት"
   }
 }

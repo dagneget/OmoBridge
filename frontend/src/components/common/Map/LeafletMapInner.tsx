@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -22,6 +22,12 @@ interface LeafletMapInnerProps {
   zoom?: number;
   className?: string;
   onTileError?: () => void;
+  /**
+   * Optional path already travelled, oldest first. Rendered as a polyline under the marker.
+   * Only supplied where there is a real route to draw (F-604 live tracking); every existing
+   * caller passes nothing and gets exactly the single-marker map it had before.
+   */
+  trail?: Array<[number, number]>;
 }
 
 export default function LeafletMapInner({
@@ -32,6 +38,7 @@ export default function LeafletMapInner({
   zoom = 13,
   className = 'h-72 w-full rounded-2xl',
   onTileError,
+  trail,
 }: LeafletMapInnerProps) {
   useEffect(() => {
     L.Marker.prototype.options.icon = defaultIcon;
@@ -56,6 +63,13 @@ export default function LeafletMapInner({
             },
           }}
         />
+        {trail && trail.length > 1 && (
+          <Polyline
+            positions={trail}
+            pathOptions={{ color: '#0d9488', weight: 3, opacity: 0.75, lineJoin: 'round' }}
+          />
+        )}
+
         <Marker position={[latitude, longitude]} icon={defaultIcon}>
           {(title || address) && (
             <Popup>

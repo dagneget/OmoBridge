@@ -14,6 +14,8 @@ export interface MapComponentProps {
   zoom?: number;
   className?: string;
   showDirectionsButton?: boolean;
+  /** Path already travelled, oldest first. Optional; callers without a route omit it. */
+  trail?: Array<[number, number]>;
 }
 
 export function MapComponent({
@@ -24,6 +26,7 @@ export function MapComponent({
   zoom = 13,
   className = 'h-72 w-full',
   showDirectionsButton = true,
+  trail,
 }: MapComponentProps) {
   const { isOnline } = useNetworkStatus();
   const [tileError, setTileError] = useState(false);
@@ -92,6 +95,7 @@ export function MapComponent({
               address={address}
               zoom={zoom}
               className={className}
+              trail={trail}
               onTileError={() => setTileError(true)}
             />
           </Suspense>

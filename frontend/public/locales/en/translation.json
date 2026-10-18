@@ -94,5 +94,43 @@
     "locationUnavailable": "Your device could not provide a location fix. Check that location services are switched on.",
     "syncUploaded": "Uploaded {{count}} saved points.",
     "syncJobFinished": "This job was already finished, so its saved points were discarded."
+  },
+  "tracking": {
+    "title": "Live delivery tracking",
+    "subtitle": "Follow this delivery as it makes its way across South Omo.",
+    "jobNumber": "Tracking number",
+    "lastUpdated": "Last updated",
+    "staleWarning": "This position has not changed for a while, so it may no longer be accurate.",
+    "offlineNotice": "You are offline, so this is the last position we received.",
+    "noPositionTitle": "No location reported yet",
+    "noPositionBody": "Once the driver starts sharing their location, it will appear here.",
+    "timelineTitle": "Progress",
+    "currentStep": "Current step",
+    "failedNotice": "This delivery could not be completed. Please contact whoever placed the order.",
+    "cancelledNotice": "This delivery was cancelled.",
+    "completeNotice": "This delivery has reached its final status, so live updates have stopped.",
+    "privacyNote": "Anyone with this link can see this delivery’s status and position. Do not share it widely.",
+    "poweredBy": "Powered by OmoBridge",
+    "invalidTitle": "This tracking link is not complete",
+    "invalidBody": "Check the link you were sent. It should end with your tracking number.",
+    "notFoundTitle": "We could not find this delivery",
+    "notFoundBody": "The link may have expired, or the number may have been mistyped. Ask whoever sent it for a new one.",
+    "backHome": "Back to OmoBridge",
+    "unavailableTitle": "Live tracking is unavailable right now",
+    "unavailableBody": "We could not reach the tracking service. Your delivery is not affected.",
+    "retry": "Try again",
+    "step": {
+      "assigned": "Collected by the delivery team",
+      "picked_up": "Picked up",
+      "in_transit": "On the way",
+      "delivered": "Delivered"
+    }
+  },
+  "relative": {
+    "justNow": "just now",
+    "seconds": "{{count}} seconds ago",
+    "minutes": "{{count}} minutes ago",
+    "hours": "{{count}} hours ago",
+    "days": "{{count}} days ago"
   }
 }
