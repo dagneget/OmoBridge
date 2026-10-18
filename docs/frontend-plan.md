@@ -513,11 +513,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Verified: Live OpenAPI fields/path and 404; contract-based populated mock. Firefox exact 360 px viewport: no detail overflow, axe including contrast passes, keyboard Tab/Enter trace navigation works, cached offline and unavailable states render. Loading/error/retry/access and cold offline covered in tests. Public route needs no role guard.
   Scope: Server producer purchase cost displayed without inferred percentage; no authoritative client totals. Empty live catalog means populated UI uses MSW. F-501/F-507 implementations included; their broader outstanding checks remain recorded separately. Primary checkout untouched.
 
-- [ ] **F-503 · Cart store** · T1
+- [~] **F-503 · Cart store** · T1
   Needs: F-501
   Build: browser-persisted cart (product ids and quantities only); grouped by seller; revalidate against the server; mark items that became unavailable or changed in price.
   Done when: reload keeps the cart; a removed product is flagged.
-  Owner: —
+  Owner: @codex · Started: 2026-10-18
 
 - [ ] **F-504 · Cart page** · T1
   Needs: F-503
@@ -1230,6 +1230,8 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-305 | Blocked [!] | HotelsPage implemented with search, amenities, rate display, and Map modal; blocked from live backend verification by 500 LazyInitializationException on GET /api/v1/tourism/hotels (logged in Section 10 #17); verified 5/5 against OpenAPI MSW mock |
 
 | 2026-10-18 | @codex | F-502 | Completed | Product detail, existing price breakdown, encoded trace link and four data states; 202 tests pass; Firefox 360 px/contrast/keyboard checked; live catalog empty. |
+
+| 2026-10-18 | @codex | F-503 | Claimed | Persistent ID/quantity cart with fresh server revalidation; isolated branch. |
 
 ## 12. Change log (requirements)
 
