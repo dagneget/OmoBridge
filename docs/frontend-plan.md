@@ -172,7 +172,7 @@ Update the counts when you finish a task.
 |---|---|---|
 | FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 7 / 10 |
-| FP2 | Authentication and roles | 4 / 9 |
+| FP2 | Authentication and roles | 5 / 9 |
 | FP3 | Public tourism | 0 / 11 |
 | FP4 | Bookings | 0 / 5 |
 | FP5 | Catalog, cart, checkout | 0 / 9 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **19 / 134** |
+| | **Total** | **20 / 134** |
 
 ### What can run in parallel
 
@@ -354,11 +354,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: registration creates a pending state and the screen explains the next step.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/registerProducer.test.tsx (2/2 passed, 90/90 total), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-205 · Micro-enterprise registration** · T1
+- [x] **F-205 · Micro-enterprise registration** · T1
   Needs: F-103 · Backend: B-104
   Build: user fields plus enterprise name, woreda, kebele, phone.
   Done when: registration works and routes to the enterprise dashboard.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/registerEnterprise.test.tsx (2/2 passed, 92/92 total), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-206 · Delivery provider and guide registration** · T1
   Needs: F-103 · Backend: B-104
@@ -1201,6 +1201,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-202 | Completed | LoginPage (phone & password, 401 wrong password, 429 throttling timer, PENDING/SUSPENDED account toasts, role-based & redirect navigation) verified |
 | 2026-10-18 | @claude-agent | F-203 | Completed | RegisterBuyerPage (phone, name, password, email, preferredLanguage, 409 duplicate phone inline error, immediate authentication) verified |
 | 2026-10-18 | @claude-agent | F-204 | Completed | RegisterProducerPage (village origin traceability, kebele, telebirr, pending approval confirmation screen, USSD *844# guide) verified |
+| 2026-10-18 | @claude-agent | F-205 | Completed | RegisterEnterprisePage (enterpriseName, woreda, town, trade reg no, direct routing to /dashboard/enterprise) verified |
 
 ## 12. Change log (requirements)
 
