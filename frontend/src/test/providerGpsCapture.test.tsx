@@ -141,7 +141,7 @@ describe('Provider GPS capture (F-1103)', () => {
 
     // Nothing is recorded before the provider opts in.
     expect(geo.watchCount()).toBe(0);
-    expect(screen.getByTestId('location-point-count')).toHaveTextContent('0 points recorded');
+    expect(screen.getByTestId('location-point-count')).toHaveTextContent('0 points waiting to upload');
 
     fireEvent.click(screen.getByTestId('location-start'));
 
@@ -152,13 +152,13 @@ describe('Provider GPS capture (F-1103)', () => {
     geo.emit(5.85, 36.4, deviceTime);
 
     await waitFor(() =>
-      expect(screen.getByTestId('location-point-count')).toHaveTextContent('1 point recorded')
+      expect(screen.getByTestId('location-point-count')).toHaveTextContent('1 point waiting to upload')
     );
 
     // A second fix 30 s later is a second recorded point.
     geo.emit(5.851, 36.4, deviceTime + 30_000);
     await waitFor(() =>
-      expect(screen.getByTestId('location-point-count')).toHaveTextContent('2 points recorded')
+      expect(screen.getByTestId('location-point-count')).toHaveTextContent('2 points waiting to upload')
     );
   });
 
@@ -266,7 +266,7 @@ describe('Provider GPS capture (F-1103)', () => {
 
     geo.emit(5.85, 36.4, Date.UTC(2026, 9, 18, 9, 0, 0));
     await waitFor(() =>
-      expect(screen.getByTestId('location-point-count')).toHaveTextContent('1 point recorded')
+      expect(screen.getByTestId('location-point-count')).toHaveTextContent('1 point waiting to upload')
     );
 
     vi.spyOn(deliveryService, 'updateJobStatus').mockRejectedValue(

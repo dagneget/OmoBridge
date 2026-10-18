@@ -62,7 +62,18 @@ export const deliveryService = {
       `/api/v1/delivery/jobs/${encodeURIComponent(jobId)}/locations`,
       { locations: points }
     );
-    return res.data?.data ?? 0;
+
+    /*
+     * A returned count of 0 has a specific meaning to `syncJobLocations`: the job is
+     * finished server-side, and those points are discarded. Coercing a missing field to 0
+     * would therefore turn any malformed 200 into silent data loss, so a response without a
+     * numeric count is treated as a failure and the points stay queued.
+     */
+    const stored = res.data?.data;
+    if (typeof stored !== 'number') {
+      throw new Error('Location upload response did not include a stored count');
+    }
+    return stored;
   },
 };
 
