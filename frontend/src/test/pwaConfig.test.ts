@@ -56,6 +56,7 @@ describe('PWA Manifest & Caching Rules (F-105 & F-106)', () => {
     // Public GET content uses StaleWhileRevalidate
     expect(swContent).toContain('StaleWhileRevalidate');
     expect(swContent).toContain('public-api-cache');
+    expect(swContent).toContain('/api/v1/public/products');
 
     // Media assets use CacheFirst
     expect(swContent).toContain('CacheFirst');

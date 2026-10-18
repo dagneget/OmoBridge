@@ -1,7 +1,10 @@
 import { http, HttpResponse } from 'msw';
-import { mockUsers, createMockAuthResponse } from './fixtures/users';
+import { checkoutHandler, orderConfirmationHandler, myOrdersHandler, orderPaymentHandler } from './checkoutHandler';
+import type { LoginRequest } from '../types/api';
+import { mockUsers, createMockAuthResponse, MOCK_PASSWORD } from './fixtures/users';
 import {
   mockTourPackages,
+  mockSessions,
   mockHotels,
   mockGuides,
   mockTransportServices,
@@ -27,61 +30,85 @@ import {
   mockAiReports,
 } from './fixtures/enterprise';
 
+function errorResponse(status: number, code: string, message: string, request: Request) {
+  return HttpResponse.json(
+    {
+      timestamp: new Date().toISOString(),
+      status,
+      code,
+      message,
+      path: new URL(request.url).pathname,
+    },
+    { status }
+  );
+}
+
+const authHandlers = ['/api/v1/auth', '/api/auth'].flatMap((base) => [
+  http.post(`*${base}/login`, async ({ request }) => {
+    const body = (await request.json().catch(() => null)) as Partial<LoginRequest> | null;
+    if (!body || typeof body !== 'object' || !body.password) {
+      return errorResponse(400, 'VALIDATION_FAILED', 'Password is required', request);
+    }
+    const identifier = body.phoneNumber || body.identifier;
+    const user = Object.values(mockUsers).find(
+      (candidate) =>
+        candidate.phoneNumber === identifier ||
+        ('email' in candidate && candidate.email === identifier)
+    );
+    if (!user || body.password !== MOCK_PASSWORD) {
+      return errorResponse(401, 'UNAUTHORIZED', 'Invalid credentials', request);
+    }
+    return HttpResponse.json({
+      success: true,
+      data: createMockAuthResponse(user),
+    });
+  }),
+  http.get(`*${base}/me`, ({ request }) => {
+    const user = Object.values(mockUsers).find(
+      (candidate) =>
+        request.headers.get('Authorization') ===
+        `Bearer ${createMockAuthResponse(candidate).accessToken}`
+    );
+    if (!user) return errorResponse(401, 'UNAUTHORIZED', 'Authentication required', request);
+    return HttpResponse.json({ success: true, data: user });
+  }),
+]);
+
 export const handlers = [
-  // Auth: Login
-  http.post('*/api/v1/identity/login', async ({ request }) => {
-    const body = (await request.json().catch(() => ({}))) as any;
-    const phone = body?.phoneNumber || body?.identifier || '';
-
-    // Route to appropriate mock role based on phone or default to buyer
-    let user = mockUsers.buyer;
-    if (phone.includes('000002')) user = mockUsers.producer;
-    else if (phone.includes('000003')) user = mockUsers.enterprise;
-    else if (phone.includes('000004')) user = mockUsers.delivery;
-    else if (phone.includes('000005')) user = mockUsers.guide;
-    else if (phone.includes('000006')) user = mockUsers.admin;
-
-    return HttpResponse.json({
-      success: true,
-      message: 'Authentication successful',
-      data: createMockAuthResponse(user),
-    });
-  }),
-
-  // Auth: Mirrored /api/auth/login
-  http.post('*/api/auth/login', async ({ request }) => {
-    const body = (await request.json().catch(() => ({}))) as any;
-    const phone = body?.phoneNumber || body?.identifier || '';
-    let user = mockUsers.buyer;
-    if (phone.includes('000002')) user = mockUsers.producer;
-    return HttpResponse.json({
-      success: true,
-      message: 'Authentication successful',
-      data: createMockAuthResponse(user),
-    });
-  }),
-
-  // Auth: Current Profile
-  http.get('*/api/v1/identity/profile', () => {
-    return HttpResponse.json({
-      success: true,
-      data: mockUsers.buyer,
-    });
-  }),
-
+  ...authHandlers,
+  checkoutHandler,
+  orderConfirmationHandler,
+  myOrdersHandler,
+  orderPaymentHandler,
   // Tourism: Packages
-  http.get('*/api/v1/tourism/packages', () => {
+  http.get('*/api/v1/tourism/packages', ({ request }) => {
+    const category = new URL(request.url).searchParams.get('category')?.trim().toUpperCase();
     return HttpResponse.json({
       success: true,
-      data: mockTourPackages,
+      data: category
+        ? mockTourPackages.filter((pkg) => pkg.category === category)
+        : mockTourPackages,
     });
   }),
 
-  http.get('*/api/v1/tourism/packages/:id', ({ params }) => {
-    const pkg = mockTourPackages.find((p) => p.id === params.id) || mockTourPackages[0];
+  http.get('*/api/v1/tourism/packages/:id', ({ params, request }) => {
+    const pkg = mockTourPackages.find((p) => p.id === params.id);
+    if (!pkg) return errorResponse(404, 'RESOURCE_NOT_FOUND', 'Package not found', request);
     return HttpResponse.json({
       success: true,
       data: pkg,
+    });
+  }),
+
+  http.get('*/api/v1/tourism/packages/:packageId/sessions', ({ params, request }) => {
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const date = new URL(request.url).searchParams.get('date') || today;
+    return HttpResponse.json({
+      success: true,
+      data: mockSessions.filter(
+        (session) => session.packageId === params.packageId && session.sessionDate === date
+      ),
     });
   }),
 
@@ -102,7 +129,7 @@ export const handlers = [
   }),
 
   // Tourism: Transport
-  http.get('*/api/v1/tourism/transport', () => {
+  http.get('*/api/v1/tourism/transports', () => {
     return HttpResponse.json({
       success: true,
       data: mockTransportServices,
@@ -118,15 +145,26 @@ export const handlers = [
   }),
 
   // Catalog: Products
-  http.get('*/api/v1/products', () => {
+  http.get('*/api/v1/public/products', ({ request }) => {
+    const query = new URL(request.url).searchParams;
+    const search = query.get('search')?.trim().toLowerCase();
+    const category = query.get('category')?.trim().toLowerCase();
+    const products = search
+      ? mockProducts.filter((product) =>
+          `${product.name} ${product.description}`.toLowerCase().includes(search)
+        )
+      : category
+        ? mockProducts.filter((product) => product.category?.toLowerCase() === category)
+        : mockProducts;
     return HttpResponse.json({
       success: true,
-      data: mockProducts,
+      data: products,
     });
   }),
 
-  http.get('*/api/v1/products/:id', ({ params }) => {
-    const prod = mockProducts.find((p) => p.id === params.id) || mockProducts[0];
+  http.get('*/api/v1/public/products/:id', ({ params, request }) => {
+    const prod = mockProducts.find((p) => p.id === params.id);
+    if (!prod) return errorResponse(404, 'RESOURCE_NOT_FOUND', 'Product not found', request);
     return HttpResponse.json({
       success: true,
       data: prod,

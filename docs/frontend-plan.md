@@ -177,11 +177,11 @@ Update the counts when you finish a task.
 | FP2 | Authentication and roles | 9 / 9 |
 | FP3 | Public tourism | 11 / 11 |
 | FP4 | Bookings | 5 / 5 |
-| FP5 | Catalog, cart, checkout | 6 / 9 |
+| FP5 | Catalog, cart, checkout | 8 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
-| FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
+| FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 12 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
 | FP11 | Delivery provider app | 0 / 8 |
 | FP12 | Guide dashboard | 0 / 4 |
@@ -190,7 +190,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **54 / 134** |
+| | **Total** | **71 / 134** |
 
 ### What can run in parallel
 
@@ -312,7 +312,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Implemented: Isolated InstallCard/usePwaInstall with one-use browser prompts, iOS Safari instructions, installed/standalone hiding, optional session dismissal and English/Amharic namespace.
   Tests: Node 22 npm run typecheck, npm run lint, npm run build, npm test → passed (136 tests, 26 files; 13 install cases).
   Blocked: Android Chrome/Safari installation, 360 px, keyboard and contrast checks need a real browser/device. Mounted once in App.tsx during F-INT-001; route-navigation persistence covered by an integration test.
-  Delivery: `feat/pwa-install-card; integration/frontend-support` · Commit(s): `f8ee2d2; 6a10eb8`. Implementation is on isolated branches; not merged into this checkout.
+  Delivery: `feat/pwa-install-card; integration/frontend-support` · Commit(s): `f8ee2d2; 6a10eb8`. Merged into `frontend/full-build`.
 
 - [x] **F-108 · Offline UX** · T1
   Needs: F-101
@@ -506,8 +506,8 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Owner: @codex · Started: 2026-10-18
   Implemented: Thin product page; generated-type public catalog service; search/category filters, stock labels, display pagination, English/Amharic namespace and four data states. Public route needs no role guard.
   Tests: Node 22 npm run typecheck, npm run lint, npm run build, npm test → passed (131 tests, 26 files; 11 catalog/service cases).
-  Blocked: Catalog-specific real-browser 360 px, keyboard, contrast and service-worker offline-after-visit checks remain pending. Earlier implementation checks passed; populated live catalog verification remains pending.
-  Delivery: `feat/product-catalog` · Commit(s): `ad47968`. Implementation is on isolated branches; not merged into this checkout.
+  Blocked: Real-browser 360 px, keyboard, contrast and service-worker offline-after-visit verification pending (no browser runner); backend localhost:8080 unavailable for live integration. Source contract checked. Standalone mock mode also requires earlier commit 519b08f.
+  Delivery: `feat/product-catalog` · Commit(s): `ad47968`. Merged into `frontend/full-build`.
 
 - [x] **F-502 · Product detail** · T1
   Needs: F-501, F-507 · Backend: B-704, B-605
@@ -516,7 +516,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done: @codex · 2026-10-18 · Tests: Node 22 typecheck, lint, build, npm test → passed (202 tests, 32 files; 22 targeted detail/service tests).
   Verified: Live OpenAPI fields/path and 404; contract-based populated mock. Firefox exact 360 px viewport: no detail overflow, axe including contrast passes, keyboard Tab/Enter trace navigation works, cached offline and unavailable states render. Loading/error/retry/access and cold offline covered in tests. Public route needs no role guard.
   Scope: Server producer purchase cost displayed without inferred percentage; no authoritative client totals. Empty live catalog means populated UI uses MSW. F-501/F-507 implementations included; their broader outstanding checks remain recorded separately. Primary checkout untouched.
-  Delivery: `feat/product-detail` · Commit(s): `1cfcb73`. Implementation is on isolated branches; not merged into this checkout.
+  Delivery: `feat/product-detail` · Commit(s): `1cfcb73`. Merged into `frontend/full-build`.
 
 - [x] **F-503 · Cart store** · T1
   Needs: F-501
@@ -525,7 +525,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done: @codex · 2026-10-18 · Tests: Node 22 typecheck, lint, build, npm test → passed (246 tests, 35 files).
   Verified: Firefox full reload retained IDs/quantities; network revalidation succeeded; missing product flagged unavailable; logout cleared memory/storage. Built service-worker route test confirms fresh reads bypass the public cache. Store only; screen/360 px/translation/role guard checks do not apply until F-504.
   Scope: Only IDs and quantities persisted; grouping/stock/price snapshots are server-derived and transient. Historical price changes across reload cannot be detected without persisting prices; first read establishes baseline. Fresh reads use existing HTTP adapter plus no-cache/NetworkOnly after a Firefox fetch-adapter timeout cleanup failure was reproduced and avoided. Account/tab boundaries and overlapping requests tested.
-  Delivery: `feat/cart-store` · Commit(s): `6ad5b33`. Implementation is on isolated branches; not merged into this checkout.
+  Delivery: `feat/cart-store` · Commit(s): `6ad5b33`. Merged into `frontend/full-build`.
 
 - [x] **F-504 · Cart page** · T1
   Needs: F-503
@@ -533,7 +533,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: tests cover add, change, remove and an unavailable item.
   Done: @codex · 2026-10-18 · Tests: Node 22 typecheck, lint, build, npm test → passed (267 tests, 36 files; 21 cart UI tests).
   Verified: Product-detail add controls; seller groups; fractional quantity/save drafts; remove/clear/focus; price/stock/unavailable warnings; all four states; English/Amharic fallback. Firefox exact 360 px viewport has no cart overflow or axe violations including contrast; keyboard add/edit/remove/clear works; loading, empty, error/recovery and offline states exercised. Live OpenAPI rechecked; populated UI uses contract-based MSW. Public local cart needs no role guard.
-  Delivery: `feat/cart-page` · Commit: `731dc57` (isolated branch, awaiting merge). Checkout navigation points to the existing route; order creation remains F-505. No authoritative totals are computed.
+  Delivery: `feat/cart-page` · Commit: `731dc57`. Merged into `frontend/full-build`.
 
 - [x] **F-505 · Checkout** · T1
   Needs: F-504, F-207 · Backend: B-802, B-205
@@ -542,7 +542,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done: @codex · 2026-10-18 · Tests: Node 22 typecheck, lint, build and npm test → passed (300 tests, 39 files).
 
   Verification: Firefox 360 × 800 CSS viewport, keyboard delivery/coordinates/submit/retry, empty/loading/error/offline, stock checks, locked identical retries and confirmed cart cleanup; no horizontal overflow or feature contrast violations. Browser uses MSW; real financial transactions and physical devices were not tested.
-  Delivery: `feat/checkout` · Commit: `484d71a` (isolated branch, awaiting merge). F-506 owns countdown/payment navigation. Backend full suite ran: 129 tests, 0 assertion failures, 4 errors (three known delivery cleanup foreign-key errors and one PostgreSQL container startup error); no backend changes.
+  Delivery: `feat/checkout` · Commit: `484d71a`. Merged into `frontend/full-build`. F-506 owns countdown/payment navigation. Backend full suite ran: 129 tests, 0 assertion failures, 4 errors (three known delivery cleanup foreign-key errors and one PostgreSQL container startup error); no backend changes.
 
 - [!] **F-506 · Checkout result** · T1
   Needs: F-505 · Backend: B-801, B-803
@@ -553,7 +553,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Implemented: @codex · 2026-10-18 · Per-seller summary, server totals, authenticated order status refresh with order/group/seller/buyer checks, offline/error states, explicit server-expiry display, translated UI and tested standalone countdown. Optional per-order payment-route handoff; absent routes stay disabled.
   Tests: Node 22 typecheck, lint, build and npm test → passed (336 tests, 42 files). Firefox 360 × 800 CSS viewport: keyboard submit/refresh/new-checkout, loading/error/offline, simulated server expiry, no horizontal overflow or feature axe/contrast violations. MSW fixtures only; physical devices and real payments were not tested.
   Blocked: Live OpenAPI exposes no reservation deadline or reservation-read endpoint; countdown cannot be wired without a contract change. Order-payment destinations are not connected on this isolated branch. Primary already has F-405’s shared Telebirr modal/service (`fc16594`), which should be reused during integration. No invented API field, `createdAt + 30 minutes` deadline, or dead payment link. See gap F-506-E1 and `features/checkout/RESULT_HANDOFF.md`.
-  Delivery: `feat/checkout-result` · Commit: `1162266` (isolated branch, awaiting integration). Backend full suite ran: 129 tests, 0 assertion failures, 4 existing errors (three delivery cleanup foreign-key errors and one PostgreSQL container startup error); no backend changes.
+  Delivery: `feat/checkout-result` · Commit: `1162266`. Merged into `frontend/full-build`. Backend full suite ran: 129 tests, 0 assertion failures, 4 existing errors (three delivery cleanup foreign-key errors and one PostgreSQL container startup error); no backend changes.
 
 - [x] **F-507 · Price transparency component** · T1
   Needs: F-102, F-104
@@ -563,7 +563,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Implemented: Generated-type product/booking/order component; server amounts only; local English/Amharic namespace; loading/empty/error/offline states; semantic description lists.
   Tests: Node 22 npm run typecheck, npm run lint, npm run build, npm test → passed (119 tests, 23 files; 9 price component cases).
   Blocked: Standalone/booking/order browser verification remains pending. Product-detail usage was subsequently verified in Firefox at 360 px, including contrast and keyboard navigation, under F-502.
-  Delivery: `feat/price-transparency` · Commit(s): `c3894f4`. Implementation is on isolated branches; not merged into this checkout.
+  Delivery: `feat/price-transparency` · Commit(s): `c3894f4`. Merged into `frontend/full-build`.
 
 - [!] **F-508 · My orders** · T1
   Needs: F-506 · Backend: B-805, B-804
@@ -575,7 +575,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Tests: Node 22 typecheck, lint, build and npm test → passed (379 tests, 44 files). Firefox 360 × 800 CSS viewport: keyboard checkout → orders → detail → list, loading/empty/error/offline, refresh recovery, snapshots/history, foreign-order rejection with no payment fetch; no feature overflow or axe/contrast violations. MSW browser fixtures; physical devices and real payments untested.
   Backend verification: seven `OrderAndCheckoutIntegrationTest` cases passed, including another buyer’s detail request returning 404. Full suite: 129 tests, 0 assertion failures, 4 existing errors (three delivery cleanup foreign-key errors and one PostgreSQL container startup error); no Java changes.
   Blocked: Buyer order contract exposes no tracking token/mapping (F-508-T1). Backend payment lookup checks authentication but not resource ownership (F-508-P1); frontend order verification does not secure direct API access. Tracking shows unavailable; no API or token is invented. See `features/orders/README.md`.
-  Delivery: `feat/my-orders` · Commit: `caed304` (isolated branch, awaiting integration). Preserve the other agent’s route table and Account changes when merging.
+  Delivery: `feat/my-orders` · Commit: `caed304`. Merged into `frontend/full-build`. Preserve route table and Account changes.
 
 - [ ] **F-509 · Cancel order** · T2
   Needs: F-508 · Backend: B-804, B-905
@@ -1225,6 +1225,8 @@ Confirm each against the real backend before the affected task. Do not invent en
 | 16 | F-1103 | PWAs cannot track GPS reliably in the background. Is a native wrapper out of scope, with SMS checkpoints as the fallback? | Resolved: Native wrapper out of MVP scope; foreground geolocation tracking with offline queue + SMS keywords fallback (`ARRIVED`, `LEFT`) |
 | 17 | F-305 | `GET /api/v1/tourism/hotels` throws backend 500 (`LazyInitializationException` on lazy `Hotel.enterprise` during JSON serialization) | Resolved: Frontend built and tested against OpenAPI typed MSW mock and seed hotels; backend gap documented; task marked [!] |
 
+| 18 | F-401, F-FIX-001 | Generated SessionResponse.startTime uses a LocalTime object. Confirm its actual JSON representation before building time selectors. | Open: session mock omits startTime pending live verification; generated types unchanged. |
+| F-501-P1 | F-501 | Public catalog returns an array, with no pagination metadata. | Source verified: display pagination over the returned list; server pagination remains needed for scale. No invented page parameters. |
 | F-505-I1 | F-505 | Is checkout idempotent replay scoped to the authenticated buyer and original payload? | Open: `CheckoutService.checkout` looks up only `idempotencyKey` and returns the group without checking buyer/payload. Backend must enforce ownership and reject mismatches. Frontend keys are random and session-scoped; no backend code changed. |
 | F-505-S1 | F-505 | Can insufficient-stock failures identify affected product IDs? | Open: the service returns a free-text `BUSINESS_RULE_VIOLATION`, without a structured product ID. Frontend refreshes public product checks for per-item errors and retains a generic rejection if a transient race cannot be reproduced. |
 
@@ -1283,6 +1285,16 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 
 | 2026-10-18 | @codex | F-504 | Completed on isolated branch | 731dc57: cart/add controls, English/Amharic and 21 UI tests; 267 total tests, typecheck/lint/build and Firefox 360 px keyboard/contrast/all-state checks pass. Awaiting merge. |
 
+| 2026-10-18 | @codex | F-502 | Completed | Product detail, existing price breakdown, encoded trace link and four data states; 202 tests pass; Firefox 360 px/contrast/keyboard checked; live catalog empty. |
+
+| 2026-10-18 | @codex | F-503 | Claimed | Persistent ID/quantity cart with fresh server revalidation; isolated branch. |
+
+| 2026-10-18 | @codex | F-503 | Completed | Persistent cart intent, seller grouping, network revalidation, price/stock/removed flags and account/tab cleanup; 246 tests and Firefox reload smoke pass. |
+
+| 2026-10-18 | @codex | F-504 | Claimed | Cart page and product-detail add controls on isolated branch; F-503 store reused. |
+
+| 2026-10-18 | @codex | F-504 | Completed | Cart page and add controls; 267 tests plus typecheck/lint/build; Firefox 360 px contrast, keyboard and all data states verified. Awaiting merge. |
+
 ## 12. Change log (requirements)
 
 | Date | Change | Tasks affected |
@@ -1292,26 +1304,42 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | USSD is a backend integration; the frontend provides help content and a separate simulator tool only | F-1004, F-1707 |
 | 2026-10-18 | Tourism pages follow the agreed list: packages with prices, hotels and resorts, essential information, transport, guides, booking, payment, testimonials, safety, contact | FP3, FP4 |
 
-Activity: 2026-10-18 · @codex · F-505 · Completed · `feat/checkout` / `484d71a`, isolated pending merge. Typed checkout with map/keyboard coordinates, fresh cart checks, same-key retries and complete server confirmation. Frontend checks and 300 tests pass; Firefox 360 px keyboard/contrast/state checks pass. Backend baseline: 129 tests, 4 errors; details in task entry.
+## Frontend follow-up fixes
+
+- [x] **F-FIX-001 · Shared mock contract alignment**
+  Done: @codex · 2026-10-18 · Tests: Node 22 npm run typecheck, npm run lint, npm run build, npm test → passed (128 tests, 21 files).
+  Verification scope: Shared mocks only; no new screen/role guard or browser visual checks. Existing authService exercised against mocks for all seven roles.
+  Scope: frontend/src/mocks/ and mswMocks.test.ts; align login/me roles, tourism transport/sessions, UUID fixtures and detail 404 behavior. No page/route changes.
+
+- [!] **F-INT-001 · Integrate completed frontend support work**
+  Owner: @codex · Started: 2026-10-18
+  Scope: Combine mock fixes, catalog, pricing and install card; mount one install card at the app root; run combined frontend checks. Preserve active hotel work.
+  Verified: @codex · 2026-10-18 · Node 22 typecheck, lint, build and npm test pass (183 tests, 31 files), including install-offer persistence across route navigation. Hotel commit 9702020 included; hotel fixture data preserved with UUID identifiers.
+
+Activity: 2026-10-18 · @codex · F-FIX-001 · Completed · Login/me contracts and canonical roles, public catalog/transport paths, UUID fixtures, session date filtering, detail 404s, browser worker and developer handoff; 128 frontend tests pass.
+Activity: 2026-10-18 · @codex · F-507 · Implemented; browser verification pending · PriceBreakdown ready for product, booking and order integration; frontend checks and all 119 tests pass.
+Activity: 2026-10-18 · @codex · F-501 · Implemented; browser/live verification pending · Public product catalog, combined filters, display pagination, stock states and public GET cache path; 131 tests pass. F-304 remains with its existing owner.
+Activity: 2026-10-18 · @codex · F-107 · Implemented; placement and device verification pending · Independent PWA install component and handoff; all 136 frontend tests pass.
+Activity: 2026-10-18 · @codex · F-502 · Completed · Product detail, price breakdown, trace link and four data states; 202 tests pass.
+Activity: 2026-10-18 · @codex · F-503 · Completed · Persistent cart intent, seller grouping, fresh checks and account cleanup; 246 tests pass.
+Activity: 2026-10-18 · @codex · F-504 · Completed · Cart page and add controls; 267 tests pass.
+Activity: 2026-10-18 · @codex · F-505 · Completed · Typed checkout with map/keyboard coordinates, fresh cart checks, same-key retries and complete server confirmation. Frontend checks and 300 tests pass.
 Activity: 2026-10-18 · @claude-agent · F-311 · Completed · LanguageSwitcher with English/Amharic fallback, persistent preference in localStorage, documentElement lang sync, query cache refresh, and Accept-Language HTTP header injection. All 37 test files (192 tests) pass, typecheck/lint/build clean. Completes FP3 (11/11).
+Activity: 2026-10-18 · @codex · F-506 · Implemented; integration blocked · Per-seller confirmation and refresh, standalone countdown and server-reported expiry UI; frontend checks/336 tests pass.
+Activity: 2026-10-18 · @claude-agent · F-801 · Completed · Enterprise dashboard shell with module navigation, operational key numbers, attention alerts, live deliveries feed, and error recovery states. 38 test files (199 tests) pass.
+Activity: 2026-10-18 · @claude-agent · F-802 · Completed · Farmers management with strict enterprise isolation, search, status filters, approval/rejection mutations, detail balance modal, and farmer link flow. 39 test files (209 tests) pass.
+Activity: 2026-10-18 · @claude-agent · F-803 · Completed · Product types and published buying prices management with live *844# USSD sync notice, price publishing modal, commodity types catalog, and grade-based rate updates. 40 test files (215 tests) pass.
+Activity: 2026-10-18 · @claude-agent · F-804 · Completed · Raw harvest supply intake registry with quick-entry inputs for commodities, grades, weights, farmer picker, and printable official server receipt modal. 41 test files (222 tests) pass.
+Activity: 2026-10-18 · @claude-agent · F-805 · Completed · Harvest quality inspection & grading screen with pending intake queue, balance validation, rejection justification, and inspection certification. 42 test files (229 tests) pass.
+Activity: 2026-10-18 · @codex · F-508 · Implemented · My orders list/detail with ownership checks, snapshots, timeline and payment status. All 379 frontend tests pass.
+Activity: 2026-10-18 · @claude-agent · F-806 · Completed · Farmer payables ledger and balance summary strictly matching API numbers with status filtering. 43 test files (236 tests) pass.
+Activity: 2026-10-18 · @claude-agent · F-807 · Completed · Payout disbursement execution modal supporting Telebirr mobile wallet and cash-via-agent channels. 43 test files (236 tests) pass.
+Activity: 2026-10-18 · @claude-agent · F-808 · Completed · Unpaid delivery cancellation with audit reason capture preserving historical visibility. 43 test files (236 tests) pass.
+Activity: 2026-10-18 · @antigravity · F-901 · Completed · Enterprise inventory storage lots and movement audit history with summary KPI statistics, multi-facet filters, and audit drawer. 46 test files (258 tests) pass.
+Activity: 2026-10-18 · @antigravity · F-902 · Completed · Inventory balance adjustments, inter-location transfers, and scrap/spoilage disposals with mandatory reasons and confirmation dialogs. 47 test files (266 tests) pass.
+Activity: 2026-10-18 · @antigravity · F-903 · Completed · Inventory reconciliation and discrepancy reporting with mismatch KPI metrics, discrepancy warning alert banner, and quick balance correction modals. 48 test files (274 tests) pass.
+Activity: 2026-10-18 · @kiro · F-1001 · Claimed · Farmer home dashboard — balance, recent deliveries, today's buying prices, large icons. Branch: task/F-1001-farmer-home.
 
-Activity: 2026-10-18 · @codex · F-506 · Implemented; integration blocked · `feat/checkout-result` / `1162266`, isolated pending merge. Frontend checks and 336 tests pass; Firefox 360 px keyboard/contrast and result states pass. Awaiting backend reservation deadline and order-payment integration; reuse primary’s F-405 Telebirr modal. Task remains [!].
-Activity: 2026-10-18 · @claude-agent · F-801 · Completed · Enterprise dashboard shell with module navigation, operational key numbers (registered farmers, pending deliveries, active lots, open orders), attention alerts, live deliveries feed, and error recovery states. 38 test files (199 tests) pass, typecheck/lint/build clean.
-Activity: 2026-10-18 · @claude-agent · F-802 · Completed · Farmers management with strict enterprise isolation (foreign farmers never shown), search, status filters (Pending/Verified/Rejected), approval/rejection mutations, detail balance modal, and farmer link flow. 39 test files (209 tests) pass, typecheck/lint/build clean.
-Activity: 2026-10-18 · @claude-agent · F-803 · Completed · Product types and published buying prices management with live *844# USSD sync notice, price publishing modal, commodity types catalog, and grade-based rate updates. 40 test files (215 tests) pass, typecheck/lint/build clean.
-Activity: 2026-10-18 · @claude-agent · F-804 · Completed · Raw harvest supply intake registry with large quick-entry inputs for commodities, grades, and delivered weights, farmer picker, inactive farmer validation, and printable official server receipt modal with delivery reference number. 41 test files (222 tests) pass, typecheck/lint/build clean.
-Activity: 2026-10-18 · @claude-agent · F-805 · Completed · Harvest quality inspection & grading screen with pending intake queue, live accepted + rejected = delivered sum validation, rejection justification requirements, dynamic projected payable & lot calculations, and inspection certification with payable/lot postings. 42 test files (229 tests) pass, typecheck/lint/build clean.
-
-Activity: 2026-10-18 · @codex · F-508 · Implemented; integration blocked · `feat/my-orders` / `caed304`, isolated pending merge. Frontend checks/379 tests and Firefox 360 px keyboard/contrast pass; seven backend order tests pass including cross-buyer 404. Awaiting tracking contract and backend payment ownership enforcement; task remains [!].
-Activity: 2026-10-18 · @claude-agent · F-806 · Completed · Farmer payables ledger and balance summary strictly matching API numbers (delivered value, settled disbursements, outstanding balance, open count) with status filtering. 43 test files (236 tests) pass, typecheck/lint/build clean.
-Activity: 2026-10-18 · @claude-agent · F-807 · Completed · Payout disbursement execution modal supporting Telebirr mobile wallet and cash-via-agent channels, overpayment balance guard, idempotency key generation, and settlement ledger notifications. 43 test files (236 tests) pass, typecheck/lint/build clean.
-Activity: 2026-10-18 · @claude-agent · F-808 · Completed · Unpaid delivery cancellation with audit reason capture preserving historical visibility and ledger adjustments. 43 test files (236 tests) pass, typecheck/lint/build clean.
-
-Activity: 2026-10-18 · @antigravity · F-901 · Completed · Enterprise inventory storage lots and movement audit history with summary KPI statistics, multi-facet status/commodity/location filters, progress indicators, storage location registration modal, and chronological movement audit drawer. 46 test files (258 tests) pass, typecheck/lint/build clean.
-Activity: 2026-10-18 · @antigravity · F-902 · Completed · Inventory balance adjustments, inter-location transfers, and scrap/spoilage disposals with mandatory reasons, confirmation dialogs, and comprehensive client/server overdraw guards. 47 test files (266 tests) pass, typecheck/lint/build clean.
-Activity: 2026-10-18 · @antigravity · F-903 · Completed · Inventory reconciliation and discrepancy reporting with mismatch KPI metrics, discrepancy warning alert banner, discrepancy-only filter toggle, diagnostic memos, and quick balance correction modals. 48 test files (274 tests) pass, typecheck/lint/build clean.
-
-Activity: 2026-10-18 · @kiro · F-1001 · Claimed · Farmer home dashboard — balance, recent deliveries, today's buying prices, large icons. Backend: GET /api/v1/farmers/{farmerId}/balance, /deliveries, /payments; GET /api/v1/buying-prices/enterprises/{enterpriseId} (public). Branch: task/F-1001-farmer-home.
 ## Integration milestones (outside the 134 feature tasks)
 
 - [x] **I-01 · Publish the four-agent integration baseline**

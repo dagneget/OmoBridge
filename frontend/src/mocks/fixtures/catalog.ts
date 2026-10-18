@@ -1,6 +1,7 @@
 import type {
   ProductResponse,
   TourPackageResponse,
+  SessionResponse,
   Hotel,
   GuideResponse,
   TransportService,
@@ -11,13 +12,14 @@ import type {
 
 export const mockTourPackages: TourPackageResponse[] = [
   {
-    id: 'pack-001',
+    id: 'aaaaaaaa-aaaa-4aaa-8aaa-000000000001',
     enterpriseId: '33333333-3333-3333-3333-333333333333',
     enterpriseName: 'South Omo Eco Tourism',
     name: 'Mursi & Hamar Cultural Immersion',
     category: 'CULTURAL',
     overview: 'Respectful 3-day guided cultural exchange in Hamar and Mursi territories.',
-    story: 'Guided by community elders, learning local traditions, architecture, and pastoral life.',
+    story:
+      'Guided by community elders, learning local traditions, architecture, and pastoral life.',
     locationText: 'Turmi & Mago National Park',
     durationHours: 72,
     maxGroupSize: 8,
@@ -29,7 +31,7 @@ export const mockTourPackages: TourPackageResponse[] = [
     isActive: true,
   },
   {
-    id: 'pack-002',
+    id: 'aaaaaaaa-aaaa-4aaa-8aaa-000000000002',
     enterpriseId: '33333333-3333-3333-3333-333333333333',
     enterpriseName: 'South Omo Eco Tourism',
     name: 'Lower Omo River Birding & Flora',
@@ -47,7 +49,7 @@ export const mockTourPackages: TourPackageResponse[] = [
 
 export const mockHotels: Hotel[] = [
   {
-    id: 'hotel-001',
+    id: 'bbbbbbbb-bbbb-4bbb-8bbb-000000000001',
     name: 'Buska Hotel',
     locationText: 'Turmi Center, near Keske River',
     priceFrom: 2500,
@@ -58,7 +60,7 @@ export const mockHotels: Hotel[] = [
     active: true,
   },
   {
-    id: 'hotel-002',
+    id: 'bbbbbbbb-bbbb-4bbb-8bbb-000000000002',
     name: 'Green Resort',
     locationText: 'Jinka Foothills, South Omo',
     priceFrom: 1800,
@@ -69,7 +71,7 @@ export const mockHotels: Hotel[] = [
     active: true,
   },
   {
-    id: 'hotel-003',
+    id: 'bbbbbbbb-bbbb-4bbb-8bbb-000000000003',
     name: 'Paradise Lodge',
     locationText: 'Lake Chamo Ridge, Arba Minch',
     priceFrom: 3200,
@@ -80,7 +82,7 @@ export const mockHotels: Hotel[] = [
     active: true,
   },
   {
-    id: 'hotel-004',
+    id: 'bbbbbbbb-bbbb-4bbb-8bbb-000000000004',
     name: 'Turmi Desert Lodge & Eco Resort',
     locationText: 'Turmi, South Omo',
     priceFrom: 2200,
@@ -94,7 +96,7 @@ export const mockHotels: Hotel[] = [
 
 export const mockGuides: GuideResponse[] = [
   {
-    id: 'guide-001',
+    id: 'cccccccc-cccc-4ccc-8ccc-000000000001',
     userId: '55555555-5555-5555-5555-555555555555',
     fullName: 'Desta Girmay',
     bio: 'Native Hamar guide with 10 years experience in community-based eco tourism.',
@@ -107,7 +109,7 @@ export const mockGuides: GuideResponse[] = [
 
 export const mockTransportServices: TransportService[] = [
   {
-    id: 'trans-001',
+    id: 'dddddddd-dddd-4ddd-8ddd-000000000001',
     serviceName: 'Omo 4WD Cooperative',
     vehicleType: '4WD_LAND_CRUISER',
     priceAmount: 3500,
@@ -119,17 +121,19 @@ export const mockTransportServices: TransportService[] = [
 
 export const mockSafetyGuidelines: SafetyGuideline[] = [
   {
-    id: 'safe-001',
+    id: 'eeeeeeee-eeee-4eee-8eee-000000000001',
     title: 'Cultural Consent & Photography Protocol',
-    content: 'Always ask verbal permission through your guide before taking portraits. Never photograph sacred ceremonies without elder sanction.',
+    content:
+      'Always ask verbal permission through your guide before taking portraits. Never photograph sacred ceremonies without elder sanction.',
     category: 'CULTURAL',
     displayOrder: 1,
     active: true,
   },
   {
-    id: 'safe-002',
+    id: 'eeeeeeee-eeee-4eee-8eee-000000000002',
     title: 'Hydration and Solar Protection',
-    content: 'Daytime temperatures frequently exceed 36°C in Lower Omo. Carry at least 3 liters of water per excursion and broad-brimmed hats.',
+    content:
+      'Daytime temperatures frequently exceed 36°C in Lower Omo. Carry at least 3 liters of water per excursion and broad-brimmed hats.',
     category: 'HEALTH',
     displayOrder: 2,
     active: true,
@@ -138,27 +142,48 @@ export const mockSafetyGuidelines: SafetyGuideline[] = [
 
 export const mockProducts: ProductResponse[] = [
   {
-    id: 'prod-001',
+    id: 'ffffffff-ffff-4fff-8fff-000000000001',
     name: 'Pure Wild South Omo White Honey (1kg)',
-    description: 'Multi-floral raw honey ethically harvested by traditional beekeepers in the Mago river valley.',
+    enterpriseName: 'South Omo Beekeeping Union',
+    enterpriseId: '11111111-1111-4111-8111-000000000001',
+    story: 'Demo: harvested by local beekeepers using traditional hanging beehives.',
+    unit: 'kg',
+    traceToken: 'TRACE-HONEY-001',
+    priceBreakdown: {
+      purchaseCost: 180, processingCost: 40, packagingCost: 25, laborCost: 45,
+      transportCost: 20, enterpriseMargin: 50, communityFund: 10, taxAmount: 15,
+      platformFee: 35, totalPrice: 420,
+    },
+    description:
+      'Multi-floral raw honey ethically harvested by traditional beekeepers in the Mago river valley.',
+    currency: 'ETB',
     unitPrice: 420,
     availableStock: 150,
     category: 'Honey & Hive Products',
     published: true,
   },
   {
-    id: 'prod-002',
+    id: 'ffffffff-ffff-4fff-8fff-000000000002',
     name: 'Organic White Sesame Seeds (5kg)',
-    description: 'Cleaned, sun-dried, pesticide-free sesame cultivated along the fertile Omo floodplains.',
+    enterpriseId: '11111111-1111-4111-8111-000000000001',
+    enterpriseName: 'South Omo Beekeeping Union',
+    unit: 'pack',
+    description:
+      'Cleaned, sun-dried, pesticide-free sesame cultivated along the fertile Omo floodplains.',
+    currency: 'ETB',
     unitPrice: 650,
     availableStock: 300,
     category: 'Oilseeds & Grains',
     published: true,
   },
   {
-    id: 'prod-003',
+    id: 'ffffffff-ffff-4fff-8fff-000000000003',
     name: 'Handcrafted Hamar Glass Bead Necklace',
+    enterpriseId: '11111111-1111-4111-8111-000000000002',
+    enterpriseName: 'Turmi Women Artisans Cooperative',
+    unit: 'piece',
     description: 'Authentic traditional beadwork crafted by the Turmi Women Artisans Cooperative.',
+    currency: 'ETB',
     unitPrice: 380,
     availableStock: 45,
     category: 'Artisan Crafts',
@@ -167,7 +192,7 @@ export const mockProducts: ProductResponse[] = [
 ];
 
 export const mockTrackingResponse: DeliveryTrackingResponse = {
-  jobId: 'job-001',
+  jobId: '99999999-9999-4999-8999-000000000001',
   jobNo: 'TRK-OMO-9876',
   status: 'IN_TRANSIT',
   currentLatitude: 5.4678,
@@ -190,3 +215,25 @@ export const mockPublicTrace: PublicTraceResponse = {
   processingDate: '2026-09-15T00:00:00Z',
   publicStory: 'Ethically harvested using traditional hanging beehives without colony destruction.',
 };
+
+export const MOCK_SESSION_DATE = '2026-11-01';
+export const mockSessions: SessionResponse[] = [
+  {
+    id: '88888888-8888-4888-8888-000000000001',
+    packageId: mockTourPackages[0].id,
+    sessionDate: MOCK_SESSION_DATE,
+    capacity: 8,
+    bookedCount: 2,
+    availableCapacity: 6,
+    status: 'OPEN',
+  },
+  {
+    id: '88888888-8888-4888-8888-000000000002',
+    packageId: mockTourPackages[0].id,
+    sessionDate: MOCK_SESSION_DATE,
+    capacity: 8,
+    bookedCount: 8,
+    availableCapacity: 0,
+    status: 'CLOSED',
+  },
+];
