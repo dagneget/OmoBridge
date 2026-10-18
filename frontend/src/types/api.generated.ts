@@ -1467,6 +1467,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the authenticated payer's own payments, newest first */
+        get: operations["getMyPayments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/{paymentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the authenticated payer's own payment record for a receipt */
+        get: operations["getMyPayment"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/payments/order/{orderId}": {
         parameters: {
             query?: never;
@@ -3511,12 +3545,25 @@ export interface components {
             total?: number;
             currency?: string;
         };
-        ApiResponsePaymentResponse: {
+        ApiResponsePageResponsePaymentResponse: {
             success?: boolean;
             message?: string;
-            data?: components["schemas"]["PaymentResponse"];
+            data?: components["schemas"]["PageResponsePaymentResponse"];
             /** Format: date-time */
             timestamp?: string;
+        };
+        PageResponsePaymentResponse: {
+            content?: components["schemas"]["PaymentResponse"][];
+            /** Format: int32 */
+            pageNumber?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            isFirst?: boolean;
+            isLast?: boolean;
         };
         PaymentResponse: {
             /** Format: uuid */
@@ -3534,6 +3581,13 @@ export interface components {
             status?: "PENDING" | "HELD" | "RELEASED" | "REFUNDED" | "FAILED";
             /** Format: date-time */
             createdAt?: string;
+        };
+        ApiResponsePaymentResponse: {
+            success?: boolean;
+            message?: string;
+            data?: components["schemas"]["PaymentResponse"];
+            /** Format: date-time */
+            timestamp?: string;
         };
         ApiResponseListOrderSummaryResponse: {
             success?: boolean;
@@ -6300,6 +6354,82 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponsePriceBreakdownResponse"];
+                };
+            };
+        };
+    };
+    getMyPayments: {
+        parameters: {
+            query?: {
+                /** @description Zero-based page index (0..N) */
+                page?: number;
+                /** @description The size of the page to be returned */
+                size?: number;
+                /** @description Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
+                sort?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Own payments */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePageResponsePaymentResponse"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePageResponsePaymentResponse"];
+                };
+            };
+        };
+    };
+    getMyPayment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                paymentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Own payment */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePaymentResponse"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePaymentResponse"];
+                };
+            };
+            /** @description Payment unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePaymentResponse"];
                 };
             };
         };

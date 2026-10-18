@@ -1,3 +1,4 @@
+import PaymentsLink from '../../features/payments/PaymentsLink';
 import { OrdersLink } from '../../features/orders';
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -65,7 +66,7 @@ export default function AccountPage() {
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 py-8 sm:py-12 space-y-8 animate-in fade-in" data-testid="account-page">
-      <OrdersLink />
+      <div className="flex flex-wrap gap-3"><OrdersLink /><PaymentsLink /></div>
       {/* Page Title */}
       <div className="space-y-1">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground">

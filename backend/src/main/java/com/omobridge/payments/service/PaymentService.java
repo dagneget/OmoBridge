@@ -43,6 +43,10 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -309,9 +313,31 @@ public class PaymentService {
     }
 
     @Transactional(readOnly = true)
-    public PaymentResponse getPaymentByOrderId(UUID orderId) {
-        Payment payment = paymentRepository.findByOrderId(orderId)
+    public PaymentResponse getPaymentByOrderId(UUID orderId, UUID payerId) {
+        Payment payment = paymentRepository.findByOrderIdAndPayerId(orderId, payerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found for order: " + orderId));
+        return mapToPaymentResponse(payment);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PaymentResponse> getMyPayments(UUID payerId, Pageable pageable) {
+        if (pageable.isUnpaged() || pageable.getSort().stream()
+                .anyMatch(order -> !List.of("createdAt", "id").contains(order.getProperty()))) {
+            throw new IllegalArgumentException("Payment history supports pagination sorted by createdAt or id only");
+        }
+        var sort = pageable.getSort().isUnsorted() ? Sort.by(Sort.Direction.DESC, "createdAt", "id")
+                : pageable.getSort();
+        if (sort.getOrderFor("id") == null) {
+            sort = sort.and(Sort.by(Sort.Direction.DESC, "id"));
+        }
+        var bounded = PageRequest.of(pageable.getPageNumber(), Math.min(pageable.getPageSize(), 100), sort);
+        return paymentRepository.findByPayerId(payerId, bounded).map(this::mapToPaymentResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public PaymentResponse getMyPayment(UUID paymentId, UUID payerId) {
+        var payment = paymentRepository.findByIdAndPayerId(paymentId, payerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
         return mapToPaymentResponse(payment);
     }
 

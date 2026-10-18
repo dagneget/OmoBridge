@@ -1,3 +1,4 @@
+import { paymentHistoryHandlers } from './paymentHistoryHandlers';
 import { http, HttpResponse } from 'msw';
 import { checkoutHandler, orderConfirmationHandler, myOrdersHandler, orderPaymentHandler } from './checkoutHandler';
 import type { LoginRequest } from '../types/api';
@@ -71,6 +72,7 @@ const authHandlers = ['/api/v1/auth', '/api/auth'].flatMap((base) => [
 ]);
 
 export const handlers = [
+  ...paymentHistoryHandlers,
   ...authHandlers,
   checkoutHandler,
   orderConfirmationHandler,
