@@ -25,7 +25,7 @@ import { useAuthStore } from '../../../features/auth/authStore';
 import { enterpriseService } from '../../../features/enterprise/enterpriseService';
 import { queryKeys } from '../../../services/queryKeys';
 import { formatETB } from '../../../utils/formatters';
-import type { TraceRecordUpdateRequest } from '../../../types/api';
+import type { TraceRecordUpdateRequest, InventoryLotResponse } from '../../../types/api';
 
 const DEMO_ENTERPRISE_ID = '33333333-3333-3333-3333-333333333333';
 
@@ -76,9 +76,9 @@ export default function ProductionBatchDetailPage() {
     enabled: Boolean(batchId),
   });
 
-  const { data: lots = [] } = useQuery({
+  const { data: lots = [] } = useQuery<InventoryLotResponse[]>({
     queryKey: queryKeys.enterprise.lots(enterpriseId),
-    queryFn: () => enterpriseService.getInventoryLots(enterpriseId),
+    queryFn: () => enterpriseService.getEnterpriseLots(enterpriseId),
     enabled: Boolean(enterpriseId),
   });
 
