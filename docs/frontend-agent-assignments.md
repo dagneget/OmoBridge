@@ -189,3 +189,6 @@ Allocation check: **17 + 17 + 23 + 23 = 80 unfinished tasks, each assigned exact
 Use `integration/four-agent-baseline` (verified source `d388615`); see [baseline handoff](frontend-integration-baseline.md). It includes primary through `37dc470`, Codex buyer flows, and shared session startup fixes. Frontend 507 tests and backend 140 tests pass; full verification details and prerequisites are in the handoff. Merge/rebase into a saved task branch from a separate worktree; do not switch the shared active checkout.
 
 The allocation above is the original snapshot. At this baseline cutoff, 56/134 features are done, 75 not started and three blocked. F-809/F-810 are complete. Preserve later F-901/F-1001/F-1101 claims and commits; they are outside this baseline. Codex next owns F-601 and the documented payment/order contract blockers.
+
+
+Codex delivery update · 2026-10-18: F-601 is complete on `integration/four-agent-baseline` / `d0f8ac7` (531 frontend tests; typecheck/lint/build and 360 px payment fixture pass). Next: F-602 checkout-group wiring using the shared payment component. Existing backend ownership/expiry/tracking blockers remain open. Preserve all other active claims.

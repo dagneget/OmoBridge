@@ -386,3 +386,8 @@ F-508 verification: Node 22 typecheck, lint, build and all 379 Vitest tests (44 
 ### Integrated session startup
 
 `App` and nested checkout/order guards share `useAuthBootstrap`, deduplicating stored-session verification under React StrictMode. Protected dashboard reloads now verify the stored token. Profile responses and HTTP authorization errors from an older token cannot overwrite or expire a newer login. Regression coverage lives in `authBootstrap.test.tsx` and `httpClient.test.ts`. See [integration baseline](frontend-integration-baseline.md) for combined verification and adoption instructions.
+
+
+### F-601 shared payments
+
+Delivered in `d0f8ac7`: the existing Telebirr modal now confirms settlement through server reads, with same-key retries, polling/manual refresh, timeout handling and stale-response protection. See [payment integration guide](../frontend/src/features/payments/README.md). F-602 owns checkout-group wiring; backend ownership/expiry/tracking gaps remain open.

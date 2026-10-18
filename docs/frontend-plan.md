@@ -178,7 +178,7 @@ Update the counts when you finish a task.
 | FP3 | Public tourism | 10 / 11 |
 | FP4 | Bookings | 5 / 5 |
 | FP5 | Catalog, cart, checkout | 6 / 9 |
-| FP6 | Payments and live tracking | 0 / 7 |
+| FP6 | Payments and live tracking | 1 / 7 |
 | FP7 | Traceability | 0 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
@@ -190,7 +190,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **56 / 134** |
+| | **Total** | **57 / 134** |
 
 ### What can run in parallel
 
@@ -587,11 +587,13 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
 
 ### FP6: Payments and live tracking
 
-- [ ] **F-601 · Payment flow component** · T1
+- [x] **F-601 · Payment flow component** · T1
   Needs: F-005, F-102 · Backend: B-902, B-903
   Build: start an attempt with an idempotency key; show pending, success and failure; poll or refresh status; timeout message; retry with the same key; never mark success from the client.
   Done when: tests cover success, failure, timeout, duplicate click and a forged success in the URL.
-  Owner: —
+  Owner: @codex · Completed: 2026-10-18 · Branch: `integration/four-agent-baseline` · Commit: `d0f8ac7`
+  Delivered: Existing F-405 modal now shares an abortable payment flow, buyer/target-scoped session key, same-key retries/reopening, 3-second settlement polling, manual refresh, 25-second timeout and stale-session protection. Gateway attempt SUCCESS alone never marks paid: booking/payment reads must confirm settlement. Order ownership is checked before initiation and status lookup; backend security gaps still require enforcement.
+  Verification: 531 frontend tests pass (29 focused payment/booking tests), typecheck/lint/build pass; existing inspection and bundle warnings remain. Firefox 360 px fixture confirms forged URL rejection, pending gateway success, keyboard refresh/focus wrap, one attempt, no horizontal overflow, and zero success-dialog axe violations. No live financial transaction or physical-device claim. See `frontend/src/features/payments/README.md`.
 
 - [ ] **F-602 · Pay each order in a checkout group** · T1
   Needs: F-601, F-506 · Backend: B-902
