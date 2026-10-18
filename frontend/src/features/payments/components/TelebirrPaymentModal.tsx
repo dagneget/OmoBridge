@@ -47,16 +47,21 @@ export function TelebirrPaymentModal({
   const idempotencyKeyRef = useRef<string>(generateIdempotencyKey());
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Reset state when opened with a new reference/booking
-  useEffect(() => {
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
     if (isOpen) {
       setStatus('IDLE');
       setErrorMessage('');
       setAttemptResult(null);
-    } else {
-      if (timerRef.current) clearTimeout(timerRef.current);
     }
-  }, [isOpen, bookingId, orderId]);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const handlePay = async () => {
     if (status === 'PENDING') return;

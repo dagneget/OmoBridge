@@ -173,7 +173,7 @@ Update the counts when you finish a task.
 | FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 7 / 10 |
 | FP2 | Authentication and roles | 9 / 9 |
-| FP3 | Public tourism | 5 / 11 |
+| FP3 | Public tourism | 6 / 11 |
 | FP4 | Bookings | 5 / 5 |
 | FP5 | Catalog, cart, checkout | 2 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
@@ -423,11 +423,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Blocked: Backend `GET /api/v1/tourism/hotels` throws 500 `LazyInitializationException` during JSON serialization of lazy enterprise relation (see Section 10 #17). Frontend fully implemented with search, amenities, rates, and Leaflet MapComponent in `src/pages/public/HotelsPage.tsx` and verified via `src/test/hotelsPage.test.tsx` (5/5 passed against typed MSW mock).
   Owner: @claude-agent · Started: 2026-10-18
 
-- [ ] **F-306 · Transport services** · T2
+- [x] **F-306 · Transport services** · T2
   Needs: F-302 · Backend: B-304
   Build: list with route, capacity, price, contact.
   Done when: renders from the API.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/transportPage.test.tsx (7/7 passed), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-307 · Local guides** · T2
   Needs: F-302 · Backend: B-307
