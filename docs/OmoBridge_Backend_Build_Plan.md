@@ -1005,3 +1005,8 @@ These are design gates, not reasons to discard the plan. Record the final decisi
 | 2026-10-18 | Buyer payments are separate from farmer supplier payments; escrow/hold-release is conditional on real provider capability | P4, P9 |
 | 2026-10-18 | Tourism scope and approval authority must be explicitly decided before related schema and workflows are implemented | P1, P3 |
 | 2026-10-18 | Important post-commit notifications/integrations use a transactional outbox with retries and idempotency | P2, P11 |
+## Backend follow-up fixes
+
+- [~] **B-FIX-001 · Guide self-profile role authorization**
+  Owner: @codex · Started: 2026-10-18
+  Scope: Correct GET /api/v1/tourism/guides/me to TOUR_GUIDE; verify guide success, anonymous 401, and other-role 403 using the real security chain. No schema changes.
