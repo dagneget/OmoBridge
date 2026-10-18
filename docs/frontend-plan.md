@@ -173,7 +173,7 @@ Update the counts when you finish a task.
 | FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 7 / 10 |
 | FP2 | Authentication and roles | 9 / 9 |
-| FP3 | Public tourism | 4 / 11 |
+| FP3 | Public tourism | 5 / 11 |
 | FP4 | Bookings | 0 / 5 |
 | FP5 | Catalog, cart, checkout | 0 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **28 / 134** |
+| | **Total** | **29 / 134** |
 
 ### What can run in parallel
 
@@ -431,11 +431,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: unapproved guides never appear.
   Owner: —
 
-- [ ] **F-308 · Safety, essential information and contact** · T1
+- [x] **F-308 · Safety, essential information and contact** · T1
   Needs: F-101 · Backend: B-305
   Build: safety and guidelines page, essential information (location and directions, opening hours, overview and story), contact options.
   Done when: all three pages render from the API.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/safetyAndContact.test.tsx (5/5 passed, 133/133 total), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-309 · Testimonials** · T2
   Needs: F-302 · Backend: B-1202
@@ -1213,6 +1213,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-303 | Completed | ExperienceDetailsPage with prominent cultural rules, safety notes, story, hours, community consent ref & date, and booking CTA verified |
 | 2026-10-18 | @claude-agent | F-304 | Completed | Lazy-loaded MapComponent with offline fallback, coordinates display, directions link, and code-split leaflet-vendor bundle verified |
 | 2026-10-18 | @claude-agent | F-305 | Blocked [!] | HotelsPage implemented with search, amenities, rate display, and Map modal; blocked from live backend verification by 500 LazyInitializationException on GET /api/v1/tourism/hotels (logged in Section 10 #17); verified 5/5 against OpenAPI MSW mock |
+| 2026-10-18 | @claude-agent | F-308 | Completed | SafetyGuidelinesPage, ContactPage with validated form & map, and AboutPage with dual-channel inclusion verified |
 
 ## 12. Change log (requirements)
 
