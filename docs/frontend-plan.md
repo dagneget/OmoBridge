@@ -180,7 +180,7 @@ Update the counts when you finish a task.
 | FP5 | Catalog, cart, checkout | 6 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
-| FP8 | Enterprise: farmers, supply, farmer payments | 9 / 10 |
+| FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
 | FP11 | Delivery provider app | 0 / 8 |
@@ -715,11 +715,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: print layout works.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/supplyHistoryPrint.test.tsx (5/5 passed), full suite (44 files, 241 tests passed), typecheck (clean), lint (clean), build (clean)
 
-- [~] **F-810 · Supply tests** · T1
+- [x] **F-810 · Supply tests** · T1
   Needs: F-807
   Build: tests for entry, inspection sums, payment and isolation.
   Done when: suite passes.
-  Owner: @claude-agent · Started: 2026-10-18
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/supplySubsystemIntegration.test.tsx (7/7 passed), full suite (45 files, 248 tests passed), typecheck (clean), lint (clean), build (clean)
 
 ---
 
