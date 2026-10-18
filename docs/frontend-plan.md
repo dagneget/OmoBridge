@@ -170,7 +170,7 @@ Update the counts when you finish a task.
 
 | Phase | Area | Done / Total |
 |---|---|---|
-| FP0 | Foundation and audit | 1 / 8 |
+| FP0 | Foundation and audit | 2 / 8 |
 | FP1 | App shell, design system, PWA core | 0 / 10 |
 | FP2 | Authentication and roles | 0 / 9 |
 | FP3 | Public tourism | 0 / 11 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **1 / 134** |
+| | **Total** | **2 / 134** |
 
 ### What can run in parallel
 
@@ -220,11 +220,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: `docs/decisions.md` has the verified state, the decisions and the stack confirmation; gaps are in Section 10.
   Done: @claude-agent · 2026-10-18 · Tests: audit completed, decisions logged in docs/decisions.md
 
-- [ ] **F-002 · Tooling baseline** · T1
+- [x] **F-002 · Tooling baseline** · T1
   Needs: F-001
   Build: TypeScript strict, ESLint, Prettier, path aliases, Vitest + Testing Library, environment handling (`VITE_API_BASE_URL`), npm scripts (`dev`, `build`, `lint`, `typecheck`, `test`, `api:generate`).
   Done when: all scripts run clean; a sample test passes.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: npm run test (3/3 passed), typecheck (clean), lint (clean), build (clean), api:generate (clean)
 
 - [ ] **F-003 · Design tokens and styling** · T1
   Needs: F-001
@@ -1183,6 +1183,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 |---|---|---|---|---|
 | 2026-10-18 | — | — | Plan created | 134 tasks across 18 phases |
 | 2026-10-18 | @claude-agent | F-001 | Completed | Pre-implementation audit completed, decisions logged in ADR-004 |
+| 2026-10-18 | @claude-agent | F-002 | Completed | Tooling baseline, Vitest, testing-library, strict TS, scripts, openapi-typescript verified |
 
 ## 12. Change log (requirements)
 
