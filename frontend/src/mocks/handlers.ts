@@ -22,6 +22,7 @@ import {
   mockFarmerPayables,
   mockFarmerPayments,
   mockProductionBatches,
+  mockEnterpriseProducts,
 } from './fixtures/enterprise';
 
 export const handlers = [
@@ -555,4 +556,126 @@ export const handlers = [
       },
     });
   }),
+
+  // Enterprise Products Catalog & Transparent Pricing (F-907, F-908)
+  http.get('*/api/v1/enterprises/:enterpriseId/products', () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockEnterpriseProducts,
+    });
+  }),
+
+  http.get('*/api/v1/enterprises/:enterpriseId/products/:productId', ({ params }) => {
+    const { productId } = params;
+    const prod = mockEnterpriseProducts.find((p) => p.id === productId);
+    if (!prod) {
+      return HttpResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
+    }
+    return HttpResponse.json({ success: true, data: prod });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/products', async ({ params, request }) => {
+    const { enterpriseId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+
+    const packSize = Number(body.packSize || 1);
+    const purchaseCost = Number(body.purchaseCost || 200 * packSize);
+    const processingCost = Number(body.processingCost || 25 * packSize);
+    const packagingCost = Number(body.packagingCost || 20 * packSize);
+    const laborCost = Number(body.laborCost || 15 * packSize);
+    const transportCost = Number(body.transportCost || 10);
+    const directCost = purchaseCost + processingCost + packagingCost + laborCost + transportCost;
+    const marginRate = Number(body.marginRate || 0.15);
+    const enterpriseMargin = Math.round(directCost * marginRate * 100) / 100;
+    const subtotal = directCost + enterpriseMargin;
+    const communityFund = Math.round(subtotal * 0.03 * 100) / 100;
+    const platformFee = Math.round(subtotal * 0.05 * 100) / 100;
+    const taxAmount = Math.round(subtotal * 0.15 * 100) / 100;
+    const totalPrice = Math.round((subtotal + communityFund + platformFee + taxAmount) * 100) / 100;
+
+    const newProd = {
+      id: `prod-${Date.now()}`,
+      enterpriseId: String(enterpriseId),
+      enterpriseName: 'South Omo Community Heritage Cooperative',
+      sku: body.sku || `SKU-OMO-${Date.now()}`,
+      name: body.name || 'Artisanal Product',
+      description: body.description || '',
+      story: body.story || '',
+      category: body.category || 'Honey & Hive Products',
+      unit: 'UNIT',
+      packSize,
+      unitPrice: totalPrice,
+      currency: 'ETB',
+      productionOutputId: body.productionOutputId,
+      stockOnHand: Number(body.initialStock || 50),
+      stockReserved: 0,
+      availableStock: Number(body.initialStock || 50),
+      published: Boolean(body.publishImmediately),
+      traceToken: `TRC-OMO-${Date.now()}`,
+      priceBreakdown: {
+        purchaseCost,
+        processingCost,
+        packagingCost,
+        laborCost,
+        transportCost,
+        enterpriseMargin,
+        communityFund,
+        platformFee,
+        taxAmount,
+        totalPrice,
+      },
+      createdAt: new Date().toISOString(),
+    };
+
+    mockEnterpriseProducts.unshift(newProd);
+
+    return HttpResponse.json(
+      {
+        success: true,
+        message: 'Product created with transparent pricing breakdown',
+        data: newProd,
+      },
+      { status: 201 }
+    );
+  }),
+
+  http.patch('*/api/v1/enterprises/:enterpriseId/products/:productId/publish', ({ params, request }) => {
+    const { productId } = params;
+    const url = new URL(request.url);
+    const publishParam = url.searchParams.get('publish');
+    const shouldPublish = publishParam !== 'false';
+
+    const prod = mockEnterpriseProducts.find((p) => p.id === productId);
+    if (!prod) {
+      return HttpResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
+    }
+    prod.published = shouldPublish;
+    return HttpResponse.json({ success: true, data: prod });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/products/:productId/adjust-stock', async ({ params, request }) => {
+    const { productId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const prod = mockEnterpriseProducts.find((p) => p.id === productId);
+    if (!prod) {
+      return HttpResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
+    }
+
+    const delta = Number(body.quantity || 0);
+    prod.stockOnHand = (prod.stockOnHand || 0) + delta;
+    prod.availableStock = prod.stockOnHand - (prod.stockReserved || 0);
+
+    const movement = {
+      id: `smov-${Date.now()}`,
+      productId: String(productId),
+      movementType: delta >= 0 ? 'RESTOCK' : 'ADJUSTMENT_DAMAGE',
+      quantity: delta,
+      balanceAfter: prod.stockOnHand,
+      reason: body.reason || 'Inventory audit adjustment',
+      createdAt: new Date().toISOString(),
+    };
+
+    return HttpResponse.json({ success: true, data: movement });
+  }),
 ];
+

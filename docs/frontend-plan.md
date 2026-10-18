@@ -767,17 +767,19 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Owner: @antigravity · Completed: 2026-10-18
   Test: `vitest run src/test/productionBatchDetail.test.tsx` (9/9 passed)
 
-- [ ] **F-907 · Create product from output** · T1
+- [x] **F-907 · Create product from output** · T1
   Needs: F-905 · Backend: B-702, B-703
   Build: pricing inputs, server-calculated breakdown preview, publish and unpublish, stock display.
   Done when: the saved breakdown matches the server.
-  Owner: —
+  Owner: @antigravity · Completed: 2026-10-18
+  Test: `vitest run src/test/enterpriseProducts.test.tsx` (6/6 passed)
 
-- [ ] **F-908 · Price rules** · T2
+- [x] **F-908 · Price rules** · T2
   Needs: F-801 · Backend: B-206
   Build: manage tax, platform fee, margin and community fund rules with effective dates.
   Done when: edits are saved and audited server-side.
-  Owner: —
+  Owner: @antigravity · Completed: 2026-10-18
+  Test: `vitest run src/test/enterpriseProducts.test.tsx` (6/6 passed)
 
 - [ ] **F-909 · Orders management** · T1
   Needs: F-801 · Backend: B-804, B-805

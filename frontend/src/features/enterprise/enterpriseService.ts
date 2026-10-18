@@ -27,6 +27,11 @@ import type {
   ProductionBatchResponse,
   TraceValidationResponse,
   TraceRecordUpdateRequest,
+  ProductResponse,
+  ProductCreateFromOutputRequest,
+  ProductUpdateRequest,
+  ProductStockAdjustmentRequest,
+  ProductStockMovementResponse,
 } from '../../types/api';
 
 export const enterpriseService = {
@@ -347,5 +352,76 @@ export const enterpriseService = {
       data
     );
     return res.data?.data || (res.data as unknown as { batchId: string; publicToken: string; showFarmerNames: boolean; publicStory: string });
+  },
+
+  // Enterprise Products Management (F-907, F-908)
+  getEnterpriseProducts: async (enterpriseId: string): Promise<ProductResponse[]> => {
+    const res = await httpClient.get<StandardApiResponse<ProductResponse[]>>(
+      `/api/v1/enterprises/${enterpriseId}/products`
+    );
+    return res.data?.data || (res.data as unknown as ProductResponse[]) || [];
+  },
+
+  getProductById: async (enterpriseId: string, productId: string): Promise<ProductResponse> => {
+    const res = await httpClient.get<StandardApiResponse<ProductResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/products/${productId}`
+    );
+    return res.data?.data || (res.data as unknown as ProductResponse);
+  },
+
+  createProductFromOutput: async (
+    enterpriseId: string,
+    data: ProductCreateFromOutputRequest
+  ): Promise<ProductResponse> => {
+    const res = await httpClient.post<StandardApiResponse<ProductResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/products`,
+      data
+    );
+    return res.data?.data || (res.data as unknown as ProductResponse);
+  },
+
+  updateProduct: async (
+    enterpriseId: string,
+    productId: string,
+    data: ProductUpdateRequest
+  ): Promise<ProductResponse> => {
+    const res = await httpClient.patch<StandardApiResponse<ProductResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/products/${productId}`,
+      data
+    );
+    return res.data?.data || (res.data as unknown as ProductResponse);
+  },
+
+  publishProduct: async (
+    enterpriseId: string,
+    productId: string,
+    publish: boolean
+  ): Promise<ProductResponse> => {
+    const res = await httpClient.patch<StandardApiResponse<ProductResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/products/${productId}/publish?publish=${publish}`
+    );
+    return res.data?.data || (res.data as unknown as ProductResponse);
+  },
+
+  adjustProductStock: async (
+    enterpriseId: string,
+    productId: string,
+    data: ProductStockAdjustmentRequest
+  ): Promise<ProductStockMovementResponse> => {
+    const res = await httpClient.post<StandardApiResponse<ProductStockMovementResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/products/${productId}/adjust-stock`,
+      data
+    );
+    return res.data?.data || (res.data as unknown as ProductStockMovementResponse);
+  },
+
+  getProductStockMovements: async (
+    enterpriseId: string,
+    productId: string
+  ): Promise<ProductStockMovementResponse[]> => {
+    const res = await httpClient.get<StandardApiResponse<ProductStockMovementResponse[]>>(
+      `/api/v1/enterprises/${enterpriseId}/products/${productId}/stock-movements`
+    );
+    return res.data?.data || (res.data as unknown as ProductStockMovementResponse[]) || [];
   },
 };

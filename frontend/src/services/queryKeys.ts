@@ -104,6 +104,8 @@ export const queryKeys = {
     batches: (enterpriseId: string) => [...queryKeys.enterprise.all, 'batches', enterpriseId] as const,
     batch: (enterpriseId: string, batchId: string) => [...queryKeys.enterprise.all, 'batch', enterpriseId, batchId] as const,
     traceValidation: (enterpriseId: string, batchId: string) => [...queryKeys.enterprise.all, 'traceValidation', enterpriseId, batchId] as const,
+    products: (enterpriseId: string) => [...queryKeys.enterprise.all, 'products', enterpriseId] as const,
+    product: (enterpriseId: string, productId: string) => [...queryKeys.enterprise.all, 'product', enterpriseId, productId] as const,
   },
   farmer: {
     all: ['farmer'] as const,
