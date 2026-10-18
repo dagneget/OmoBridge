@@ -16,6 +16,7 @@ import CartPage from '../pages/public/CartPage';
 import CheckoutPage from '../pages/public/CheckoutPage';
 import AboutPage from '../pages/public/AboutPage';
 import NotFoundPage from '../pages/public/NotFoundPage';
+import DesignTokensPage from '../pages/public/DesignTokensPage';
 
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterProducerPage from '../pages/auth/RegisterProducerPage';
@@ -42,6 +43,7 @@ export default function AppRoutes() {
       <Route path="/cart" element={<CartPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/about" element={<AboutPage />} />
+      <Route path="/design-tokens" element={<DesignTokensPage />} />
 
       {/* Auth Pages */}
       <Route path="/login" element={<LoginPage />} />

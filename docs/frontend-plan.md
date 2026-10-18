@@ -170,7 +170,7 @@ Update the counts when you finish a task.
 
 | Phase | Area | Done / Total |
 |---|---|---|
-| FP0 | Foundation and audit | 2 / 8 |
+| FP0 | Foundation and audit | 3 / 8 |
 | FP1 | App shell, design system, PWA core | 0 / 10 |
 | FP2 | Authentication and roles | 0 / 9 |
 | FP3 | Public tourism | 0 / 11 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **2 / 134** |
+| | **Total** | **3 / 134** |
 
 ### What can run in parallel
 
@@ -226,11 +226,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: all scripts run clean; a sample test passes.
   Done: @claude-agent · 2026-10-18 · Tests: npm run test (3/3 passed), typecheck (clean), lint (clean), build (clean), api:generate (clean)
 
-- [ ] **F-003 · Design tokens and styling** · T1
+- [x] **F-003 · Design tokens and styling** · T1
   Needs: F-001
   Build: Styling approach from F-001 (default Tailwind). Color, spacing and type tokens; light and dark themes; self-hosted fonts including Ethiopic script support; large touch-friendly defaults.
   Done when: a style sheet page shows all tokens in both themes; Amharic text renders correctly.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/designTokens.test.tsx (4/4 passed), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-004 · Generated API types and client** · T1
   Needs: F-002 · Backend: B-004
@@ -1184,6 +1184,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | — | — | Plan created | 134 tasks across 18 phases |
 | 2026-10-18 | @claude-agent | F-001 | Completed | Pre-implementation audit completed, decisions logged in ADR-004 |
 | 2026-10-18 | @claude-agent | F-002 | Completed | Tooling baseline, Vitest, testing-library, strict TS, scripts, openapi-typescript verified |
+| 2026-10-18 | @claude-agent | F-003 | Completed | Design tokens, Tailwind v4 import, Ethiopic/Amharic script support, dark/light themes, touch targets verified |
 
 ## 12. Change log (requirements)
 
