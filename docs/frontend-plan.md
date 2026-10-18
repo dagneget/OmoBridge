@@ -172,7 +172,7 @@ Update the counts when you finish a task.
 |---|---|---|
 | FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 7 / 10 |
-| FP2 | Authentication and roles | 2 / 9 |
+| FP2 | Authentication and roles | 3 / 9 |
 | FP3 | Public tourism | 0 / 11 |
 | FP4 | Bookings | 0 / 5 |
 | FP5 | Catalog, cart, checkout | 0 / 9 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **17 / 134** |
+| | **Total** | **18 / 134** |
 
 ### What can run in parallel
 
@@ -342,11 +342,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: tests cover each response from the backend.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/loginPage.test.tsx (6/6 passed, 86/86 total), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-203 · Buyer registration** · T1
+- [x] **F-203 · Buyer registration** · T1
   Needs: F-103 · Backend: B-103
   Build: registration form with phone, name, password, preferred language, optional email; duplicate phone message.
   Done when: success logs the user in or shows the next step; duplicate is handled.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/registerBuyer.test.tsx (2/2 passed, 88/88 total), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-204 · Producer (farmer) registration** · T1
   Needs: F-103 · Backend: B-104
@@ -1199,6 +1199,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-108 | Completed | Offline UX (useNetworkStatus hook, OfflineBanner in Public/Auth/Dashboard layouts, NetworkButton disabled state with explanation, /offline fallback view) verified |
 | 2026-10-18 | @claude-agent | F-201 | Completed | Single auth module (Zustand authStore, authService for login/me/register, role helpers, 401 broadcast return-path preservation) verified |
 | 2026-10-18 | @claude-agent | F-202 | Completed | LoginPage (phone & password, 401 wrong password, 429 throttling timer, PENDING/SUSPENDED account toasts, role-based & redirect navigation) verified |
+| 2026-10-18 | @claude-agent | F-203 | Completed | RegisterBuyerPage (phone, name, password, email, preferredLanguage, 409 duplicate phone inline error, immediate authentication) verified |
 
 ## 12. Change log (requirements)
 

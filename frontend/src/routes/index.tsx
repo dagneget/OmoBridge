@@ -28,6 +28,7 @@ const NotFoundPage = lazy(() => import('../pages/public/NotFoundPage'));
 
 // Lazy-loaded Auth Pages
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
+const RegisterBuyerPage = lazy(() => import('../pages/auth/RegisterBuyerPage'));
 const RegisterProducerPage = lazy(() => import('../pages/auth/RegisterProducerPage'));
 const RegisterEnterprisePage = lazy(() => import('../pages/auth/RegisterEnterprisePage'));
 const RegisterDeliveryPage = lazy(() => import('../pages/auth/RegisterDeliveryPage'));
@@ -82,8 +83,13 @@ export default function AppRoutes() {
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/auth/login" element={<LoginPage />} />
+            <Route path="/register/buyer" element={<RegisterBuyerPage />} />
+            <Route path="/auth/register/buyer" element={<RegisterBuyerPage />} />
+            <Route path="/register/producer" element={<RegisterProducerPage />} />
             <Route path="/auth/register/producer" element={<RegisterProducerPage />} />
+            <Route path="/register/enterprise" element={<RegisterEnterprisePage />} />
             <Route path="/auth/register/enterprise" element={<RegisterEnterprisePage />} />
+            <Route path="/register/delivery" element={<RegisterDeliveryPage />} />
             <Route path="/auth/register/delivery" element={<RegisterDeliveryPage />} />
           </Route>
 
