@@ -11,6 +11,7 @@ import {
   Sprout,
   CheckCircle2,
   ArrowRight,
+  Calendar,
 } from 'lucide-react';
 import { Card, Button, StatusChip } from '../../components/common';
 import { useAuthStore } from '../../features/auth/authStore';
@@ -203,6 +204,23 @@ export default function AccountPage() {
                 No enterprise or producer links assigned to this account. You are operating as a standard buyer/visitor.
               </p>
             )}
+          </Card>
+
+          {/* Quick Shortcuts: My Bookings */}
+          <Card className="p-6 space-y-3">
+            <h2 className="text-base font-bold text-foreground flex items-center justify-between">
+              <span>My Experiences & Bookings</span>
+              <Calendar className="w-4 h-4 text-primary" />
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Review your reserved cultural tours, scheduled ceremonies, and download printable vouchers.
+            </p>
+            <Link to="/account/bookings">
+              <Button variant="outline" size="sm" className="w-full text-xs font-semibold justify-between mt-2">
+                <span>View All Bookings</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Button>
+            </Link>
           </Card>
         </div>
 

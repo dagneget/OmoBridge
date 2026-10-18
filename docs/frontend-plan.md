@@ -174,7 +174,7 @@ Update the counts when you finish a task.
 | FP1 | App shell, design system, PWA core | 7 / 10 |
 | FP2 | Authentication and roles | 9 / 9 |
 | FP3 | Public tourism | 5 / 11 |
-| FP4 | Bookings | 3 / 5 |
+| FP4 | Bookings | 4 / 5 |
 | FP5 | Catalog, cart, checkout | 0 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **32 / 134** |
+| | **Total** | **33 / 134** |
 
 ### What can run in parallel
 
@@ -477,11 +477,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: statuses render for all values, including declined and cancelled.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/bookingConfirmation.test.tsx (7/7 passed), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-404 · My bookings** · T1
+- [x] **F-404 · My bookings** · T1
   Needs: F-207 · Backend: B-311, B-310
   Build: list and detail; cancel where allowed.
   Done when: another user's booking is not reachable.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/myBookings.test.tsx (4/4 passed), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-405 · Pay for a booking** · T1
   Needs: F-601, F-403 · Backend: B-902, B-906
@@ -1217,6 +1217,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-401 | Completed | AvailabilityPicker component with date grouping, LocalTime formatting, full/closed/overcapacity validation, and reactive session radio selection verified |
 | 2026-10-18 | @claude-agent | F-402 | Completed | BookingPage with party size counter, cultural rules acknowledgement, server price breakdown via /api/v1/pricing/calculate, idempotency key, and double-submit protection verified |
 | 2026-10-18 | @claude-agent | F-403 | Completed | BookingConfirmationPage with code copy, 6-state status timeline, voucher print, breakdown, and cancellation modal verified |
+| 2026-10-18 | @claude-agent | F-404 | Completed | MyBookingsPage with status filtering tabs, voucher navigation, and cancellation modal with reason feedback verified |
 
 ## 12. Change log (requirements)
 

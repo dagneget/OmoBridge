@@ -31,6 +31,7 @@ const DesignTokensPage = lazy(() => import('../pages/public/DesignTokensPage'));
 const NotFoundPage = lazy(() => import('../pages/public/NotFoundPage'));
 const JoinPage = lazy(() => import('../pages/public/JoinPage'));
 const AccountPage = lazy(() => import('../pages/account/AccountPage'));
+const MyBookingsPage = lazy(() => import('../pages/account/MyBookingsPage'));
 
 // Lazy-loaded Auth Pages
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
@@ -112,6 +113,22 @@ export default function AppRoutes() {
               element={
                 <RoleGuard>
                   <AccountPage />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/account/bookings"
+              element={
+                <RoleGuard>
+                  <MyBookingsPage />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/bookings/my"
+              element={
+                <RoleGuard>
+                  <MyBookingsPage />
                 </RoleGuard>
               }
             />
