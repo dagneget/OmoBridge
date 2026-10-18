@@ -36,6 +36,11 @@ import com.omobridge.orders.domain.OrderStatus;
 import com.omobridge.orders.domain.StockReservationRepository;
 import com.omobridge.orders.service.CheckoutService;
 import com.omobridge.orders.service.OrderService;
+import com.omobridge.payments.domain.CommunityFundLedgerRepository;
+import com.omobridge.payments.domain.PaymentAttemptRepository;
+import com.omobridge.payments.domain.PaymentRepository;
+import com.omobridge.payments.domain.ProviderEventRepository;
+import com.omobridge.payments.domain.RefundRepository;
 import com.omobridge.products.domain.Product;
 import com.omobridge.products.domain.ProductPriceBreakdown;
 import com.omobridge.products.domain.ProductPriceBreakdownRepository;
@@ -113,6 +118,21 @@ class DeliveryAndTrackingIntegrationTest extends BaseIntegrationTest {
     private StockReservationRepository stockReservationRepository;
 
     @Autowired
+    private CommunityFundLedgerRepository communityFundLedgerRepository;
+
+    @Autowired
+    private RefundRepository refundRepository;
+
+    @Autowired
+    private ProviderEventRepository providerEventRepository;
+
+    @Autowired
+    private PaymentAttemptRepository paymentAttemptRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
+
+    @Autowired
     private CheckoutService checkoutService;
 
     @Autowired
@@ -146,6 +166,13 @@ class DeliveryAndTrackingIntegrationTest extends BaseIntegrationTest {
         deliveryJobOrderRepository.deleteAll();
         deliveryJobRepository.deleteAll();
         deliveryProviderRepository.deleteAll();
+        // Other suites share this test database and may leave payments referencing orders.
+        // Remove dependent payment fixtures before deleting their orders.
+        communityFundLedgerRepository.deleteAll();
+        refundRepository.deleteAll();
+        providerEventRepository.deleteAll();
+        paymentAttemptRepository.deleteAll();
+        paymentRepository.deleteAll();
         stockReservationRepository.deleteAll();
         orderRepository.deleteAll();
         checkoutGroupRepository.deleteAll();
