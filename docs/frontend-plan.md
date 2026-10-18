@@ -170,7 +170,7 @@ Update the counts when you finish a task.
 
 | Phase | Area | Done / Total |
 |---|---|---|
-| FP0 | Foundation and audit | 5 / 8 |
+| FP0 | Foundation and audit | 6 / 8 |
 | FP1 | App shell, design system, PWA core | 0 / 10 |
 | FP2 | Authentication and roles | 0 / 9 |
 | FP3 | Public tourism | 0 / 11 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **5 / 134** |
+| | **Total** | **6 / 134** |
 
 ### What can run in parallel
 
@@ -244,11 +244,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: unit tests cover each status and the error shape.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/httpClient.test.ts (10/10 passed), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-006 · Server-state layer** · T1
+- [x] **F-006 · Server-state layer** · T1
   Needs: F-005
   Build: TanStack Query setup, key conventions, pagination helpers, invalidation rules, default stale times by data type (public vs private).
   Done when: a sample list query paginates and refetches correctly in a test.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/queryLayer.test.tsx (1/1 passed, 22/22 total), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-007 · MSW mock layer** · T1
   Needs: F-004
@@ -1187,6 +1187,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-003 | Completed | Design tokens, Tailwind v4 import, Ethiopic/Amharic script support, dark/light themes, touch targets verified |
 | 2026-10-18 | @claude-agent | F-004 | Completed | Generated OpenAPI types, typed schema helpers, api:check drift test verified |
 | 2026-10-18 | @claude-agent | F-005 | Completed | Axios HTTP client, token injection, language header, 401/403/409/422/429 normalized, idempotency helper, retry safe |
+| 2026-10-18 | @claude-agent | F-006 | Completed | TanStack Query client, hierarchical query keys, pagination, mobile-conscious stale times, cache invalidators verified |
 
 ## 12. Change log (requirements)
 
