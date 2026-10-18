@@ -49,6 +49,25 @@
     "statusDelivered": "ተደርሷል",
     "statusFailed": "አልተሳካም",
     "statusCancelled": "ተሰርዟል",
-    "statusUnknown": "ያልታወቀ"
+    "statusUnknown": "ያልታወቀ",
+    "detailTitle": "ስራ {{jobNo}}",
+    "backToJobs": "ወደ ስራዎች ተመለስ",
+    "currentStatus": "የአሁኑ ሁኔታ",
+    "nextSteps": "ቀጣይ ምን ማድረግ ይችላሉ?",
+    "reasonLabel": "ምክንያት (አማራጭ)",
+    "reasonHint": "ለአካል አስተዳዳሪ ማስታወሻ ያክሉ፤ ለምሳሌ መዘግየት ወይም የመደረስ ችግር።",
+    "actionPickedUp": "ተነስቷል",
+    "actionInTransit": "በመንገድ ላይ",
+    "actionDelivered": "ተደርሷል",
+    "actionFailed": "አልተሳካም ተድርጎ አስቀምጥ",
+    "actionCancelled": "ስራውን ሰርዝ",
+    "noNextSteps": "ይህ ስራ ተጠናቅቷል። በተጨማሪ የሁኔታ ለውጥ አልታለፈም።",
+    "updatedTo": "ሁኔታው ወደ {{status}} ተወርዷል።",
+    "rejectedTitle": "አገልግሎት አገልጎ ይህን ለውጥ ውድቅ አደረገዋል",
+    "rejectedFallback": "ሁኔታውን ማሻስ አልተቻለም። ስራው እስከዚህ ጊዜ {{status}} ላይ ነው።",
+    "detailLoading": "ስራውን በመጫን ላይ…",
+    "detailNotFoundTitle": "ስራ አልተገኘም",
+    "detailNotFoundDescription": "ይህ ስራ በተመደበውት ዝርዝርዎ ውስጥ የለም።",
+    "updateBlockedOffline": "የሁኔታ ለውጥ ግንኙነት ይፈልጋል።"
   }
 }

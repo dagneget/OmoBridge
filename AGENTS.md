@@ -151,6 +151,13 @@ that looks wrong.
 - **`LoginAttemptService` is in-memory**, so throttling resets on restart and is per-instance.
 - **Three integration tests need a live DB** (`SecurityIntegrationTest`,
   `OpenApiIntegrationTest`, `OmoBridgeApplicationTests`).
+- **Dispatching `window` `offline` events in tests poisons the rest of the run.** React
+  Query's `onlineManager` is a process-wide singleton that listens for those events. After a
+  test dispatches `offline`, every later query is silently paused (`fetchStatus: 'paused'`
+  while `enabled` is still `true`) and no request is sent — which looks exactly like a broken
+  component. Always `window.dispatchEvent(new Event('online'))` in `afterEach` after an
+  offline test. Symptom if you hit it: `enabled === true`, `isLoading === false`,
+  `isError === false`, `data === undefined`, and the spy was never called.
 - **A delivery provider cannot discover their own `providerId`.** The job list endpoint is
   `GET /api/v1/delivery/providers/{providerId}/jobs`, but `/api/v1/auth/me` returns
   `UserProfileResponse`, which has no provider id, and there is no `/providers/me` equivalent

@@ -49,6 +49,25 @@
     "statusDelivered": "Delivered",
     "statusFailed": "Failed",
     "statusCancelled": "Cancelled",
-    "statusUnknown": "Unknown"
+    "statusUnknown": "Unknown",
+    "detailTitle": "Job {{jobNo}}",
+    "backToJobs": "Back to jobs",
+    "currentStatus": "Current status",
+    "nextSteps": "What can you do next?",
+    "reasonLabel": "Reason (optional)",
+    "reasonHint": "Add a note for the dispatcher, for example a delay or an access problem.",
+    "actionPickedUp": "Picked up",
+    "actionInTransit": "In transit",
+    "actionDelivered": "Delivered",
+    "actionFailed": "Mark as failed",
+    "actionCancelled": "Cancel job",
+    "noNextSteps": "This job is finished. There are no further status changes.",
+    "updatedTo": "Status updated to {{status}}.",
+    "rejectedTitle": "The server rejected this change",
+    "rejectedFallback": "The status could not be updated. The job is still {{status}}.",
+    "detailLoading": "Loading job…",
+    "detailNotFoundTitle": "Job not found",
+    "detailNotFoundDescription": "This job is not in the list assigned to you.",
+    "updateBlockedOffline": "Status changes need a connection."
   }
 }

@@ -121,6 +121,13 @@ describe('Delivery provider home and job list (F-1101)', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    /*
+     * React Query's `onlineManager` is a process-wide singleton driven by window
+     * online/offline events. An `offline` event left over from this test would pause
+     * every later query in the run, so restore it before finishing.
+     */
+    window.dispatchEvent(new Event('online'));
+    onlineSpy.value = true;
   });
 
   it('shows the loading state while the job list is in flight', async () => {

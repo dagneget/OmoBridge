@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import {
   Package,
   MapPin,
@@ -180,56 +181,67 @@ export default function DeliveryDashboardPage() {
 
   const renderJobCard = (job: DeliveryJobResponse) => (
     <li key={job.jobId ?? job.jobNo} data-testid="delivery-job-card">
-      <Card className="p-4 space-y-3" hoverable>
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <div className="min-w-0">
-            <h3 className="text-base font-semibold text-foreground break-words">
-              {job.jobNo ?? tr('delivery.labelJobNumber', FALLBACK.jobNumber)}
-            </h3>
-            {job.createdAt && (
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {tr('delivery.labelCreated', FALLBACK.created)}:{' '}
-                {formatDateTime(job.createdAt, 'medium')}
-              </p>
-            )}
-          </div>
-          <StatusChip status={job.status ?? 'UNKNOWN'} label={statusLabel(job.status)} />
-        </div>
-
-        <div className="space-y-2 text-sm">
-          <div className="flex items-start gap-2">
-            <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+      <Card className="p-0 overflow-hidden" hoverable>
+        {/*
+          Status changes are intentionally not offered on the list. The server is the
+          authority on legal transitions, so the actions live on the detail screen
+          (F-1102) where the job's current state is loaded fresh.
+        */}
+        <Link
+          to={`/dashboard/delivery/jobs/${job.jobId}`}
+          data-testid="delivery-job-link"
+          className="block p-4 space-y-3 touch-target"
+        >
+          <div className="flex flex-wrap items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {tr('delivery.labelPickup', FALLBACK.pickup)}
-              </p>
-              <p className="text-foreground break-words">{job.pickupAddress ?? '—'}</p>
+              <h3 className="text-base font-semibold text-foreground break-words">
+                {job.jobNo ?? tr('delivery.labelJobNumber', FALLBACK.jobNumber)}
+              </h3>
+              {job.createdAt && (
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {tr('delivery.labelCreated', FALLBACK.created)}:{' '}
+                  {formatDateTime(job.createdAt, 'medium')}
+                </p>
+              )}
+            </div>
+            <StatusChip status={job.status ?? 'UNKNOWN'} label={statusLabel(job.status)} />
+          </div>
+
+          <div className="space-y-2 text-sm">
+            <div className="flex items-start gap-2">
+              <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <div className="min-w-0">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {tr('delivery.labelPickup', FALLBACK.pickup)}
+                </p>
+                <p className="text-foreground break-words">{job.pickupAddress ?? '—'}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-2">
+              <Truck className="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+              <div className="min-w-0">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {tr('delivery.labelDropoff', FALLBACK.dropoff)}
+                </p>
+                <p className="text-foreground break-words">{job.dropoffAddress ?? '—'}</p>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-start gap-2">
-            <Truck className="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <div className="min-w-0">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {tr('delivery.labelDropoff', FALLBACK.dropoff)}
-              </p>
-              <p className="text-foreground break-words">{job.dropoffAddress ?? '—'}</p>
-            </div>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5">
+              <Wallet className="w-3.5 h-3.5" aria-hidden="true" />
+              <span className="sr-only">{tr('delivery.labelFee', FALLBACK.fee)}: </span>
+              <span aria-hidden="true">{tr('delivery.labelFee', FALLBACK.fee)}:</span>
+              {formatETB(job.fee, { currencyCode: job.currency || 'ETB' })}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <ClipboardList className="w-3.5 h-3.5" aria-hidden="true" />
+              {ordersLabel(job.orderIds?.length ?? 0)}
+            </span>
           </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5">
-            <Wallet className="w-3.5 h-3.5" aria-hidden="true" />
-            <span className="sr-only">{tr('delivery.labelFee', FALLBACK.fee)}: </span>
-            <span aria-hidden="true">{tr('delivery.labelFee', FALLBACK.fee)}:</span>
-            {formatETB(job.fee, { currencyCode: job.currency || 'ETB' })}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <ClipboardList className="w-3.5 h-3.5" aria-hidden="true" />
-            {ordersLabel(job.orderIds?.length ?? 0)}
-          </span>
-        </div>
+        </Link>
       </Card>
     </li>
   );

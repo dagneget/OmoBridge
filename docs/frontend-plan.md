@@ -183,14 +183,14 @@ Update the counts when you finish a task.
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
-| FP11 | Delivery provider app | 1 / 8 |
+| FP11 | Delivery provider app | 2 / 8 |
 | FP12 | Guide dashboard | 0 / 4 |
 | FP13 | Admin and authority | 0 / 5 |
 | FP14 | Reviews | 0 / 3 |
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **55 / 134** |
+| | **Total** | **56 / 134** |
 
 ### What can run in parallel
 
@@ -859,11 +859,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: only own jobs appear.
   Done: @opencode · 2026-10-18 · Tests: `npm test` → 45 files / 256 passed (15 new); `npm run typecheck` and `npm run build` clean. Endpoint `GET /api/v1/delivery/providers/{providerId}/jobs`; ownership enforced server-side, client passes only the session's own provider id. Loading/empty/error/403/offline states covered; axe audit passes. Blocked on backend gap F-1101-E1 for the id itself.
 
-- [~] **F-1102 · Job detail and status updates** · T1
+- [x] **F-1102 · Job detail and status updates** · T1
   Needs: F-1101 · Backend: B-1003
   Build: update to picked up, in transit, delivered with only valid next steps; show the server's state after each change.
   Done when: tests cover valid and rejected transitions.
-  Owner: @opencode · Started: 2026-10-18
+  Done: @opencode · 2026-10-18 · Tests: `npm test` → 47 files / 280 passed (17 new for F-1102); `npm run typecheck`, `oxlint` and `npm run build` clean. Uses `PATCH /api/v1/delivery/jobs/{jobId}/status`; the job is resolved from the provider's own list because the backend has no single-job GET. Valid and rejected transitions both covered, plus offline and axe. Route `/dashboard/delivery/jobs/:jobId` handed to Codex in `docs/handoffs/F-1102.md` (`routes/index.tsx` untouched).
 
 - [ ] **F-1103 · GPS capture** · T1
   Needs: F-1102
@@ -1305,3 +1305,4 @@ Activity: 2026-10-18 · @claude-agent · F-808 · Completed · Unpaid delivery c
 - [~] **I-01 · Publish the four-agent integration baseline**
   Owner: @codex · Started: 2026-10-18 · Branch: `integration/four-agent-baseline`
   Scope: Combine committed primary enterprise/tourism work with the tested Codex feature history; preserve active F-809 changes outside this worktree; reconcile shared contracts/mocks/routes and verify the combined app.
+| 2026-10-18 | @opencode | F-1102 | Done | Added `pages/dashboard/delivery/ProviderJobDetailPage.tsx` with only the legal next statuses, `deliveryService.updateJobStatus`, and a `nextStatuses` table mirroring the backend `DeliveryStatus.canTransitionTo` (the server does not publish the legal set). The screen always renders the server's returned job and re-reads it after a rejection, so it cannot drift. Fixed a real offline bug found by tests: with no cached job and no connection the page said "job not found"; it now says it cannot load. Tests 47 files / 280 passed (17 new); typecheck, lint, build clean; axe audit passes. Handoff in `docs/handoffs/F-1102.md` — Codex must add the `/dashboard/delivery/jobs/:jobId` route, which is why `routes/index.tsx` was left untouched. |
