@@ -175,7 +175,7 @@ Update the counts when you finish a task.
 | FP2 | Authentication and roles | 9 / 9 |
 | FP3 | Public tourism | 5 / 11 |
 | FP4 | Bookings | 5 / 5 |
-| FP5 | Catalog, cart, checkout | 0 / 9 |
+| FP5 | Catalog, cart, checkout | 2 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 0 / 10 |
@@ -302,11 +302,15 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: tests or manual checks show private API responses are never cached and public pages load offline after one visit.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/pwaConfig.test.ts (2/2 passed), sw.js Workbox rules verified with NetworkOnly on auth/payments/orders/delivery and StaleWhileRevalidate on catalog/locales
 
-- [ ] **F-107 · Install experience** · T2
+- [!] **F-107 · Install experience** · T2
   Needs: F-105
   Build: capture the install prompt, show a small install card, iOS "Add to Home Screen" instructions, hide when already installed.
   Done when: works in Android Chrome; the card hides after install.
-  Owner: —
+  Owner: @codex · Started: 2026-10-18
+  Implemented: Isolated InstallCard/usePwaInstall with one-use browser prompts, iOS Safari instructions, installed/standalone hiding, optional session dismissal and English/Amharic namespace.
+  Tests: Node 22 npm run typecheck, npm run lint, npm run build, npm test → passed (136 tests, 26 files; 13 install cases).
+  Blocked: Android Chrome/Safari installation, 360 px, keyboard and contrast checks need a real browser/device. Mounted once in App.tsx during F-INT-001; route-navigation persistence covered by an integration test.
+  Delivery: `feat/pwa-install-card; integration/frontend-support` · Commit(s): `f8ee2d2; 6a10eb8`. Implementation is on isolated branches; not merged into this checkout.
 
 - [x] **F-108 · Offline UX** · T1
   Needs: F-101
@@ -493,23 +497,33 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
 
 ### FP5: Catalog, cart, checkout
 
-- [ ] **F-501 · Product list** · T1
+- [!] **F-501 · Product list** · T1
   Needs: F-006 · Backend: B-704
   Build: published products with filter, search, stock status, pagination.
   Done when: unpublished products never appear.
-  Owner: —
+  Owner: @codex · Started: 2026-10-18
+  Implemented: Thin product page; generated-type public catalog service; search/category filters, stock labels, display pagination, English/Amharic namespace and four data states. Public route needs no role guard.
+  Tests: Node 22 npm run typecheck, npm run lint, npm run build, npm test → passed (131 tests, 26 files; 11 catalog/service cases).
+  Blocked: Catalog-specific real-browser 360 px, keyboard, contrast and service-worker offline-after-visit checks remain pending. Earlier implementation checks passed; populated live catalog verification remains pending.
+  Delivery: `feat/product-catalog` · Commit(s): `ad47968`. Implementation is on isolated branches; not merged into this checkout.
 
-- [ ] **F-502 · Product detail** · T1
+- [x] **F-502 · Product detail** · T1
   Needs: F-501, F-507 · Backend: B-704, B-605
   Build: story, price breakdown, producer share, link to the trace page, stock status.
   Done when: all sections render and the trace link works.
-  Owner: —
+  Done: @codex · 2026-10-18 · Tests: Node 22 typecheck, lint, build, npm test → passed (202 tests, 32 files; 22 targeted detail/service tests).
+  Verified: Live OpenAPI fields/path and 404; contract-based populated mock. Firefox exact 360 px viewport: no detail overflow, axe including contrast passes, keyboard Tab/Enter trace navigation works, cached offline and unavailable states render. Loading/error/retry/access and cold offline covered in tests. Public route needs no role guard.
+  Scope: Server producer purchase cost displayed without inferred percentage; no authoritative client totals. Empty live catalog means populated UI uses MSW. F-501/F-507 implementations included; their broader outstanding checks remain recorded separately. Primary checkout untouched.
+  Delivery: `feat/product-detail` · Commit(s): `1cfcb73`. Implementation is on isolated branches; not merged into this checkout.
 
-- [ ] **F-503 · Cart store** · T1
+- [x] **F-503 · Cart store** · T1
   Needs: F-501
   Build: browser-persisted cart (product ids and quantities only); grouped by seller; revalidate against the server; mark items that became unavailable or changed in price.
   Done when: reload keeps the cart; a removed product is flagged.
-  Owner: —
+  Done: @codex · 2026-10-18 · Tests: Node 22 typecheck, lint, build, npm test → passed (246 tests, 35 files).
+  Verified: Firefox full reload retained IDs/quantities; network revalidation succeeded; missing product flagged unavailable; logout cleared memory/storage. Built service-worker route test confirms fresh reads bypass the public cache. Store only; screen/360 px/translation/role guard checks do not apply until F-504.
+  Scope: Only IDs and quantities persisted; grouping/stock/price snapshots are server-derived and transient. Historical price changes across reload cannot be detected without persisting prices; first read establishes baseline. Fresh reads use existing HTTP adapter plus no-cache/NetworkOnly after a Firefox fetch-adapter timeout cleanup failure was reproduced and avoided. Account/tab boundaries and overlapping requests tested.
+  Delivery: `feat/cart-store` · Commit(s): `6ad5b33`. Implementation is on isolated branches; not merged into this checkout.
 
 - [ ] **F-504 · Cart page** · T1
   Needs: F-503
@@ -529,11 +543,15 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: countdown and expiry states render correctly.
   Owner: —
 
-- [ ] **F-507 · Price transparency component** · T1
+- [!] **F-507 · Price transparency component** · T1
   Needs: F-102, F-104
   Build: reusable breakdown (items, tax, platform fee, delivery fee, total, producer share) used by bookings, products and orders.
   Done when: renders server numbers exactly; no client-side math beyond formatting.
-  Owner: —
+  Owner: @codex · Started: 2026-10-18
+  Implemented: Generated-type product/booking/order component; server amounts only; local English/Amharic namespace; loading/empty/error/offline states; semantic description lists.
+  Tests: Node 22 npm run typecheck, npm run lint, npm run build, npm test → passed (119 tests, 23 files; 9 price component cases).
+  Blocked: Standalone/booking/order browser verification remains pending. Product-detail usage was subsequently verified in Firefox at 360 px, including contrast and keyboard navigation, under F-502.
+  Delivery: `feat/price-transparency` · Commit(s): `c3894f4`. Implementation is on isolated branches; not merged into this checkout.
 
 - [ ] **F-508 · My orders** · T1
   Needs: F-506 · Backend: B-805, B-804
@@ -1218,6 +1236,10 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-402 | Completed | BookingPage with party size counter, cultural rules acknowledgement, server price breakdown via /api/v1/pricing/calculate, idempotency key, and double-submit protection verified |
 | 2026-10-18 | @claude-agent | F-403 | Completed | BookingConfirmationPage with code copy, 6-state status timeline, voucher print, breakdown, and cancellation modal verified |
 | 2026-10-18 | @claude-agent | F-404 | Completed | MyBookingsPage with status filtering tabs, voucher navigation, and cancellation modal with reason feedback verified |
+
+| 2026-10-18 | @codex | F-502 | Completed on isolated branch | 1cfcb73: product detail, price breakdown and trace link; 202 tests, typecheck/lint/build and Firefox 360 px/keyboard/contrast checks pass. Awaiting integration. |
+| 2026-10-18 | @codex | F-503 | Completed on isolated branch | 6ad5b33: persistent cart intent, seller grouping, fresh checks and account cleanup; 246 tests, typecheck/lint/build and Firefox reload/removed-product/logout checks pass. Awaiting integration. |
+| 2026-10-18 | @codex | F-107, F-501, F-507 | Implemented; verification pending | Shared board synchronized from isolated branches; remaining browser/device checks retained as [!], with delivery references. |
 
 ## 12. Change log (requirements)
 
