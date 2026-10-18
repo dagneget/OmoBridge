@@ -739,11 +739,12 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Owner: @antigravity · Completed: 2026-10-18
   Test: `pnpm test src/test/inventoryOperations.test.tsx` (8/8 passed)
 
-- [ ] **F-903 · Reconciliation report** · T2
+- [x] **F-903 · Reconciliation report** · T2
   Needs: F-901 · Backend: B-505
   Build: view that flags balance mismatches.
   Done when: a mismatch is highlighted in a test.
-  Owner: —
+  Owner: @antigravity · Completed: 2026-10-18
+  Test: `pnpm test src/test/inventoryReconciliation.test.tsx` (8/8 passed)
 
 - [ ] **F-904 · Production batch wizard** · T1
   Needs: F-901 · Backend: B-602
@@ -1299,10 +1300,11 @@ Activity: 2026-10-18 · @claude-agent · F-808 · Completed · Unpaid delivery c
 
 Activity: 2026-10-18 · @antigravity · F-901 · Completed · Enterprise inventory storage lots and movement audit history with summary KPI statistics, multi-facet status/commodity/location filters, progress indicators, storage location registration modal, and chronological movement audit drawer. 46 test files (258 tests) pass, typecheck/lint/build clean.
 Activity: 2026-10-18 · @antigravity · F-902 · Completed · Inventory balance adjustments, inter-location transfers, and scrap/spoilage disposals with mandatory reasons, confirmation dialogs, and comprehensive client/server overdraw guards. 47 test files (266 tests) pass, typecheck/lint/build clean.
+Activity: 2026-10-18 · @antigravity · F-903 · Completed · Inventory reconciliation and discrepancy reporting with mismatch KPI metrics, discrepancy warning alert banner, discrepancy-only filter toggle, diagnostic memos, and quick balance correction modals. 48 test files (274 tests) pass, typecheck/lint/build clean.
 
 Activity: 2026-10-18 · @kiro · F-1001 · Claimed · Farmer home dashboard — balance, recent deliveries, today's buying prices, large icons. Backend: GET /api/v1/farmers/{farmerId}/balance, /deliveries, /payments; GET /api/v1/buying-prices/enterprises/{enterpriseId} (public). Branch: task/F-1001-farmer-home.
 ## Integration milestones (outside the 134 feature tasks)
 
-- [~] **I-01 · Publish the four-agent integration baseline**
+- [x] **I-01 · Publish the four-agent integration baseline**
   Owner: @codex · Started: 2026-10-18 · Branch: `integration/four-agent-baseline`
-  Scope: Combine committed primary enterprise/tourism work with the tested Codex feature history; preserve active F-809 changes outside this worktree; reconcile shared contracts/mocks/routes and verify the combined app.
+  Completed: 2026-10-18 · Verified source: `d388615`. Primary cutoff `37dc470` includes F-809/F-810; later agent features remain separate. Frontend 507 tests, typecheck/lint/build and Firefox 360 px keyboard/role checks pass; backend 140 tests pass with an isolated database. See [baseline handoff](frontend-integration-baseline.md).

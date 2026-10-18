@@ -22,6 +22,8 @@ import {
   MapPin,
   Tag,
   Scale,
+  FileSearch,
+  FileWarning,
 } from 'lucide-react';
 import { useAuthStore } from '../../../features/auth/authStore';
 import { enterpriseService } from '../../../features/enterprise/enterpriseService';
@@ -62,11 +64,18 @@ export default function InventoryManagementPage() {
   const enterpriseId = user?.enterpriseId || DEMO_ENTERPRISE_ID;
   const enterpriseName = user?.enterpriseName || 'South Omo Community Heritage Cooperative';
 
-  // Filters & Search state
+  // Navigation View: 'lots' (Inventory Lots) vs 'reconciliation' (Audit & Reconciliation)
+  const [activeView, setActiveView] = useState<'lots' | 'reconciliation'>('lots');
+
+  // Filters & Search state for Lots view
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [locationFilter, setLocationFilter] = useState<string>('ALL');
   const [productFilter, setProductFilter] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Filters & Search state for Reconciliation view
+  const [reconcileSearch, setReconcileSearch] = useState<string>('');
+  const [onlyMismatches, setOnlyMismatches] = useState<boolean>(false);
 
   // Selected Lot for Movement History Modal
   const [selectedLotForMovements, setSelectedLotForMovements] = useState<InventoryLotResponse | null>(null);
@@ -142,6 +151,16 @@ export default function InventoryManagementPage() {
         ? enterpriseService.getLotMovements(enterpriseId, selectedLotForMovements.id)
         : Promise.resolve([]),
     enabled: !!selectedLotForMovements?.id,
+  });
+
+  const {
+    data: reconciliationReports = [],
+    isLoading: reconciliationLoading,
+    isError: reconciliationError,
+    refetch: refetchReconciliation,
+  } = useQuery({
+    queryKey: queryKeys.enterprise.reconciliation(enterpriseId),
+    queryFn: () => enterpriseService.reconcileEnterpriseLots(enterpriseId),
   });
 
   // Create Location Mutation
@@ -383,13 +402,38 @@ export default function InventoryManagementPage() {
     });
   }, [lots, statusFilter, locationFilter, productFilter, searchQuery]);
 
-  // Aggregate KPI stats
+  // Filtered Reconciliation Reports
+  const filteredReconciliation = useMemo(() => {
+    return reconciliationReports.filter((report) => {
+      if (onlyMismatches && report.reconciled) {
+        return false;
+      }
+      if (reconcileSearch.trim()) {
+        const q = reconcileSearch.toLowerCase().trim();
+        const codeMatch = report.lotCode?.toLowerCase().includes(q) ?? false;
+        const noteMatch = report.note?.toLowerCase().includes(q) ?? false;
+        if (!codeMatch && !noteMatch) return false;
+      }
+      return true;
+    });
+  }, [reconciliationReports, onlyMismatches, reconcileSearch]);
+
+  // Aggregate KPI stats for Lots
   const activeLotsCount = lots.filter((l) => l.status === 'ACTIVE').length;
   const depletedLotsCount = lots.filter((l) => l.status === 'DEPLETED' || Number(l.balanceQty) === 0).length;
   const totalStoredBalanceKg = lots
     .filter((l) => l.status === 'ACTIVE')
     .reduce((sum, l) => sum + (Number(l.balanceQty) || 0), 0);
   const locationCount = locations.length;
+
+  // Aggregate stats for Reconciliation
+  const totalAuditedLots = reconciliationReports.length;
+  const balancedLotsCount = reconciliationReports.filter((r) => r.reconciled).length;
+  const mismatchedLotsCount = reconciliationReports.filter((r) => !r.reconciled).length;
+  const netVarianceKg = reconciliationReports.reduce((sum, r) => {
+    const diff = (Number(r.storedBalance) || 0) - (Number(r.movementSum) || 0);
+    return sum + diff;
+  }, 0);
 
   const handleResetFilters = () => {
     setStatusFilter('ALL');
@@ -521,6 +565,7 @@ export default function InventoryManagementPage() {
               onClick={() => {
                 refetchLots();
                 refetchLocations();
+                refetchReconciliation();
               }}
               className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
               title="Refresh inventory lots"
@@ -554,345 +599,669 @@ export default function InventoryManagementPage() {
         </div>
       </div>
 
-      {/* Summary KPI Tiles */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4" data-testid="inventory-kpi-summary">
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3">
-          <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/50 rounded-lg text-emerald-700 dark:text-emerald-400">
-            <Boxes className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-xl font-bold text-slate-900 dark:text-white" data-testid="kpi-active-lots">
-              {lotsLoading ? '—' : activeLotsCount}
-            </div>
-            <div className="text-[11px] text-slate-500">Active Storage Lots</div>
-          </div>
-        </div>
+      {/* Main View Mode Switcher Tabs */}
+      <div className="flex items-center border-b border-slate-200 dark:border-slate-800 space-x-1" data-testid="inventory-view-tabs">
+        <button
+          onClick={() => setActiveView('lots')}
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-colors ${
+            activeView === 'lots'
+              ? 'border-emerald-600 text-emerald-700 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20'
+              : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+          }`}
+          data-testid="view-tab-lots"
+        >
+          <Boxes className="w-4 h-4" />
+          <span>Storage Lots & Movements</span>
+          <span className="px-2 py-0.5 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+            {lots.length}
+          </span>
+        </button>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3">
-          <div className="p-2.5 bg-blue-50 dark:bg-blue-950/50 rounded-lg text-blue-700 dark:text-blue-400">
-            <Scale className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-xl font-bold text-slate-900 dark:text-white" data-testid="kpi-total-balance">
-              {lotsLoading ? '—' : `${totalStoredBalanceKg.toLocaleString()} KG`}
-            </div>
-            <div className="text-[11px] text-slate-500">Stored Active Balance</div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3">
-          <div className="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-400">
-            <Clock className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-xl font-bold text-slate-900 dark:text-white" data-testid="kpi-depleted-lots">
-              {lotsLoading ? '—' : depletedLotsCount}
-            </div>
-            <div className="text-[11px] text-slate-500">Depleted / Closed Lots</div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3">
-          <div className="p-2.5 bg-purple-50 dark:bg-purple-950/50 rounded-lg text-purple-700 dark:text-purple-400">
-            <Warehouse className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-xl font-bold text-slate-900 dark:text-white" data-testid="kpi-locations-count">
-              {locationsLoading ? '—' : locationCount}
-            </div>
-            <div className="text-[11px] text-slate-500">Storage Locations</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Multi-facet Filters and Search Toolbar */}
-      <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-        {/* Status Tab Filters */}
-        <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none" data-testid="status-filter-tabs">
-            {['ALL', 'ACTIVE', 'DEPLETED', 'QUARANTINED', 'DISPOSED'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setStatusFilter(tab)}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
-                  statusFilter === tab
-                    ? 'bg-emerald-700 text-white'
-                    : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
-                }`}
-                data-testid={`status-tab-${tab.toLowerCase()}`}
-              >
-                {tab === 'ALL' ? 'All Lots' : tab.charAt(0) + tab.slice(1).toLowerCase()}
-              </button>
-            ))}
-          </div>
-
-          {(statusFilter !== 'ALL' || locationFilter !== 'ALL' || productFilter !== 'ALL' || searchQuery) && (
-            <button
-              onClick={handleResetFilters}
-              className="text-xs text-slate-500 hover:text-emerald-700 dark:hover:text-emerald-400 underline font-medium"
-              data-testid="reset-filters-btn"
-            >
-              Reset Filters
-            </button>
+        <button
+          onClick={() => setActiveView('reconciliation')}
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-colors ${
+            activeView === 'reconciliation'
+              ? 'border-emerald-600 text-emerald-700 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20'
+              : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+          }`}
+          data-testid="view-tab-reconciliation"
+        >
+          <FileSearch className="w-4 h-4" />
+          <span>Reconciliation & Audit</span>
+          {mismatchedLotsCount > 0 ? (
+            <span className="px-2 py-0.5 rounded-full text-[10px] bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 font-bold" data-testid="badge-discrepancy-count">
+              {mismatchedLotsCount} Alert{mismatchedLotsCount > 1 ? 's' : ''}
+            </span>
+          ) : (
+            <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+              Clean
+            </span>
           )}
-        </div>
-
-        {/* Search & Dropdown Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search lot code, commodity, location..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              data-testid="lots-search-input"
-            />
-          </div>
-
-          <div>
-            <select
-              value={locationFilter}
-              onChange={(e) => setLocationFilter(e.target.value)}
-              className="w-full py-2 px-3 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              data-testid="location-filter"
-            >
-              <option value="ALL">All Storage Locations</option>
-              {locations.map((loc) => (
-                <option key={loc.id} value={loc.name}>
-                  {loc.name} ({loc.locationType})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <select
-              value={productFilter}
-              onChange={(e) => setProductFilter(e.target.value)}
-              className="w-full py-2 px-3 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              data-testid="product-filter"
-            >
-              <option value="ALL">All Commodities / Types</option>
-              {productOptions.map((prod) => (
-                <option key={prod} value={prod}>
-                  {prod}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+        </button>
       </div>
 
-      {/* Main Inventory Lots Table */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-          <div>
-            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-              Inventory Lots
-            </h2>
-            <p className="text-xs text-slate-500">
-              Showing {filteredLots.length} of {lots.length} registered batches
-            </p>
+      {activeView === 'lots' ? (
+        <>
+          {/* Summary KPI Tiles */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4" data-testid="inventory-kpi-summary">
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3">
+              <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/50 rounded-lg text-emerald-700 dark:text-emerald-400">
+                <Boxes className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xl font-bold text-slate-900 dark:text-white" data-testid="kpi-active-lots">
+                  {lotsLoading ? '—' : activeLotsCount}
+                </div>
+                <div className="text-[11px] text-slate-500">Active Storage Lots</div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3">
+              <div className="p-2.5 bg-blue-50 dark:bg-blue-950/50 rounded-lg text-blue-700 dark:text-blue-400">
+                <Scale className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xl font-bold text-slate-900 dark:text-white" data-testid="kpi-total-balance">
+                  {lotsLoading ? '—' : `${totalStoredBalanceKg.toLocaleString()} KG`}
+                </div>
+                <div className="text-[11px] text-slate-500">Stored Active Balance</div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3">
+              <div className="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-400">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xl font-bold text-slate-900 dark:text-white" data-testid="kpi-depleted-lots">
+                  {lotsLoading ? '—' : depletedLotsCount}
+                </div>
+                <div className="text-[11px] text-slate-500">Depleted / Closed Lots</div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3">
+              <div className="p-2.5 bg-purple-50 dark:bg-purple-950/50 rounded-lg text-purple-700 dark:text-purple-400">
+                <Warehouse className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xl font-bold text-slate-900 dark:text-white" data-testid="kpi-locations-count">
+                  {locationsLoading ? '—' : locationCount}
+                </div>
+                <div className="text-[11px] text-slate-500">Storage Locations</div>
+              </div>
+            </div>
           </div>
-        </div>
 
-        {lotsLoading ? (
-          <div className="p-8 space-y-3">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-12 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse" />
-            ))}
+          {/* Multi-facet Filters and Search Toolbar */}
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+            {/* Status Tab Filters */}
+            <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none" data-testid="status-filter-tabs">
+                {['ALL', 'ACTIVE', 'DEPLETED', 'QUARANTINED', 'DISPOSED'].map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setStatusFilter(tab)}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
+                      statusFilter === tab
+                        ? 'bg-emerald-700 text-white'
+                        : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+                    }`}
+                    data-testid={`status-tab-${tab.toLowerCase()}`}
+                  >
+                    {tab === 'ALL' ? 'All Lots' : tab.charAt(0) + tab.slice(1).toLowerCase()}
+                  </button>
+                ))}
+              </div>
+
+              {(statusFilter !== 'ALL' || locationFilter !== 'ALL' || productFilter !== 'ALL' || searchQuery) && (
+                <button
+                  onClick={handleResetFilters}
+                  className="text-xs text-slate-500 hover:text-emerald-700 dark:hover:text-emerald-400 underline font-medium"
+                  data-testid="reset-filters-btn"
+                >
+                  Reset Filters
+                </button>
+              )}
+            </div>
+
+            {/* Search & Dropdown Filters */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search lot code, commodity, location..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  data-testid="lots-search-input"
+                />
+              </div>
+
+              <div>
+                <select
+                  value={locationFilter}
+                  onChange={(e) => setLocationFilter(e.target.value)}
+                  className="w-full py-2 px-3 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  data-testid="location-filter"
+                >
+                  <option value="ALL">All Storage Locations</option>
+                  {locations.map((loc) => (
+                    <option key={loc.id} value={loc.name}>
+                      {loc.name} ({loc.locationType})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <select
+                  value={productFilter}
+                  onChange={(e) => setProductFilter(e.target.value)}
+                  className="w-full py-2 px-3 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  data-testid="product-filter"
+                >
+                  <option value="ALL">All Commodities / Types</option>
+                  {productOptions.map((prod) => (
+                    <option key={prod} value={prod}>
+                      {prod}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
-        ) : lotsError ? (
-          <div className="p-8 text-center space-y-3" data-testid="inventory-error-state">
-            <AlertCircle className="w-8 h-8 text-rose-500 mx-auto" />
-            <p className="text-xs text-slate-600 dark:text-slate-300">
-              Failed to load inventory lots from the enterprise service.
-            </p>
-            <button
-              onClick={() => refetchLots()}
-              className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-700 text-white hover:bg-emerald-800"
-            >
-              Retry
-            </button>
-          </div>
-        ) : filteredLots.length === 0 ? (
-          <div className="p-12 text-center space-y-3" data-testid="empty-lots-state">
-            <Boxes className="w-10 h-10 text-slate-300 dark:text-slate-700 mx-auto" />
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-              No inventory lots found
-            </h3>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              No lots match your current filter criteria. Try adjusting the search query or reset your filters.
-            </p>
-            <button
-              onClick={handleResetFilters}
-              className="px-3.5 py-1.5 text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 text-slate-700 dark:text-slate-300"
-            >
-              Clear Filters
-            </button>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs" data-testid="inventory-lots-table">
-              <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-800">
-                <tr>
-                  <th className="py-3 px-4">Lot Code</th>
-                  <th className="py-3 px-4">Commodity & Grade</th>
-                  <th className="py-3 px-4">Storage Location</th>
-                  <th className="py-3 px-4">Balance / Initial</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Intake Date</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredLots.map((lot) => {
-                  const balance = Number(lot.balanceQty) || 0;
-                  const received = Number(lot.receivedQty) || 0;
-                  const percent = received > 0 ? Math.min(100, Math.round((balance / received) * 100)) : 0;
-                  const isOperable = lot.status === 'ACTIVE' && balance > 0;
 
-                  return (
-                    <tr
-                      key={lot.id}
-                      className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
-                      data-testid={`lot-row-${lot.id}`}
-                    >
-                      <td className="py-3 px-4">
-                        <div className="font-mono font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                          <Tag className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                          <span>{lot.lotCode || 'LOT-N/A'}</span>
-                        </div>
-                      </td>
+          {/* Main Inventory Lots Table */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                  Inventory Lots
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Showing {filteredLots.length} of {lots.length} registered batches
+                </p>
+              </div>
+            </div>
 
-                      <td className="py-3 px-4">
-                        <div className="font-semibold text-slate-900 dark:text-slate-100">
-                          {lot.productTypeName || 'Raw Agricultural Item'}
-                        </div>
-                        <div className="text-[11px] text-slate-400">
-                          {lot.grade || 'Standard Grade'}
-                        </div>
-                      </td>
-
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <span className="truncate max-w-[180px]">{lot.locationName || 'Unassigned Bay'}</span>
-                        </div>
-                      </td>
-
-                      <td className="py-3 px-4">
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between text-[11px]">
-                            <span className="font-bold text-slate-900 dark:text-white">
-                              {balance.toLocaleString()} {lot.unit || 'KG'}
-                            </span>
-                            <span className="text-slate-400">
-                              / {received.toLocaleString()} {lot.unit || 'KG'}
-                            </span>
-                          </div>
-                          {/* Progress bar */}
-                          <div className="w-32 bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all ${
-                                percent > 50
-                                  ? 'bg-emerald-600'
-                                  : percent > 20
-                                  ? 'bg-amber-500'
-                                  : 'bg-rose-500'
-                              }`}
-                              style={{ width: `${percent}%` }}
-                            />
-                          </div>
-                        </div>
-                      </td>
-
-                      <td className="py-3 px-4">{getStatusBadge(lot.status)}</td>
-
-                      <td className="py-3 px-4 text-slate-500">
-                        {formatDate(lot.receivedAt || lot.createdAt)}
-                      </td>
-
-                      <td className="py-3 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {isOperable && (
-                            <>
-                              <button
-                                onClick={() => {
-                                  setSelectedLotForAdjust(lot);
-                                  setAdjustType('INCREASE');
-                                  setAdjustQuantity('');
-                                  setAdjustReason('');
-                                  setAdjustConfirmed(false);
-                                  setAdjustError(null);
-                                  setAdjustSuccess(null);
-                                }}
-                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors"
-                                data-testid={`adjust-lot-btn-${lot.id}`}
-                                title="Adjust lot quantity"
-                              >
-                                <SlidersHorizontal className="w-3 h-3" />
-                                <span>Adjust</span>
-                              </button>
-
-                              <button
-                                onClick={() => {
-                                  setSelectedLotForTransfer(lot);
-                                  setTransferTargetLocationId('');
-                                  setTransferQuantity('');
-                                  setTransferReason('');
-                                  setTransferConfirmed(false);
-                                  setTransferError(null);
-                                  setTransferSuccess(null);
-                                }}
-                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md border border-blue-200 dark:border-blue-900/60 bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors"
-                                data-testid={`transfer-lot-btn-${lot.id}`}
-                                title="Transfer lot to another location"
-                              >
-                                <ArrowRightLeft className="w-3 h-3" />
-                                <span>Transfer</span>
-                              </button>
-
-                              <button
-                                onClick={() => {
-                                  setSelectedLotForDispose(lot);
-                                  setDisposeQuantity('');
-                                  setDisposeReason('');
-                                  setDisposeConfirmed(false);
-                                  setDisposeError(null);
-                                  setDisposeSuccess(null);
-                                }}
-                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition-colors"
-                                data-testid={`dispose-lot-btn-${lot.id}`}
-                                title="Dispose damaged/spoiled items"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                                <span>Dispose</span>
-                              </button>
-                            </>
-                          )}
-
-                          <button
-                            onClick={() => setSelectedLotForMovements(lot)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
-                            data-testid={`view-movements-btn-${lot.id}`}
-                            title="View movement history"
-                          >
-                            <History className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                            <span>Audit</span>
-                          </button>
-                        </div>
-                      </td>
+            {lotsLoading ? (
+              <div className="p-8 space-y-3">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-12 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse" />
+                ))}
+              </div>
+            ) : lotsError ? (
+              <div className="p-8 text-center space-y-3" data-testid="inventory-error-state">
+                <AlertCircle className="w-8 h-8 text-rose-500 mx-auto" />
+                <p className="text-xs text-slate-600 dark:text-slate-300">
+                  Failed to load inventory lots from the enterprise service.
+                </p>
+                <button
+                  onClick={() => refetchLots()}
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-700 text-white hover:bg-emerald-800"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : filteredLots.length === 0 ? (
+              <div className="p-12 text-center space-y-3" data-testid="empty-lots-state">
+                <Boxes className="w-10 h-10 text-slate-300 dark:text-slate-700 mx-auto" />
+                <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  No inventory lots found
+                </h3>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                  No lots match your current filter criteria. Try adjusting the search query or reset your filters.
+                </p>
+                <button
+                  onClick={handleResetFilters}
+                  className="px-3.5 py-1.5 text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 text-slate-700 dark:text-slate-300"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs" data-testid="inventory-lots-table">
+                  <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-800">
+                    <tr>
+                      <th className="py-3 px-4">Lot Code</th>
+                      <th className="py-3 px-4">Commodity & Grade</th>
+                      <th className="py-3 px-4">Storage Location</th>
+                      <th className="py-3 px-4">Balance / Initial</th>
+                      <th className="py-3 px-4">Status</th>
+                      <th className="py-3 px-4">Intake Date</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {filteredLots.map((lot) => {
+                      const balance = Number(lot.balanceQty) || 0;
+                      const received = Number(lot.receivedQty) || 0;
+                      const percent = received > 0 ? Math.min(100, Math.round((balance / received) * 100)) : 0;
+                      const isOperable = lot.status === 'ACTIVE' && balance > 0;
+
+                      return (
+                        <tr
+                          key={lot.id}
+                          className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                          data-testid={`lot-row-${lot.id}`}
+                        >
+                          <td className="py-3 px-4">
+                            <div className="font-mono font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                              <Tag className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                              <span>{lot.lotCode || 'LOT-N/A'}</span>
+                            </div>
+                          </td>
+
+                          <td className="py-3 px-4">
+                            <div className="font-semibold text-slate-900 dark:text-slate-100">
+                              {lot.productTypeName || 'Raw Agricultural Item'}
+                            </div>
+                            <div className="text-[11px] text-slate-400">
+                              {lot.grade || 'Standard Grade'}
+                            </div>
+                          </td>
+
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
+                              <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span className="truncate max-w-[180px]">{lot.locationName || 'Unassigned Bay'}</span>
+                            </div>
+                          </td>
+
+                          <td className="py-3 px-4">
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between text-[11px]">
+                                <span className="font-bold text-slate-900 dark:text-white">
+                                  {balance.toLocaleString()} {lot.unit || 'KG'}
+                                </span>
+                                <span className="text-slate-400">
+                                  / {received.toLocaleString()} {lot.unit || 'KG'}
+                                </span>
+                              </div>
+                              {/* Progress bar */}
+                              <div className="w-32 bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full transition-all ${
+                                    percent > 50
+                                      ? 'bg-emerald-600'
+                                      : percent > 20
+                                      ? 'bg-amber-500'
+                                      : 'bg-rose-500'
+                                  }`}
+                                  style={{ width: `${percent}%` }}
+                                />
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="py-3 px-4">{getStatusBadge(lot.status)}</td>
+
+                          <td className="py-3 px-4 text-slate-500">
+                            {formatDate(lot.receivedAt || lot.createdAt)}
+                          </td>
+
+                          <td className="py-3 px-4 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              {isOperable && (
+                                <>
+                                  <button
+                                    onClick={() => {
+                                      setSelectedLotForAdjust(lot);
+                                      setAdjustType('INCREASE');
+                                      setAdjustQuantity('');
+                                      setAdjustReason('');
+                                      setAdjustConfirmed(false);
+                                      setAdjustError(null);
+                                      setAdjustSuccess(null);
+                                    }}
+                                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors"
+                                    data-testid={`adjust-lot-btn-${lot.id}`}
+                                    title="Adjust lot quantity"
+                                  >
+                                    <SlidersHorizontal className="w-3 h-3" />
+                                    <span>Adjust</span>
+                                  </button>
+
+                                  <button
+                                    onClick={() => {
+                                      setSelectedLotForTransfer(lot);
+                                      setTransferTargetLocationId('');
+                                      setTransferQuantity('');
+                                      setTransferReason('');
+                                      setTransferConfirmed(false);
+                                      setTransferError(null);
+                                      setTransferSuccess(null);
+                                    }}
+                                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md border border-blue-200 dark:border-blue-900/60 bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors"
+                                    data-testid={`transfer-lot-btn-${lot.id}`}
+                                    title="Transfer lot to another location"
+                                  >
+                                    <ArrowRightLeft className="w-3 h-3" />
+                                    <span>Transfer</span>
+                                  </button>
+
+                                  <button
+                                    onClick={() => {
+                                      setSelectedLotForDispose(lot);
+                                      setDisposeQuantity('');
+                                      setDisposeReason('');
+                                      setDisposeConfirmed(false);
+                                      setDisposeError(null);
+                                      setDisposeSuccess(null);
+                                    }}
+                                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition-colors"
+                                    data-testid={`dispose-lot-btn-${lot.id}`}
+                                    title="Dispose damaged/spoiled items"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                    <span>Dispose</span>
+                                  </button>
+                                </>
+                              )}
+
+                              <button
+                                onClick={() => setSelectedLotForMovements(lot)}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
+                                data-testid={`view-movements-btn-${lot.id}`}
+                                title="View movement history"
+                              >
+                                <History className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                                <span>Audit</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      ) : (
+        /* RECONCILIATION & AUDIT REPORT VIEW */
+        <div className="space-y-6" data-testid="reconciliation-view">
+          {/* Discrepancy Alert Banner */}
+          {mismatchedLotsCount > 0 && (
+            <div
+              className="p-4 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 rounded-xl flex items-start gap-3 shadow-xs"
+              data-testid="discrepancy-alert-banner"
+            >
+              <FileWarning className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <h4 className="text-xs font-bold text-rose-900 dark:text-rose-200">
+                  Inventory Balance Discrepancy Alert
+                </h4>
+                <p className="text-xs text-rose-800 dark:text-rose-300">
+                  {mismatchedLotsCount} inventory lot{mismatchedLotsCount > 1 ? 's have' : ' has a'} balance discrepancy between the recorded database stored balance and the chronological movement audit trail sum. Physical count verification or corrective adjustment is required.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Reconciliation Summary KPI Tiles */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4" data-testid="reconciliation-kpis">
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3">
+              <div className="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300">
+                <Boxes className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xl font-bold text-slate-900 dark:text-white" data-testid="kpi-audited-lots">
+                  {reconciliationLoading ? '—' : totalAuditedLots}
+                </div>
+                <div className="text-[11px] text-slate-500">Total Audited Lots</div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3">
+              <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/50 rounded-lg text-emerald-700 dark:text-emerald-400">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xl font-bold text-emerald-700 dark:text-emerald-400" data-testid="kpi-balanced-lots">
+                  {reconciliationLoading ? '—' : balancedLotsCount}
+                </div>
+                <div className="text-[11px] text-slate-500">Perfect Balance (100%)</div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3">
+              <div className="p-2.5 bg-rose-50 dark:bg-rose-950/50 rounded-lg text-rose-700 dark:text-rose-400">
+                <FileWarning className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xl font-bold text-rose-700 dark:text-rose-400" data-testid="kpi-mismatches-count">
+                  {reconciliationLoading ? '—' : mismatchedLotsCount}
+                </div>
+                <div className="text-[11px] text-slate-500">Discrepancy Variances</div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3">
+              <div className="p-2.5 bg-amber-50 dark:bg-amber-950/50 rounded-lg text-amber-700 dark:text-amber-400">
+                <Scale className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xl font-bold text-slate-900 dark:text-white" data-testid="kpi-net-variance">
+                  {reconciliationLoading ? '—' : `${netVarianceKg > 0 ? `+${netVarianceKg}` : netVarianceKg} KG`}
+                </div>
+                <div className="text-[11px] text-slate-500">Net Delta Variance</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Reconciliation Filter Bar */}
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="relative w-full sm:w-80">
+              <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search by lot code or audit note..."
+                value={reconcileSearch}
+                onChange={(e) => setReconcileSearch(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                data-testid="reconciliation-search-input"
+              />
+            </div>
+
+            <div className="flex items-center gap-3 self-start sm:self-auto">
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={onlyMismatches}
+                  onChange={(e) => setOnlyMismatches(e.target.checked)}
+                  className="rounded text-rose-600 focus:ring-rose-500"
+                  data-testid="filter-mismatches-only"
+                />
+                <span>Only Show Discrepancies</span>
+              </label>
+
+              {(reconcileSearch || onlyMismatches) && (
+                <button
+                  onClick={() => {
+                    setReconcileSearch('');
+                    setOnlyMismatches(false);
+                  }}
+                  className="text-xs text-slate-500 hover:text-emerald-700 underline font-medium"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Reconciliation Table */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  Balance Audit Verification Matrix
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Comparison of authoritative stored inventory balance against sum of logged movements
+                </p>
+              </div>
+            </div>
+
+            {reconciliationLoading ? (
+              <div className="p-8 space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-12 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse" />
+                ))}
+              </div>
+            ) : reconciliationError ? (
+              <div className="p-8 text-center text-xs text-rose-600" data-testid="reconciliation-error">
+                Failed to load reconciliation audit report.
+              </div>
+            ) : filteredReconciliation.length === 0 ? (
+              <div className="p-12 text-center text-xs text-slate-500">
+                No lots matching reconciliation filter.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs" data-testid="reconciliation-table">
+                  <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-800">
+                    <tr>
+                      <th className="py-3 px-4">Lot Code</th>
+                      <th className="py-3 px-4">Stored Balance</th>
+                      <th className="py-3 px-4">Movement Trail Sum</th>
+                      <th className="py-3 px-4">Variance / Delta</th>
+                      <th className="py-3 px-4">Audit Status</th>
+                      <th className="py-3 px-4">Diagnostic Memo</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {filteredReconciliation.map((report) => {
+                      const stored = Number(report.storedBalance) || 0;
+                      const movSum = Number(report.movementSum) || 0;
+                      const variance = stored - movSum;
+                      const hasDiscrepancy = !report.reconciled || variance !== 0;
+
+                      return (
+                        <tr
+                          key={report.lotId}
+                          className={`transition-colors ${
+                            hasDiscrepancy
+                              ? 'bg-rose-50/60 dark:bg-rose-950/30 hover:bg-rose-50 dark:hover:bg-rose-950/40'
+                              : 'hover:bg-slate-50/70 dark:hover:bg-slate-800/40'
+                          }`}
+                          data-testid={`reconciliation-row-${report.lotId}`}
+                        >
+                          <td className="py-3.5 px-4">
+                            <span className="font-mono font-bold text-slate-900 dark:text-white">
+                              {report.lotCode}
+                            </span>
+                          </td>
+
+                          <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">
+                            {stored.toLocaleString()} KG
+                          </td>
+
+                          <td className="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">
+                            {movSum.toLocaleString()} KG
+                          </td>
+
+                          <td className="py-3.5 px-4">
+                            {variance === 0 ? (
+                              <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                                0 KG (Match)
+                              </span>
+                            ) : (
+                              <span
+                                className="inline-flex items-center gap-1 font-mono font-bold px-2 py-0.5 rounded text-rose-800 dark:text-rose-300 bg-rose-100 dark:bg-rose-950 border border-rose-200 dark:border-rose-900"
+                                data-testid={`variance-alert-${report.lotId}`}
+                              >
+                                {variance > 0 ? `+${variance}` : variance} KG
+                              </span>
+                            )}
+                          </td>
+
+                          <td className="py-3.5 px-4">
+                            {hasDiscrepancy ? (
+                              <span
+                                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-800"
+                                data-testid="status-mismatch"
+                              >
+                                <FileWarning className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                                <span>Discrepancy Detected</span>
+                              </span>
+                            ) : (
+                              <span
+                                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                                data-testid="status-reconciled"
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                <span>Reconciled</span>
+                              </span>
+                            )}
+                          </td>
+
+                          <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400 max-w-xs">
+                            <span className="line-clamp-2">{report.note || '—'}</span>
+                          </td>
+
+                          <td className="py-3.5 px-4 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              {hasDiscrepancy && (
+                                <button
+                                  onClick={() => {
+                                    const matchingLot = lots.find((l) => l.id === report.lotId) || {
+                                      id: report.lotId,
+                                      lotCode: report.lotCode,
+                                      enterpriseId,
+                                      balanceQty: report.storedBalance,
+                                      receivedQty: report.storedBalance,
+                                      unit: 'KG',
+                                      status: 'ACTIVE',
+                                    };
+                                    setSelectedLotForAdjust(matchingLot as InventoryLotResponse);
+                                    setAdjustType(variance < 0 ? 'INCREASE' : 'DECREASE');
+                                    setAdjustQuantity(Math.abs(variance).toString());
+                                    setAdjustReason(`Reconciliation variance correction: discrepancy of ${variance} KG`);
+                                    setAdjustConfirmed(false);
+                                  }}
+                                  className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300 hover:bg-amber-100 transition-colors"
+                                  data-testid={`reconcile-adjust-btn-${report.lotId}`}
+                                >
+                                  <SlidersHorizontal className="w-3 h-3" />
+                                  <span>Adjust</span>
+                                </button>
+                              )}
+
+                              <button
+                                onClick={() => {
+                                  const matchingLot = lots.find((l) => l.id === report.lotId) || {
+                                    id: report.lotId,
+                                    lotCode: report.lotCode,
+                                    enterpriseId,
+                                    balanceQty: report.storedBalance,
+                                    unit: 'KG',
+                                  };
+                                  setSelectedLotForMovements(matchingLot as InventoryLotResponse);
+                                }}
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 text-slate-700 dark:text-slate-300 transition-colors"
+                                data-testid={`audit-movements-btn-${report.lotId}`}
+                              >
+                                <History className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>Audit</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Movement Audit Drawer / Modal */}
       {selectedLotForMovements && (

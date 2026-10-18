@@ -73,6 +73,13 @@ export const queryKeys = {
     payables: (filters?: Record<string, unknown>) => [...queryKeys.supply.all, 'payables', filters || {}] as const,
     balance: (farmerId: string) => [...queryKeys.supply.all, 'balance', farmerId] as const,
   },
+  farmer: {
+    all: ['farmer'] as const,
+    balance: (farmerId: string) => [...queryKeys.farmer.all, 'balance', farmerId] as const,
+    deliveries: (farmerId: string) => [...queryKeys.farmer.all, 'deliveries', farmerId] as const,
+    payments: (farmerId: string) => [...queryKeys.farmer.all, 'payments', farmerId] as const,
+    buyingPrices: (enterpriseId: string) => [...queryKeys.farmer.all, 'buyingPrices', enterpriseId] as const,
+  },
   traceability: {
     all: ['traceability'] as const,
     batches: (filters?: Record<string, unknown>) => [...queryKeys.traceability.all, 'batches', filters || {}] as const,
@@ -99,5 +106,7 @@ export const queryKeys = {
     pricing: (enterpriseId: string) => [...queryKeys.enterprise.all, 'pricing', enterpriseId] as const,
     productTypes: (category?: string) => [...queryKeys.enterprise.all, 'productTypes', category || 'all'] as const,
     payments: (enterpriseId: string) => [...queryKeys.enterprise.all, 'payments', enterpriseId] as const,
+    reconciliation: (enterpriseId: string) => [...queryKeys.enterprise.all, 'reconciliation', enterpriseId] as const,
+    lotReconciliation: (enterpriseId: string, lotId: string) => [...queryKeys.enterprise.all, 'lotReconciliation', enterpriseId, lotId] as const,
   },
 };

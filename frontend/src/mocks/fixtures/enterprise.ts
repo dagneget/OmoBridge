@@ -408,6 +408,14 @@ export const mockReconciliationReports: ReconciliationReportResponse[] = [
     reconciled: true,
     note: 'Depleted',
   },
+  {
+    lotId: 'lot-004',
+    lotCode: 'LOT-2026-038',
+    storedBalance: 5,
+    movementSum: 10,
+    reconciled: false,
+    note: 'Stored lot balance (5 KG) does not match total recorded movement trail (10 KG)',
+  },
 ];
 
 export const mockFarmerPayables: FarmerPayableResponse[] = [

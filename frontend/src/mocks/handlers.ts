@@ -21,6 +21,7 @@ import {
   mockInventoryLots,
   mockInventoryLocations,
   mockInventoryMovements,
+  mockReconciliationReports,
   mockFarmerPayables,
   mockFarmerPayments,
 } from './fixtures/enterprise';
@@ -517,6 +518,25 @@ export const handlers = [
       createdAt: new Date().toISOString(),
     };
     return HttpResponse.json({ success: true, data: movement });
+  }),
+
+  http.get('*/api/v1/enterprises/:enterpriseId/inventory/reconciliation', () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockReconciliationReports,
+    });
+  }),
+
+  http.get('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/reconciliation', ({ params }) => {
+    const { lotId } = params;
+    const report = mockReconciliationReports.find((r) => r.lotId === lotId);
+    if (!report) {
+      return HttpResponse.json({ success: false, message: 'Reconciliation report not found' }, { status: 404 });
+    }
+    return HttpResponse.json({
+      success: true,
+      data: report,
+    });
   }),
 
   // Farmer Portal / Payables / Payments
