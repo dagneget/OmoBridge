@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, CalendarDays, MapPin, Package, ScanLine, Sprout, WifiOff } from 'lucide-react';
@@ -10,6 +10,7 @@ import { normalizeApiError } from '../../services/apiError';
 import defaultI18n from '../../i18n';
 import { formatDateTime } from '../../utils/formatters';
 import {
+  QrScanner,
   TraceQrLabel,
   dedupeOrigins,
   formatOutputQuantity,
@@ -47,6 +48,7 @@ const ORIGIN_KEY = (o: { village?: string; cooperativeGroup?: string; farmerName
 
 export default function PublicTracePage() {
   const { token } = useParams<{ token: string }>();
+  const navigate = useNavigate();
   const { i18n } = useTranslation();
   const { isOnline } = useNetworkStatus();
 
@@ -319,6 +321,20 @@ export default function PublicTracePage() {
           enterpriseName={trace.enterpriseName}
           originLabel={originHeading(trace) ?? undefined}
         />
+
+        {/* F-702: read the next product's code without leaving the flow. */}
+        <section className="rounded-2xl border border-border p-4 sm:p-5 space-y-3" data-testid="scan-another">
+          <h2 className="text-base font-semibold text-foreground">
+            {tr('trace.scanAnotherTitle', 'Trace another product')}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {tr(
+              'trace.scanAnotherBody',
+              'Point your camera at the code on the label, or type it in.'
+            )}
+          </p>
+          <QrScanner onResolved={(next) => navigate(`/trace/${next}`)} />
+        </section>
       </div>
     </Shell>
   );
