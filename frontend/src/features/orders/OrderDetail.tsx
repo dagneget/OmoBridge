@@ -1,3 +1,4 @@
+import OrderReviews from '../reviews/PurchaseReviews';
 import CancelOrder from './CancelOrder';
 import RefundDetails from '../payments/RefundDetails';
 import { useOrderScope } from './sessionScope';
@@ -206,6 +207,10 @@ export function OrderDetail({ id }: { id?: string }) {
                   </ul>
                 )}
               </section>
+              <OrderReviews
+                order={visible}
+                enabled={isOnline && !query.isFetching && !query.isError}
+              />
               <PriceBreakdown
                 kind="order"
                 data={visible}

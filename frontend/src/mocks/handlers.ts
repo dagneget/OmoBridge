@@ -1,3 +1,4 @@
+import { reviewHandlers } from './reviewHandlers';
 import { paymentHistoryHandlers } from './paymentHistoryHandlers';
 import { http, HttpResponse } from 'msw';
 import { checkoutHandler, orderConfirmationHandler, myOrdersHandler, orderPaymentHandler } from './checkoutHandler';
@@ -72,6 +73,7 @@ const authHandlers = ['/api/v1/auth', '/api/auth'].flatMap((base) => [
 ]);
 
 export const handlers = [
+  ...reviewHandlers,
   ...paymentHistoryHandlers,
   ...authHandlers,
   checkoutHandler,

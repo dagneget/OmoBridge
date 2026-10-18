@@ -1,3 +1,4 @@
+import BookingReviews from '../../features/reviews/BookingReviews';
 import RefundDetails from '../../features/payments/RefundDetails';
 import { useState } from 'react';
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
@@ -533,6 +534,7 @@ export default function BookingConfirmationPage() {
         </div>
       </Modal>
 
+      <BookingReviews bookingId={bookingId} />
       <RefundDetails bookingId={booking.id} />
 
       {/* Telebirr Payment Modal */}

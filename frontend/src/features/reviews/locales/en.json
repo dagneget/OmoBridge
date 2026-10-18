@@ -1,0 +1,22 @@
+{
+  "title": "Review your purchase",
+  "item": "Review {{name}}",
+  "unknown": "Purchased item",
+  "rating": "Rating",
+  "choose": "Choose a rating",
+  "stars": "{{count}} out of 5",
+  "comment": "Comment (optional)",
+  "limit": "Up to 2,000 characters. Your review will be public; leave out personal details.",
+  "submit": "Submit review",
+  "sending": "Submitting review…",
+  "success": "Your review was submitted. Thank you!",
+  "duplicate": "You have already reviewed this item. Only one review per item is allowed.",
+  "ineligible": "This purchase is not eligible for a review. Refresh its details and try again after completion.",
+  "unavailable": "We could not verify this purchase for your account. Refresh its details or sign in again.",
+  "uncertain": "We could not confirm submission. You can retry; the server prevents duplicate reviews.",
+  "offline": "Connect to the internet to submit a review. Reviews are not saved or queued offline.",
+  "invalid": "Choose a rating from 1 to 5 and keep your comment within 2,000 characters.",
+  "loading": "Checking review eligibility…",
+  "verifyError": "We could not check review eligibility.",
+  "retry": "Check eligibility again"
+}
