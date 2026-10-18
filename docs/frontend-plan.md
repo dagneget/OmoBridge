@@ -172,7 +172,7 @@ Update the counts when you finish a task.
 |---|---|---|
 | FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 7 / 10 |
-| FP2 | Authentication and roles | 7 / 9 |
+| FP2 | Authentication and roles | 8 / 9 |
 | FP3 | Public tourism | 0 / 11 |
 | FP4 | Bookings | 0 / 5 |
 | FP5 | Catalog, cart, checkout | 0 / 9 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **22 / 134** |
+| | **Total** | **23 / 134** |
 
 ### What can run in parallel
 
@@ -378,11 +378,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: language change persists.
   Owner: —
 
-- [ ] **F-209 · Join page** · T1
+- [x] **F-209 · Join page** · T1
   Needs: F-203, F-204, F-205, F-206
   Build: "Join OmoBridge" page with registration buttons for producers/farmers, micro-enterprises and delivery providers (plus buyer and guide); each button has an icon, a one-line explanation and links to its form.
   Done when: all buttons route correctly and the page works at 360 px.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/joinPage.test.tsx (2/2 passed, 103/103 total), typecheck (clean), lint (clean), build (clean)
 
 ---
 
@@ -1204,6 +1204,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-205 | Completed | RegisterEnterprisePage (enterpriseName, woreda, town, trade reg no, direct routing to /dashboard/enterprise) verified |
 | 2026-10-18 | @claude-agent | F-206 | Completed | RegisterDeliveryPage (vehicle types, plate, service area) and RegisterGuidePage (languages, rate, bio) with pending screens verified |
 | 2026-10-18 | @claude-agent | F-207 | Completed | RoleGuard for 7 roles, ForbiddenPage 403 handling, post-login return path redirect, and multi-role RoleSwitcher verified |
+| 2026-10-18 | @claude-agent | F-209 | Completed | JoinPage with role registration cards (producer, enterprise, courier, guide, buyer), USSD notice, and 360px viewport responsiveness verified |
 
 ## 12. Change log (requirements)
 

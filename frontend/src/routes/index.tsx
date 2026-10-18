@@ -28,6 +28,7 @@ const AboutPage = lazy(() => import('../pages/public/AboutPage'));
 const OfflinePage = lazy(() => import('../pages/public/OfflinePage'));
 const DesignTokensPage = lazy(() => import('../pages/public/DesignTokensPage'));
 const NotFoundPage = lazy(() => import('../pages/public/NotFoundPage'));
+const JoinPage = lazy(() => import('../pages/public/JoinPage'));
 
 // Lazy-loaded Auth Pages
 const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
@@ -99,6 +100,8 @@ export default function AppRoutes() {
             <Route path="/design-tokens" element={<DesignTokensPage />} />
             <Route path="/offline" element={<OfflinePage />} />
             <Route path="/forbidden" element={<ForbiddenPage />} />
+            <Route path="/join" element={<JoinPage />} />
+            <Route path="/register" element={<JoinPage />} />
           </Route>
 
           {/* Authentication Layout */}
