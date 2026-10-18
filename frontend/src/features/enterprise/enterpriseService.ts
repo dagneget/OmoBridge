@@ -16,6 +16,13 @@ import type {
   FarmerPayableResponse,
   FarmerPaymentResponse,
   FarmerPaymentRequest,
+  InventoryLocationResponse,
+  InventoryLocationRequest,
+  InventoryMovementResponse,
+  InventoryAdjustmentRequest,
+  InventoryTransferRequest,
+  InventoryDisposalRequest,
+  ReconciliationReportResponse,
 } from '../../types/api';
 
 export const enterpriseService = {
@@ -181,5 +188,87 @@ export const enterpriseService = {
       `/api/v1/enterprises/${enterpriseId}/inventory/lots${query}`
     );
     return res.data?.data || (res.data as unknown as InventoryLotResponse[]) || [];
+  },
+
+  getLotById: async (enterpriseId: string, lotId: string): Promise<InventoryLotResponse> => {
+    const res = await httpClient.get<StandardApiResponse<InventoryLotResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/inventory/lots/${lotId}`
+    );
+    return res.data?.data || (res.data as unknown as InventoryLotResponse);
+  },
+
+  getLotMovements: async (enterpriseId: string, lotId: string): Promise<InventoryMovementResponse[]> => {
+    const res = await httpClient.get<StandardApiResponse<InventoryMovementResponse[]>>(
+      `/api/v1/enterprises/${enterpriseId}/inventory/lots/${lotId}/movements`
+    );
+    return res.data?.data || (res.data as unknown as InventoryMovementResponse[]) || [];
+  },
+
+  getLocations: async (enterpriseId: string): Promise<InventoryLocationResponse[]> => {
+    const res = await httpClient.get<StandardApiResponse<InventoryLocationResponse[]>>(
+      `/api/v1/enterprises/${enterpriseId}/inventory/locations`
+    );
+    return res.data?.data || (res.data as unknown as InventoryLocationResponse[]) || [];
+  },
+
+  createLocation: async (
+    enterpriseId: string,
+    data: InventoryLocationRequest
+  ): Promise<InventoryLocationResponse> => {
+    const res = await httpClient.post<StandardApiResponse<InventoryLocationResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/inventory/locations`,
+      data
+    );
+    return res.data?.data || (res.data as unknown as InventoryLocationResponse);
+  },
+
+  adjustLot: async (
+    enterpriseId: string,
+    lotId: string,
+    data: InventoryAdjustmentRequest
+  ): Promise<InventoryMovementResponse> => {
+    const res = await httpClient.post<StandardApiResponse<InventoryMovementResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/inventory/lots/${lotId}/adjustments`,
+      data
+    );
+    return res.data?.data || (res.data as unknown as InventoryMovementResponse);
+  },
+
+  transferLot: async (
+    enterpriseId: string,
+    lotId: string,
+    data: InventoryTransferRequest
+  ): Promise<InventoryMovementResponse> => {
+    const res = await httpClient.post<StandardApiResponse<InventoryMovementResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/inventory/lots/${lotId}/transfers`,
+      data
+    );
+    return res.data?.data || (res.data as unknown as InventoryMovementResponse);
+  },
+
+  disposeLot: async (
+    enterpriseId: string,
+    lotId: string,
+    data: InventoryDisposalRequest
+  ): Promise<InventoryMovementResponse> => {
+    const res = await httpClient.post<StandardApiResponse<InventoryMovementResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/inventory/lots/${lotId}/disposals`,
+      data
+    );
+    return res.data?.data || (res.data as unknown as InventoryMovementResponse);
+  },
+
+  reconcileEnterpriseLots: async (enterpriseId: string): Promise<ReconciliationReportResponse[]> => {
+    const res = await httpClient.get<StandardApiResponse<ReconciliationReportResponse[]>>(
+      `/api/v1/enterprises/${enterpriseId}/inventory/reconciliation`
+    );
+    return res.data?.data || (res.data as unknown as ReconciliationReportResponse[]) || [];
+  },
+
+  reconcileLot: async (enterpriseId: string, lotId: string): Promise<ReconciliationReportResponse> => {
+    const res = await httpClient.get<StandardApiResponse<ReconciliationReportResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/inventory/lots/${lotId}/reconciliation`
+    );
+    return res.data?.data || (res.data as unknown as ReconciliationReportResponse);
   },
 };

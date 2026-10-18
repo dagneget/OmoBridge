@@ -129,6 +129,7 @@ export type InventoryMovementResponse = Schemas['InventoryMovementResponse'];
 export type InventoryTransferRequest = Schemas['InventoryTransferRequest'];
 export type InventoryAdjustmentRequest = Schemas['InventoryAdjustmentRequest'];
 export type InventoryDisposalRequest = Schemas['InventoryDisposalRequest'];
+export type ReconciliationReportResponse = Schemas['ReconciliationReportResponse'];
 
 // Reviews & AI Models
 export type CreateReviewRequest = Schemas['CreateReviewRequest'];

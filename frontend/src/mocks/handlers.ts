@@ -19,6 +19,8 @@ import {
   mockDeliveries,
   mockEnterpriseOrders,
   mockInventoryLots,
+  mockInventoryLocations,
+  mockInventoryMovements,
   mockFarmerPayables,
   mockFarmerPayments,
 } from './fixtures/enterprise';
@@ -355,11 +357,64 @@ export const handlers = [
     });
   }),
 
-  http.get('*/api/v1/enterprises/:enterpriseId/inventory/lots', () => {
+  http.get('*/api/v1/enterprises/:enterpriseId/inventory/lots', ({ request }) => {
+    const url = new URL(request.url);
+    const status = url.searchParams.get('status');
+    const filtered = status
+      ? mockInventoryLots.filter((lot) => lot.status === status)
+      : mockInventoryLots;
     return HttpResponse.json({
       success: true,
-      data: mockInventoryLots,
+      data: filtered,
     });
+  }),
+
+  http.get('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId', ({ params }) => {
+    const { lotId } = params;
+    const lot = mockInventoryLots.find((l) => l.id === lotId);
+    if (!lot) {
+      return HttpResponse.json({ success: false, message: 'Lot not found' }, { status: 404 });
+    }
+    return HttpResponse.json({
+      success: true,
+      data: lot,
+    });
+  }),
+
+  http.get('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/movements', ({ params }) => {
+    const { lotId } = params;
+    const movements = (lotId && mockInventoryMovements[lotId as string]) || [];
+    return HttpResponse.json({
+      success: true,
+      data: movements,
+    });
+  }),
+
+  http.get('*/api/v1/enterprises/:enterpriseId/inventory/locations', () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockInventoryLocations,
+    });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/inventory/locations', async ({ params, request }) => {
+    const { enterpriseId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const newLocation = {
+      id: `loc-${Date.now()}`,
+      enterpriseId: enterpriseId as string,
+      name: body.name || 'New Warehouse Bay',
+      locationType: body.locationType || 'WAREHOUSE',
+      description: body.description || '',
+      createdAt: new Date().toISOString(),
+    };
+    return HttpResponse.json(
+      {
+        success: true,
+        data: newLocation,
+      },
+      { status: 201 }
+    );
   }),
 
   // Farmer Portal / Payables / Payments
