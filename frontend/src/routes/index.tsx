@@ -48,6 +48,7 @@ const LiveTrackingPage = lazy(() => import('../pages/tracking/LiveTrackingPage')
 
 // Lazy-loaded Dashboard Pages
 const EnterpriseDashboardPage = lazy(() => import('../pages/dashboard/EnterpriseDashboardPage'));
+const FarmersManagementPage = lazy(() => import('../pages/dashboard/enterprise/FarmersManagementPage'));
 const FarmerDashboardPage = lazy(() => import('../pages/dashboard/FarmerDashboardPage'));
 const DeliveryDashboardPage = lazy(() => import('../pages/dashboard/DeliveryDashboardPage'));
 const GuideDashboardPage = lazy(() => import('../pages/dashboard/GuideDashboardPage'));
@@ -159,6 +160,14 @@ export default function AppRoutes() {
                 element={
                   <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
                     <EnterpriseDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/farmers"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <FarmersManagementPage />
                   </RoleGuard>
                 }
               />

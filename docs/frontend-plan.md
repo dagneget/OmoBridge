@@ -178,7 +178,7 @@ Update the counts when you finish a task.
 | FP5 | Catalog, cart, checkout | 6 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
-| FP8 | Enterprise: farmers, supply, farmer payments | 1 / 10 |
+| FP8 | Enterprise: farmers, supply, farmer payments | 2 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
 | FP11 | Delivery provider app | 0 / 8 |
@@ -659,11 +659,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: renders with seed data and per-module loading states.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/enterpriseDashboard.test.tsx (7/7 passed), full suite (38 files, 199 tests passed), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-802 · Farmers management** · T1
+- [x] **F-802 · Farmers management** · T1
   Needs: F-801 · Backend: B-106
   Build: farmer list, pending approvals, approve and suspend within the enterprise, farmer detail.
   Done when: a different enterprise's farmers never appear.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/farmersManagement.test.tsx (10/10 passed), full suite (39 files, 209 tests passed), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-803 · Product types and buying prices** · T1
   Needs: F-801 · Backend: B-402
@@ -1274,3 +1274,4 @@ Activity: 2026-10-18 · @claude-agent · F-311 · Completed · LanguageSwitcher 
 
 Activity: 2026-10-18 · @codex · F-506 · Implemented; integration blocked · `feat/checkout-result` / `1162266`, isolated pending merge. Frontend checks and 336 tests pass; Firefox 360 px keyboard/contrast and result states pass. Awaiting backend reservation deadline and order-payment integration; reuse primary’s F-405 Telebirr modal. Task remains [!].
 Activity: 2026-10-18 · @claude-agent · F-801 · Completed · Enterprise dashboard shell with module navigation, operational key numbers (registered farmers, pending deliveries, active lots, open orders), attention alerts, live deliveries feed, and error recovery states. 38 test files (199 tests) pass, typecheck/lint/build clean.
+Activity: 2026-10-18 · @claude-agent · F-802 · Completed · Farmers management with strict enterprise isolation (foreign farmers never shown), search, status filters (Pending/Verified/Rejected), approval/rejection mutations, detail balance modal, and farmer link flow. 39 test files (209 tests) pass, typecheck/lint/build clean.
