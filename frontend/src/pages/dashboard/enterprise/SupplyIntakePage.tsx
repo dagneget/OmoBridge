@@ -640,7 +640,7 @@ export default function SupplyIntakePage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="p-5 space-y-5">
+            <form noValidate onSubmit={handleSubmit} className="p-5 space-y-5">
               {/* Step 1: Pick Farmer with Large Select */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">

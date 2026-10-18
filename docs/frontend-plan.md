@@ -180,7 +180,7 @@ Update the counts when you finish a task.
 | FP5 | Catalog, cart, checkout | 6 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
-| FP8 | Enterprise: farmers, supply, farmer payments | 9 / 10 |
+| FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
 | FP11 | Delivery provider app | 0 / 8 |
@@ -715,11 +715,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: print layout works.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/supplyHistoryPrint.test.tsx (5/5 passed), full suite (44 files, 241 tests passed), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-810 · Supply tests** · T1
+- [x] **F-810 · Supply tests** · T1
   Needs: F-807
   Build: tests for entry, inspection sums, payment and isolation.
   Done when: suite passes.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/supplySubsystemIntegration.test.tsx (7/7 passed), full suite (45 files, 248 tests passed), typecheck (clean), lint (clean), build (clean)
 
 ---
 
@@ -1294,3 +1294,9 @@ Activity: 2026-10-18 · @codex · F-508 · Implemented; integration blocked · `
 Activity: 2026-10-18 · @claude-agent · F-806 · Completed · Farmer payables ledger and balance summary strictly matching API numbers (delivered value, settled disbursements, outstanding balance, open count) with status filtering. 43 test files (236 tests) pass, typecheck/lint/build clean.
 Activity: 2026-10-18 · @claude-agent · F-807 · Completed · Payout disbursement execution modal supporting Telebirr mobile wallet and cash-via-agent channels, overpayment balance guard, idempotency key generation, and settlement ledger notifications. 43 test files (236 tests) pass, typecheck/lint/build clean.
 Activity: 2026-10-18 · @claude-agent · F-808 · Completed · Unpaid delivery cancellation with audit reason capture preserving historical visibility and ledger adjustments. 43 test files (236 tests) pass, typecheck/lint/build clean.
+
+## Integration milestones (outside the 134 feature tasks)
+
+- [~] **I-01 · Publish the four-agent integration baseline**
+  Owner: @codex · Started: 2026-10-18 · Branch: `integration/four-agent-baseline`
+  Scope: Combine committed primary enterprise/tourism work with the tested Codex feature history; preserve active F-809 changes outside this worktree; reconcile shared contracts/mocks/routes and verify the combined app.
