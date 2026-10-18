@@ -281,3 +281,13 @@ unit prices and stock status, and provides combined search/category filters and
 still a backend gap. See [feature handoff](../frontend/src/features/products/README.md)
 for states, mock-mode dependency, and pending browser checks. No tourism, map,
 shared layout or route files are changed.
+
+## PWA install card (F-107)
+
+`InstallCard` is exported from `frontend/src/components/pwa`. It handles deferred
+install offers, single-use prompts, installed/standalone hiding, tab-session
+dismissal, and iPhone/iPad Safari instructions. English and Amharic strings live
+in its own namespace. See [mounting and verification notes](../frontend/src/components/pwa/README.md).
+The frontend owner must mount one instance in a persistent layout early in app
+startup; this branch does not modify any existing page, route or layout. Real
+Android Chrome/Safari and 360 px/contrast verification remain pending.

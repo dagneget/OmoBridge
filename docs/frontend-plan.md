@@ -302,11 +302,14 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: tests or manual checks show private API responses are never cached and public pages load offline after one visit.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/pwaConfig.test.ts (2/2 passed), sw.js Workbox rules verified with NetworkOnly on auth/payments/orders/delivery and StaleWhileRevalidate on catalog/locales
 
-- [ ] **F-107 · Install experience** · T2
+- [!] **F-107 · Install experience** · T2
   Needs: F-105
   Build: capture the install prompt, show a small install card, iOS "Add to Home Screen" instructions, hide when already installed.
   Done when: works in Android Chrome; the card hides after install.
-  Owner: —
+  Owner: @codex · Started: 2026-10-18
+  Implemented: Isolated InstallCard/usePwaInstall with one-use browser prompts, iOS Safari instructions, installed/standalone hiding, optional session dismissal and English/Amharic namespace.
+  Tests: Node 22 npm run typecheck, npm run lint, npm run build, npm test → passed (136 tests, 26 files; 13 install cases).
+  Blocked: Android Chrome/Safari installation, 360 px, keyboard and contrast checks need a real browser/device. No browser runner installed. Persistent-layout mounting intentionally left to frontend owner to avoid overlapping layout edits.
 
 - [x] **F-108 · Offline UX** · T1
   Needs: F-101
@@ -1242,3 +1245,5 @@ Activity: 2026-10-18 · @codex · F-FIX-001 · Completed · Login/me contracts a
 Activity: 2026-10-18 · @codex · F-507 · Implemented; browser verification pending · PriceBreakdown ready for product, booking and order integration; frontend checks and all 119 tests pass.
 
 Activity: 2026-10-18 · @codex · F-501 · Implemented; browser/live verification pending · Public product catalog, combined filters, display pagination, stock states and public GET cache path; 131 tests pass. F-304 remains with its existing owner.
+
+Activity: 2026-10-18 · @codex · F-107 · Implemented; placement and device verification pending · Independent PWA install component and handoff; all 136 frontend tests pass.
