@@ -136,6 +136,15 @@ frontend/
 - `PATCH /api/v1/delivery/jobs/{jobId}/status` returns the job as the server now sees it. The screen renders that response, never the status it asked for, and re-reads the job after a rejection so the displayed state cannot drift from the server.
 - Rejections are surfaced with the server's message, and read-only screens that depend on the provider id stay blocked behind gap F-1101-E1 until the backend supplies it.
 
+### Location Capture
+- `features/delivery/locationCapture.ts` wraps `navigator.geolocation.watchPosition` behind a small interface, so the engine is testable with a mocked geolocation and carries no React dependency.
+- `watchPosition` has no interval argument, so accepted fixes are throttled to **one per 30 s** with `enableHighAccuracy: false` and a non-zero `maximumAge`. A GPS chip left in high-accuracy mode drains the battery on the low-end handsets this app targets.
+- Each point carries `recordedAt` from the **device clock**, not the receive time. The backend sorts replayed batches on `recordedAt` (`DeliveryService.ingestLocations`), so this is what keeps an offline upload chronological.
+- Points are validated before they leave the device: non-finite or out-of-range coordinates are dropped, a repeated fix is ignored, and a fix implying more than ~200 km/h since the last accepted one is treated as a GPS jump.
+- Capture is offered **only while the job is active**, and the watch is torn down as soon as the status becomes terminal — that is how "stop after delivery" is implemented.
+- Screen wake lock and permission state are best-effort and never block capture. The background-tracking limitation notice is F-1108.
+- Persistence and upload are **not** part of this layer: points are buffered in memory only. The IndexedDB queue and batched upload belong to F-1104.
+
 ### Offline & Queue Scopes
 - Service worker precaches app shell and fonts.
 - Public GET endpoints use network-first with stale-while-revalidate.

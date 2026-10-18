@@ -11,6 +11,9 @@ import {
   UserCircle2,
   ClipboardList,
   AlertTriangle,
+  Navigation,
+  Pause,
+  Play,
 } from 'lucide-react';
 
 import { useAuthStore } from '../../../features/auth/authStore';
@@ -18,6 +21,10 @@ import {
   deliveryService,
   resolveProviderId,
   nextStatuses,
+  isActiveStatus,
+  useGeolocationPermission,
+  useLocationCapture,
+  useWakeLock,
 } from '../../../features/delivery';
 import type { DeliveryJobStatus } from '../../../features/delivery';
 import { useNetworkStatus } from '../../../hooks/useNetworkStatus';
@@ -185,6 +192,10 @@ export default function ProviderJobDetailPage() {
 
   const available = nextStatuses(job?.status);
   const isPending = mutation.isPending;
+  const jobIsActive = job ? isActiveStatus(job.status) : false;
+  const permission = useGeolocationPermission();
+  const capture = useLocationCapture(jobIsActive);
+  useWakeLock(jobIsActive && capture.isTracking);
 
   if (!providerId) {
     return (
@@ -338,6 +349,104 @@ export default function ProviderJobDetailPage() {
               )}
             </div>
           </Card>
+
+          {/* Capture is only meaningful while the job is still moving (F-1103). */}
+          {jobIsActive && (
+          <Card className="p-4 sm:p-6 space-y-4" data-testid="location-capture">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-base font-semibold text-foreground">
+                {tr('delivery.locationHeading', 'Location sharing')}
+              </h2>
+              {capture.isTracking ? (
+                <span
+                  role="status"
+                  data-testid="location-tracking-badge"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+                  {tr('delivery.locationTracking', 'Sharing your location')}
+                </span>
+              ) : null}
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              {tr(
+                'delivery.locationDescription',
+                'Records a point about every 30 seconds while the job is in progress, using the device clock.'
+              )}
+            </p>
+
+            {capture.error === 'permission-denied' && (
+              <p
+                role="alert"
+                data-testid="location-permission-denied"
+                className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive"
+              >
+                {tr(
+                  'delivery.locationPermissionDenied',
+                  'Location access was blocked. Allow it for this site in your browser settings, then start again.'
+                )}
+              </p>
+            )}
+
+            {capture.error === 'gps-unavailable' && (
+              <p
+                role="alert"
+                data-testid="location-unavailable"
+                className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-900 dark:text-amber-200"
+              >
+                {tr(
+                  'delivery.locationUnavailable',
+                  'Your device could not provide a location fix. Check that location services are switched on.'
+                )}
+              </p>
+            )}
+
+            {permission === 'denied' && !capture.error && (
+              <p role="alert" data-testid="location-permission-hint" className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+                {tr(
+                  'delivery.locationPermissionDenied',
+                  'Location access was blocked. Allow it for this site in your browser settings, then start again.'
+                )}
+              </p>
+            )}
+
+            <div className="flex flex-wrap items-center gap-3">
+              {capture.isTracking ? (
+                <button
+                  type="button"
+                  onClick={capture.stop}
+                  data-testid="location-stop"
+                  className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium touch-target cursor-pointer hover:bg-muted"
+                >
+                  <Pause className="w-4 h-4" aria-hidden="true" />
+                  {tr('delivery.locationStop', 'Stop sharing')}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={capture.start}
+                  disabled={permission === 'denied' || !isOnline}
+                  data-testid="location-start"
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground touch-target cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Play className="w-4 h-4" aria-hidden="true" />
+                  {tr('delivery.locationStart', 'Share my location')}
+                </button>
+              )}
+
+              <p className="text-xs text-muted-foreground" data-testid="location-point-count">
+                <Navigation className="w-3.5 h-3.5 inline mr-1" aria-hidden="true" />
+                {capture.points.length === 1
+                  ? tr('delivery.locationPointsOne', '1 point recorded')
+                  : tr('delivery.locationPointsOther', '{{count}} points recorded').replace(
+                      '{{count}}',
+                      String(capture.points.length)
+                    )}
+              </p>
+            </div>
+          </Card>
+          )}
 
           <Card className="p-4 sm:p-6 space-y-4" data-testid="status-actions">
             <h2 className="text-base font-semibold text-foreground">

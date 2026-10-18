@@ -183,14 +183,14 @@ Update the counts when you finish a task.
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
-| FP11 | Delivery provider app | 2 / 8 |
+| FP11 | Delivery provider app | 3 / 8 |
 | FP12 | Guide dashboard | 0 / 4 |
 | FP13 | Admin and authority | 0 / 5 |
 | FP14 | Reviews | 0 / 3 |
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **56 / 134** |
+| | **Total** | **57 / 134** |
 
 ### What can run in parallel
 
@@ -865,11 +865,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: tests cover valid and rejected transitions.
   Done: @opencode · 2026-10-18 · Tests: `npm test` → 47 files / 280 passed (17 new for F-1102); `npm run typecheck`, `oxlint` and `npm run build` clean. Uses `PATCH /api/v1/delivery/jobs/{jobId}/status`; the job is resolved from the provider's own list because the backend has no single-job GET. Valid and rejected transitions both covered, plus offline and axe. Route `/dashboard/delivery/jobs/:jobId` handed to Codex in `docs/handoffs/F-1102.md` (`routes/index.tsx` untouched).
 
-- [ ] **F-1103 · GPS capture** · T1
+- [x] **F-1103 · GPS capture** · T1
   Needs: F-1102
   Build: watch position while a job is active, permission screens, Screen Wake Lock, interval chosen to save battery, stop after delivery.
   Done when: points are captured with device timestamps in a test using a mocked geolocation.
-  Owner: —
+  Done: @opencode · 2026-10-18 · Tests: `npm test` → 49 files / 301 passed (21 new: 12 engine + 9 screen); `npm run typecheck`, `oxlint` and `npm run build` clean. Capture runs through a mocked `navigator.geolocation` and stamps each point with the device clock, matching the backend's `LocationIngestionRequest.recordedAt`. Points are buffered in memory only — IndexedDB persistence and batched upload are F-1104. Wake lock, permission state and stop-on-terminal-status are implemented; the background-tracking notice is F-1108.
 
 - [ ] **F-1104 · Offline location queue** · T1
   Needs: F-1103, F-104 · Backend: B-1004
@@ -1306,3 +1306,4 @@ Activity: 2026-10-18 · @claude-agent · F-808 · Completed · Unpaid delivery c
   Owner: @codex · Started: 2026-10-18 · Branch: `integration/four-agent-baseline`
   Scope: Combine committed primary enterprise/tourism work with the tested Codex feature history; preserve active F-809 changes outside this worktree; reconcile shared contracts/mocks/routes and verify the combined app.
 | 2026-10-18 | @opencode | F-1102 | Done | Added `pages/dashboard/delivery/ProviderJobDetailPage.tsx` with only the legal next statuses, `deliveryService.updateJobStatus`, and a `nextStatuses` table mirroring the backend `DeliveryStatus.canTransitionTo` (the server does not publish the legal set). The screen always renders the server's returned job and re-reads it after a rejection, so it cannot drift. Fixed a real offline bug found by tests: with no cached job and no connection the page said "job not found"; it now says it cannot load. Tests 47 files / 280 passed (17 new); typecheck, lint, build clean; axe audit passes. Handoff in `docs/handoffs/F-1102.md` — Codex must add the `/dashboard/delivery/jobs/:jobId` route, which is why `routes/index.tsx` was left untouched. |
+| 2026-10-18 | @opencode | F-1103 | Done | Added `features/delivery/locationCapture.ts` (a framework-agnostic capture engine) and `useLocationCapture.ts` (permission state, screen wake lock, capture lifecycle), plus a Location sharing card on the provider job screen. Points match the backend `LocationIngestionRequest` and carry the device clock, which is what the server sorts replayed batches by. `watchPosition` has no interval, so accepted fixes are throttled to one per 30 s with `enableHighAccuracy: false` — the explicit battery requirement. Impossible GPS jumps, non-finite and out-of-range coordinates, and replayed fixes are dropped. Capture is offered only while the job is active and the watch is torn down on a terminal status. In-memory only; F-1104 owns the IndexedDB queue and upload. Tests 49 files / 301 passed (21 new); typecheck, lint, build clean. |

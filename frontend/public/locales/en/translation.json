@@ -68,6 +68,15 @@
     "detailLoading": "Loading job…",
     "detailNotFoundTitle": "Job not found",
     "detailNotFoundDescription": "This job is not in the list assigned to you.",
-    "updateBlockedOffline": "Status changes need a connection."
+    "updateBlockedOffline": "Status changes need a connection.",
+    "locationHeading": "Location sharing",
+    "locationDescription": "Records a point about every 30 seconds while the job is in progress, using the device clock.",
+    "locationStart": "Share my location",
+    "locationStop": "Stop sharing",
+    "locationTracking": "Sharing your location",
+    "locationPointsOne": "1 point recorded",
+    "locationPointsOther": "{{count}} points recorded",
+    "locationPermissionDenied": "Location access was blocked. Allow it for this site in your browser settings, then start again.",
+    "locationUnavailable": "Your device could not provide a location fix. Check that location services are switched on."
   }
 }

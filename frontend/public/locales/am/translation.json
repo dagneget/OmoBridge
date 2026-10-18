@@ -68,6 +68,15 @@
     "detailLoading": "ስራውን በመጫን ላይ…",
     "detailNotFoundTitle": "ስራ አልተገኘም",
     "detailNotFoundDescription": "ይህ ስራ በተመደበውት ዝርዝርዎ ውስጥ የለም።",
-    "updateBlockedOffline": "የሁኔታ ለውጥ ግንኙነት ይፈልጋል።"
+    "updateBlockedOffline": "የሁኔታ ለውጥ ግንኙነት ይፈልጋል።",
+    "locationHeading": "የአካባቢ ማጋራት",
+    "locationDescription": "ስራው በሂደት ላይ ሲሆን በየ30 ሰከንድ አንድ ቦታ በመሣሪያው ሰዓት ይመዘጋጋል።",
+    "locationStart": "አካባቢዬን አጋራ",
+    "locationStop": "ማጋራት አቁም",
+    "locationTracking": "አካባቢዎን በማጋራት ላይ ነዎት",
+    "locationPointsOne": "1 ቦታ ተመዝግቧል",
+    "locationPointsOther": "{{count}} ቦታዎች ተመዝግበዋል",
+    "locationPermissionDenied": "የአካባቢ መደረስ ተከልክሏል። በአሳሽከርዎ ቅንብሮች ላይ ለዚህ ድረ-ገጽ ይፈቃዱ፤ ከዚያ ጀምረው።",
+    "locationUnavailable": "መሣሪያዎ የአካባቢ ምልክት ማቅረብ አልተቻለም። የአካባቢ አገልግሎቶች ማስጀመርተዎትን ያረጋግጡ።"
   }
 }
