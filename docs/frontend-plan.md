@@ -173,7 +173,7 @@ Update the counts when you finish a task.
 | FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 7 / 10 |
 | FP2 | Authentication and roles | 9 / 9 |
-| FP3 | Public tourism | 2 / 11 |
+| FP3 | Public tourism | 3 / 11 |
 | FP4 | Bookings | 0 / 5 |
 | FP5 | Catalog, cart, checkout | 0 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **26 / 134** |
+| | **Total** | **27 / 134** |
 
 ### What can run in parallel
 
@@ -400,11 +400,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: seed packages (ukuli bula ceremony, village visit, camping, evangadi dance, long hike with local guide, cow bleeding ceremony, photography) appear with their prices.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/tourismPackagesList.test.tsx (5/5 passed, 115/115 total), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-303 · Package detail** · T1
+- [x] **F-303 · Package detail** · T1
   Needs: F-302 · Backend: B-302, B-305
   Build: overview, story, location and directions, opening hours, cultural rules, safety notes, community approval information, images; "Book" button.
   Done when: all fields render; cultural rules are prominent.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/packageDetails.test.tsx (5/5 passed, 120/120 total), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-304 · Map component** · T1
   Needs: F-101
@@ -1208,6 +1208,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-208 | Completed | AccountPage with profile view, language preference persistence, linked enterprise & farmer profiles verified; FP2 100% completed |
 | 2026-10-18 | @claude-agent | F-301 | Completed | HomePage with hero, seed packages from API, role registration cards, language toggle, and offline cache resilience verified |
 | 2026-10-18 | @claude-agent | F-302 | Completed | TourismPage with 7 seed packages, category tabs, real-time search, unit prices, loading/empty/error states verified |
+| 2026-10-18 | @claude-agent | F-303 | Completed | ExperienceDetailsPage with prominent cultural rules, safety notes, story, hours, community consent ref & date, and booking CTA verified |
 
 ## 12. Change log (requirements)
 
