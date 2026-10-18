@@ -259,7 +259,9 @@ describe('Checkout result F-506', () => {
         'This order is no longer available to this account.',
       ),
     ).toHaveLength(2);
-    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    expect(screen.queryAllByRole('link', { name: /^Pay order/ })).toHaveLength(
+      0,
+    );
   });
   it('preserves cached confirmation offline but disables links, and refreshes on reconnect', async () => {
     show(result, (id) => `/pay/${id}`);
@@ -271,7 +273,9 @@ describe('Checkout result F-506', () => {
     expect(
       screen.getByText(/These are the last confirmed details/),
     ).toBeInTheDocument();
-    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    expect(screen.queryAllByRole('link', { name: /^Pay order/ })).toHaveLength(
+      0,
+    );
     expect(
       screen.getByRole('button', { name: 'Refresh order status' }),
     ).toBeDisabled();

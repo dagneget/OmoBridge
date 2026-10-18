@@ -558,11 +558,17 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Tests: Node 22 npm run typecheck, npm run lint, npm run build, npm test → passed (119 tests, 23 files; 9 price component cases).
   Blocked: Real-browser 360 px, keyboard reading order, zoom and contrast verification remain pending; no browser runner installed. Automated axe checks pass with color contrast excluded. No route/layout changes.
 
-- [~] **F-508 · My orders** · T1
+- [!] **F-508 · My orders** · T1
   Needs: F-506 · Backend: B-805, B-804
   Build: list and detail with status timeline, items with snapshot names and prices, payment status, tracking link.
   Done when: another user's order is not reachable.
   Owner: @codex · Started: 2026-10-18 · Branch: `feat/my-orders` (isolated worktree)
+
+  Implemented: @codex · 2026-10-18 · Authenticated `/account/orders` list/detail, snapshot items/prices/quantities, server price breakdown, chronological status history, delivery details and payment status. Account/checkout navigation; session-scoped private queries; ownership checks before rendering and payment lookup; four data states and English/Amharic fallback.
+  Tests: Node 22 typecheck, lint, build and npm test → passed (379 tests, 44 files). Firefox 360 × 800 CSS viewport: keyboard checkout → orders → detail → list, loading/empty/error/offline, refresh recovery, snapshots/history, foreign-order rejection with no payment fetch; no feature overflow or axe/contrast violations. MSW browser fixtures; physical devices and real payments untested.
+  Backend verification: seven `OrderAndCheckoutIntegrationTest` cases passed, including another buyer’s detail request returning 404. Full suite: 129 tests, 0 assertion failures, 4 existing errors (three delivery cleanup foreign-key errors and one PostgreSQL container startup error); no Java changes.
+  Blocked: Buyer order contract exposes no tracking token/mapping (F-508-T1). Backend payment lookup checks authentication but not resource ownership (F-508-P1); frontend order verification does not secure direct API access. Tracking shows unavailable; no API or token is invented. See `features/orders/README.md`.
+  Delivery: `feat/my-orders` (isolated branch, awaiting integration). Preserve the other agent’s route table and Account changes when merging.
 
 - [ ] **F-509 · Cancel order** · T2
   Needs: F-508 · Backend: B-804, B-905
@@ -1209,6 +1215,9 @@ Confirm each against the real backend before the affected task. Do not invent en
 
 | F-506-E1 | F-506 | Where is the authoritative per-order reservation deadline? | Open: live OpenAPI `CheckoutResponse` and `OrderDetailResponse` have no expiry field and no reservation-read endpoint. Backend must expose the deadline and regenerate the contract. The frontend shows unknown timing; only explicit server cancellation history is treated as expired. Generic countdown is tested but cannot be wired to live data yet. |
 
+| F-508-T1 | F-508 | How does a buyer obtain an order’s delivery tracking token? | Open: live `OrderDetailResponse` has no tracking reference and no buyer order-to-delivery lookup exists. Provider/enterprise delivery-job endpoints are not a buyer mapping. Expose an authorized tracking token/reference, regenerate types, then connect `/track/:token`; frontend currently shows unavailable. |
+| F-508-P1 | F-508 | Does payment lookup enforce ownership? | Security gap: `BuyerPaymentController.getPaymentByOrderId` uses only `isAuthenticated()`; `PaymentService.getPaymentByOrderId` looks up payment by order UUID without checking the buyer. Frontend verifies the order before its lookup, but direct API access remains unprotected. Backend must enforce payer/order ownership. |
+
 ## 11. Activity log
 
 Add a row for every claim, completion and blocker. Newest at the bottom.
@@ -1292,3 +1301,5 @@ Activity: 2026-10-18 · @codex · F-502 · Claimed · FP5 ownership delegated by
 Activity: 2026-10-18 · @codex · F-505 · Completed on isolated branch · Typed checkout, delivery map/keyboard pin, fresh per-item cart checks, same-key retries, complete seller confirmation and network-only worker routing. All 300 frontend tests pass; backend baseline errors recorded above.
 
 Activity: 2026-10-18 · @codex · F-506 · Implemented; integration blocked · Per-seller confirmation and refresh, standalone countdown and server-reported expiry UI; frontend checks/336 tests and Firefox 360 px keyboard/contrast pass. Waiting for backend deadline and real payment routes; task remains [!].
+
+Activity: 2026-10-18 · @codex · F-508 · Implemented; integration blocked · My orders list/detail with ownership checks, snapshots, timeline and payment status. All 379 frontend tests and Firefox 360 px keyboard/contrast checks pass; seven backend order tests pass. Tracking contract/payment API ownership gaps recorded; task remains [!].

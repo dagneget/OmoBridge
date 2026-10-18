@@ -87,8 +87,25 @@ export const mockOrderConfirmation: OrderDetailResponse = {
   buyerId: mockUsers.buyer.id,
   deliveryAddress: 'Jinka market',
   deliveryPhone: '+251911000001',
-  items: [],
-  statusHistories: [],
+  items: [
+    {
+      id: 'aaaa0000-0000-4000-8000-000000000003',
+      productId: 'ffffffff-ffff-4fff-8fff-000000000001',
+      productName: 'Wild honey — snapshot name',
+      productSku: 'HONEY-DEMO-001',
+      unitPrice: 420,
+      quantity: 1,
+      lineTotal: 420,
+    },
+  ],
+  statusHistories: [
+    {
+      id: 'aaaa0000-0000-4000-8000-000000000004',
+      toStatus: 'PLACED',
+      reason: 'Order created via checkout',
+      createdAt: '2026-10-18T10:00:00Z',
+    },
+  ],
 };
 export const orderConfirmationHandler = http.get(
   '*/api/v1/orders/:id',
@@ -113,5 +130,45 @@ export const orderConfirmationHandler = http.get(
       success: true,
       data: { ...mockOrderConfirmation, buyerId: user.id },
     });
+  },
+);
+
+export const myOrdersHandler = http.get('*/api/v1/orders', ({ request }) => {
+  const user = Object.values(mockUsers).find(
+    (candidate) =>
+      request.headers.get('Authorization') ===
+      `Bearer ${createMockAuthResponse(candidate).accessToken}`,
+  );
+  if (!user)
+    return HttpResponse.json(
+      { message: 'Authentication required' },
+      { status: 401 },
+    );
+  const hasOrders = [...confirmed.keys()].some((key) =>
+    key.startsWith(`${user.id}:`),
+  );
+  return HttpResponse.json({
+    success: true,
+    data: hasOrders ? mockCheckout.orders : [],
+  });
+});
+export const orderPaymentHandler = http.get(
+  '*/api/v1/payments/order/:id',
+  ({ request }) => {
+    const user = Object.values(mockUsers).find(
+      (candidate) =>
+        request.headers.get('Authorization') ===
+        `Bearer ${createMockAuthResponse(candidate).accessToken}`,
+    );
+    if (!user)
+      return HttpResponse.json(
+        { message: 'Authentication required' },
+        { status: 401 },
+      );
+    // Checkout alone does not create a payment record. F-601 owns attempts and payment fixtures.
+    return HttpResponse.json(
+      { message: 'Payment record not found' },
+      { status: 404 },
+    );
   },
 );

@@ -28,5 +28,7 @@
   "newCheckout": "ሌላ ትዕዛዝ ይጀምሩ",
   "created": "ትዕዛዝ ተፈጥሯል",
   "reference": "የትዕዛዝ መለያ፦ {{reference}}",
-  "groupTotal": "የተረጋገጠ ጠቅላላ፦ {{total}}"
+  "groupTotal": "የተረጋገጠ ጠቅላላ፦ {{total}}",
+  "myOrders": "የእኔ ትዕዛዞች",
+  "viewOrder": "የትዕዛዝ ዝርዝር ይመልከቱ"
 }

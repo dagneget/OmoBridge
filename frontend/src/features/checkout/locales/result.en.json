@@ -28,5 +28,7 @@
   "newCheckout": "Start another checkout",
   "created": "Order created",
   "reference": "Checkout reference: {{reference}}",
-  "groupTotal": "Server-confirmed total: {{total}}"
+  "groupTotal": "Server-confirmed total: {{total}}",
+  "myOrders": "My orders",
+  "viewOrder": "View order details"
 }

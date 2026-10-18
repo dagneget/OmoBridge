@@ -61,6 +61,31 @@ describe('Checkout MSW demo contract', () => {
     ).toBe(404);
     expect((await fetch(url)).status).toBe(401);
   });
+  it('lists only the current account’s completed demo checkout, with snapshot detail and no invented payment', async () => {
+    await post({ ...payload, idempotencyKey: 'my-orders-demo' });
+    const buyerHeaders = {
+      Authorization: `Bearer ${createMockAuthResponse(mockUsers.buyer).accessToken}`,
+    };
+    const guideHeaders = {
+      Authorization: `Bearer ${createMockAuthResponse(mockUsers.guide).accessToken}`,
+    };
+    const list = await fetch('http://localhost/api/v1/orders', {
+      headers: buyerHeaders,
+    });
+    expect((await list.json()).data).toEqual(mockCheckout.orders);
+    const other = await fetch('http://localhost/api/v1/orders', {
+      headers: guideHeaders,
+    });
+    expect((await other.json()).data).toEqual([]);
+    expect(
+      (
+        await fetch(
+          `http://localhost/api/v1/payments/order/${mockOrderConfirmation.orderId}`,
+          { headers: buyerHeaders },
+        )
+      ).status,
+    ).toBe(404);
+  });
   it('rejects unsupported demo carts explicitly rather than inventing their totals', async () => {
     const response = await post({
       ...payload,

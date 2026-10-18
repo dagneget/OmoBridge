@@ -162,6 +162,9 @@ export function CheckoutResult({ result, onNewCheckout, paymentHref }: Props) {
           </div>
         </>
       )}
+      <Link className={control} to="/account/orders">
+        {t('myOrders')}
+      </Link>
       <button type="button" className={control} onClick={onNewCheckout}>
         {t('newCheckout')}
       </button>
@@ -199,6 +202,14 @@ function SellerOrder({
         {order.enterpriseName ?? t('unknown')}
       </h4>
       <p>{t('order', { reference: order.orderNo ?? t('unknown') })}</p>
+      {order.orderId && (
+        <Link
+          className={control}
+          to={`/account/orders/${encodeURIComponent(order.orderId)}`}
+        >
+          {t('viewOrder')}
+        </Link>
+      )}
       <dl className="space-y-2">
         <div>
           <dt className="font-semibold">{t('total')}</dt>

@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import { checkoutHandler, orderConfirmationHandler } from './checkoutHandler';
+import { checkoutHandler, orderConfirmationHandler, myOrdersHandler, orderPaymentHandler } from './checkoutHandler';
 import type { LoginRequest } from '../types/api';
 import { mockUsers, createMockAuthResponse, MOCK_PASSWORD } from './fixtures/users';
 import {
@@ -62,6 +62,8 @@ export const handlers = [
   ...authHandlers,
   checkoutHandler,
   orderConfirmationHandler,
+  myOrdersHandler,
+  orderPaymentHandler,
   // Tourism: Packages
   http.get('*/api/v1/tourism/packages', ({ request }) => {
     const category = new URL(request.url).searchParams.get('category')?.trim().toUpperCase();
