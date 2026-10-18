@@ -73,3 +73,42 @@ html, body {
 .font-ethiopic {
   font-family: var(--font-ethiopic);
 }
+
+/* Print Styles for Receipts and Documents */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  nav,
+  header,
+  aside,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+
+  .printable-slip-wrapper {
+    position: static !important;
+    inset: auto !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .printable-slip {
+    border: 2px solid #0f172a !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin: 0 auto !important;
+    padding: 1.5rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}
