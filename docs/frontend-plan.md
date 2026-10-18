@@ -172,7 +172,7 @@ Update the counts when you finish a task.
 |---|---|---|
 | FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 7 / 10 |
-| FP2 | Authentication and roles | 6 / 9 |
+| FP2 | Authentication and roles | 7 / 9 |
 | FP3 | Public tourism | 0 / 11 |
 | FP4 | Bookings | 0 / 5 |
 | FP5 | Catalog, cart, checkout | 0 / 9 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **21 / 134** |
+| | **Total** | **22 / 134** |
 
 ### What can run in parallel
 
@@ -366,11 +366,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: both register and show the pending state.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/registerDeliveryAndGuide.test.tsx (4/4 passed, 96/96 total), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-207 · Route guards and role navigation** · T1
+- [x] **F-207 · Route guards and role navigation** · T1
   Needs: F-201, F-101 · Backend: B-107
   Build: guards for the 7 roles; forbidden page; post-login redirect; role switcher for multi-role users.
   Done when: tests show the wrong role is redirected and a backend 403 shows the forbidden page.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/roleGuards.test.tsx (5/5 passed, 101/101 total), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-208 · Account and profile** · T2
   Needs: F-201 · Backend: B-105
@@ -1203,6 +1203,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-204 | Completed | RegisterProducerPage (village origin traceability, kebele, telebirr, pending approval confirmation screen, USSD *844# guide) verified |
 | 2026-10-18 | @claude-agent | F-205 | Completed | RegisterEnterprisePage (enterpriseName, woreda, town, trade reg no, direct routing to /dashboard/enterprise) verified |
 | 2026-10-18 | @claude-agent | F-206 | Completed | RegisterDeliveryPage (vehicle types, plate, service area) and RegisterGuidePage (languages, rate, bio) with pending screens verified |
+| 2026-10-18 | @claude-agent | F-207 | Completed | RoleGuard for 7 roles, ForbiddenPage 403 handling, post-login return path redirect, and multi-role RoleSwitcher verified |
 
 ## 12. Change log (requirements)
 

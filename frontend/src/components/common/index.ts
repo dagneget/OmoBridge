@@ -17,3 +17,4 @@ export * from './ErrorBoundary';
 export * from './PhoneInput';
 export * from './OfflineBanner';
 export * from './NetworkButton';
+export { default as RoleSwitcher } from './RoleSwitcher';

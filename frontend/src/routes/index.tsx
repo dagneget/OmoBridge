@@ -1,9 +1,12 @@
-import { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { lazy, Suspense, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import PublicLayout from '../components/layout/PublicLayout';
 import AuthLayout from '../components/layout/AuthLayout';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import ErrorBoundary from '../components/common/ErrorBoundary';
+import RoleGuard from './RoleGuard';
+import { Roles, getDefaultDashboardRoute } from '../features/auth/roleHelpers';
+import { useAuthStore } from '../features/auth/authStore';
 
 // Lazy-loaded Public Pages
 const HomePage = lazy(() => import('../pages/public/HomePage'));
@@ -33,6 +36,7 @@ const RegisterProducerPage = lazy(() => import('../pages/auth/RegisterProducerPa
 const RegisterEnterprisePage = lazy(() => import('../pages/auth/RegisterEnterprisePage'));
 const RegisterDeliveryPage = lazy(() => import('../pages/auth/RegisterDeliveryPage'));
 const RegisterGuidePage = lazy(() => import('../pages/auth/RegisterGuidePage'));
+const ForbiddenPage = lazy(() => import('../pages/auth/ForbiddenPage'));
 
 // Lazy-loaded Trace & Tracking
 const PublicTracePage = lazy(() => import('../pages/trace/PublicTracePage'));
@@ -51,7 +55,23 @@ const PageLoader = () => (
   </div>
 );
 
+function DashboardIndexRedirect() {
+  const { user } = useAuthStore();
+  const destination = getDefaultDashboardRoute(user?.roles);
+  return <Navigate to={destination} replace />;
+}
+
 export default function AppRoutes() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleForbidden = () => {
+      navigate('/forbidden');
+    };
+    window.addEventListener('omobridge:auth-forbidden', handleForbidden);
+    return () => window.removeEventListener('omobridge:auth-forbidden', handleForbidden);
+  }, [navigate]);
+
   return (
     <ErrorBoundary>
       <Suspense fallback={<PageLoader />}>
@@ -78,6 +98,7 @@ export default function AppRoutes() {
             <Route path="/track/:token" element={<LiveTrackingPage />} />
             <Route path="/design-tokens" element={<DesignTokensPage />} />
             <Route path="/offline" element={<OfflinePage />} />
+            <Route path="/forbidden" element={<ForbiddenPage />} />
           </Route>
 
           {/* Authentication Layout */}
@@ -96,19 +117,91 @@ export default function AppRoutes() {
             <Route path="/auth/register/guide" element={<RegisterGuidePage />} />
           </Route>
 
-          {/* Role-Aware Dashboard Layout */}
-          <Route element={<DashboardLayout />}>
-            <Route path="/dashboard" element={<Navigate to="/dashboard/enterprise" replace />} />
-            <Route path="/dashboard/enterprise" element={<EnterpriseDashboardPage />} />
-            <Route path="/dashboard/enterprise/*" element={<EnterpriseDashboardPage />} />
-            <Route path="/dashboard/farmer" element={<FarmerDashboardPage />} />
-            <Route path="/dashboard/farmer/*" element={<FarmerDashboardPage />} />
-            <Route path="/dashboard/delivery" element={<DeliveryDashboardPage />} />
-            <Route path="/dashboard/delivery/*" element={<DeliveryDashboardPage />} />
-            <Route path="/dashboard/guide" element={<GuideDashboardPage />} />
-            <Route path="/dashboard/guide/*" element={<GuideDashboardPage />} />
-            <Route path="/dashboard/admin" element={<AdminDashboardPage />} />
-            <Route path="/dashboard/admin/*" element={<AdminDashboardPage />} />
+          {/* Role-Aware Protected Dashboard Layout */}
+          <Route element={<RoleGuard />}>
+            <Route element={<DashboardLayout />}>
+              <Route path="/dashboard" element={<DashboardIndexRedirect />} />
+              <Route
+                path="/dashboard/enterprise"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <EnterpriseDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/*"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <EnterpriseDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/farmer"
+                element={
+                  <RoleGuard allowedRoles={[Roles.PRODUCER_FARMER, Roles.SYSTEM_ADMIN]}>
+                    <FarmerDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/farmer/*"
+                element={
+                  <RoleGuard allowedRoles={[Roles.PRODUCER_FARMER, Roles.SYSTEM_ADMIN]}>
+                    <FarmerDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/delivery"
+                element={
+                  <RoleGuard allowedRoles={[Roles.DELIVERY_PROVIDER, Roles.SYSTEM_ADMIN]}>
+                    <DeliveryDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/delivery/*"
+                element={
+                  <RoleGuard allowedRoles={[Roles.DELIVERY_PROVIDER, Roles.SYSTEM_ADMIN]}>
+                    <DeliveryDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/guide"
+                element={
+                  <RoleGuard allowedRoles={[Roles.TOUR_GUIDE, Roles.SYSTEM_ADMIN]}>
+                    <GuideDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/guide/*"
+                element={
+                  <RoleGuard allowedRoles={[Roles.TOUR_GUIDE, Roles.SYSTEM_ADMIN]}>
+                    <GuideDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/admin"
+                element={
+                  <RoleGuard allowedRoles={[Roles.SYSTEM_ADMIN, Roles.TOURISM_AUTHORITY]}>
+                    <AdminDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/admin/*"
+                element={
+                  <RoleGuard allowedRoles={[Roles.SYSTEM_ADMIN, Roles.TOURISM_AUTHORITY]}>
+                    <AdminDashboardPage />
+                  </RoleGuard>
+                }
+              />
+            </Route>
           </Route>
 
           {/* 404 Not Found Catch-All */}

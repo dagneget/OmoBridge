@@ -75,7 +75,18 @@ export function createHttpClient(baseURL: string = BASE_API_URL): AxiosInstance 
         }
       }
 
-      // 3. Normalize error shape
+      // 3. 403 Forbidden handling: notify app
+      if (status === 403) {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('omobridge:auth-forbidden', {
+              detail: normalizeApiError(error),
+            })
+          );
+        }
+      }
+
+      // 4. Normalize error shape
       return Promise.reject(normalizeApiError(error));
     }
   );

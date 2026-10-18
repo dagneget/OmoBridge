@@ -17,27 +17,32 @@ import {
   Home,
   CheckCircle,
 } from 'lucide-react';
-import { TOKEN_STORAGE_KEY } from '../../services/httpClient';
 import { OfflineBanner } from '../common/OfflineBanner';
+import RoleSwitcher from '../common/RoleSwitcher';
+import { useAuthStore } from '../../features/auth/authStore';
+import { normalizeRole, Roles } from '../../features/auth/roleHelpers';
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const { user, activeRole, logout } = useAuthStore();
 
-  // Read stored role or default to ENTERPRISE for dashboard exploration
-  const storedUser = typeof window !== 'undefined' ? localStorage.getItem('omobridge_user') : null;
-  const user = storedUser ? JSON.parse(storedUser) : { role: 'ENTERPRISE', fullName: 'Demo User' };
-  const role = user.role || 'ENTERPRISE';
+  const userRoles = (
+    user?.roles || ((user as any)?.role ? [(user as any).role] : [])
+  ).map(normalizeRole);
+  const currentRole = activeRole
+    ? normalizeRole(activeRole)
+    : userRoles[0] || normalizeRole((user as any)?.role || '') || Roles.MICRO_ENTERPRISE;
 
   const handleLogout = () => {
-    localStorage.removeItem(TOKEN_STORAGE_KEY);
-    localStorage.removeItem('omobridge_user');
+    logout();
     navigate('/login');
   };
 
   // Nav menus by role
   const getNavItems = () => {
-    switch (role) {
+    switch (currentRole) {
+      case Roles.PRODUCER_FARMER:
       case 'PRODUCER':
         return [
           { to: '/dashboard/farmer', label: 'Farmer Overview', icon: Sprout },
@@ -45,23 +50,26 @@ export default function DashboardLayout() {
           { to: '/dashboard/farmer/payables', label: 'Earnings & Balances', icon: DollarSign },
           { to: '/dashboard/farmer/ussd', label: 'USSD Fast Access (*844#)', icon: FileText },
         ];
-      case 'DELIVERY_PROVIDER':
+      case Roles.DELIVERY_PROVIDER:
         return [
           { to: '/dashboard/delivery', label: 'Delivery Jobs', icon: Truck },
           { to: '/dashboard/delivery/active', label: 'Active Route & GPS', icon: Compass },
           { to: '/dashboard/delivery/sync', label: 'Offline Sync Queue', icon: CheckCircle },
         ];
-      case 'TOUR_GUIDE':
+      case Roles.TOUR_GUIDE:
         return [
           { to: '/dashboard/guide', label: 'Assigned Tours', icon: Compass },
           { to: '/dashboard/guide/sessions', label: 'Availability Calendar', icon: Calendar },
         ];
+      case Roles.SYSTEM_ADMIN:
+      case Roles.TOURISM_AUTHORITY:
       case 'ADMIN':
         return [
           { to: '/dashboard/admin', label: 'Admin Oversight', icon: ShieldAlert },
           { to: '/dashboard/admin/approvals', label: 'Provider Approvals', icon: CheckCircle },
           { to: '/dashboard/admin/users', label: 'User Directory', icon: Users },
         ];
+      case Roles.MICRO_ENTERPRISE:
       case 'ENTERPRISE':
       default:
         return [
@@ -106,13 +114,14 @@ export default function DashboardLayout() {
                 OmoBridge
               </span>
               <span className="text-[10px] text-slate-500 uppercase tracking-wider block">
-                {role}
+                {currentRole.replace(/_/g, ' ')}
               </span>
             </div>
           </Link>
           <button
             type="button"
             onClick={() => setSidebarOpen(false)}
+            aria-label="Close sidebar"
             className="md:hidden touch-target p-1 text-slate-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <X className="w-5 h-5" />
@@ -125,7 +134,7 @@ export default function DashboardLayout() {
             <NavLink
               key={to}
               to={to}
-              end={to === `/dashboard/${role.toLowerCase()}` || to === '/dashboard/enterprise'}
+              end={to === `/dashboard/${currentRole.toLowerCase()}` || to === '/dashboard/enterprise'}
               onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
                 `touch-target flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
@@ -143,12 +152,14 @@ export default function DashboardLayout() {
 
         {/* Sidebar Footer */}
         <div className="p-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
-          <div className="px-3 py-2 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-xs">
-            <span className="text-slate-400 block">Signed in as:</span>
-            <span className="font-semibold text-slate-700 dark:text-slate-200 truncate block">
-              {user.fullName || 'User'}
-            </span>
-          </div>
+          {user && (
+            <div className="px-3 py-2 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-xs space-y-1">
+              <span className="text-slate-400 block">Signed in as:</span>
+              <span className="font-semibold text-slate-700 dark:text-slate-200 truncate block">
+                {user.fullName || user.phoneNumber}
+              </span>
+            </div>
+          )}
           <button
             type="button"
             onClick={handleLogout}
@@ -169,21 +180,23 @@ export default function DashboardLayout() {
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
+              aria-label="Open sidebar menu"
               className="md:hidden touch-target p-2 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               <Menu className="w-6 h-6" />
             </button>
             <h1 className="text-lg font-semibold capitalize text-slate-800 dark:text-slate-100">
-              {role.replace('_', ' ').toLowerCase()} Dashboard
+              {currentRole.replace(/_/g, ' ').toLowerCase()} Dashboard
             </h1>
           </div>
 
           <div className="flex items-center gap-3">
+            <RoleSwitcher />
             <Link
               to="/"
               className="touch-target text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700"
             >
-              Back to Storefront
+              Storefront
             </Link>
           </div>
         </header>
