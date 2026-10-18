@@ -1,5 +1,9 @@
 import { http, HttpResponse } from 'msw';
-import type { PaymentResponse, Schemas } from '../types/api';
+import type {
+  PaymentResponse,
+  Schemas,
+  OrderDetailResponse,
+} from '../types/api';
 import { mockUsers, createMockAuthResponse } from './fixtures/users';
 // Fixed history fixtures; never used by the real API or to infer provider settlement.
 export const mockBuyerPaymentHistory: PaymentResponse[] = [
@@ -120,7 +124,48 @@ const ownBuyer = (request: Request) =>
   userFor(request)?.id === mockUsers.buyer.id;
 const unavailable = () =>
   HttpResponse.json({ message: 'Unavailable' }, { status: 404 });
+const cancellationOrderId = 'aaaa0000-0000-4000-8000-000000000003';
+let demoOrderCancelled = false;
+const cancellationOrder = (): OrderDetailResponse => ({
+  orderId: cancellationOrderId,
+  orderNo: 'ORD-DEMO-001',
+  checkoutGroupId: 'aaaa0000-0000-4000-8000-000000000004',
+  enterpriseId: '11111111-1111-4111-8111-000000000001',
+  enterpriseName: 'South Omo Beekeeping Union',
+  buyerId: mockUsers.buyer.id,
+  status: demoOrderCancelled ? 'CANCELLED' : 'PAID',
+  currency: 'ETB',
+  totalAmount: 470,
+  items: [],
+  statusHistories: demoOrderCancelled
+    ? [
+        {
+          fromStatus: 'PAID',
+          toStatus: 'CANCELLED',
+          reason: 'Cancelled by buyer',
+          createdAt: '2026-10-19T00:00:00Z',
+        },
+      ]
+    : [],
+});
 export const paymentHistoryHandlers = [
+  http.post('*/api/v1/orders/:id/cancel', ({ request, params }) => {
+    if (!userFor(request))
+      return HttpResponse.json(
+        { message: 'Authentication required' },
+        { status: 401 },
+      );
+    if (!ownBuyer(request) || params.id !== cancellationOrderId)
+      return unavailable();
+    if (demoOrderCancelled)
+      return HttpResponse.json(
+        { message: 'Order cannot be cancelled in its current state' },
+        { status: 422 },
+      );
+    demoOrderCancelled = true;
+    return HttpResponse.json({ success: true, data: cancellationOrder() });
+  }),
+
   http.get('*/api/v1/payments/:id/refunds', ({ request, params }) => {
     const summary = ownBuyer(request)
       ? refundExamples[String(params.id)]
@@ -156,19 +201,7 @@ export const paymentHistoryHandlers = [
       ownBuyer(request)
         ? HttpResponse.json({
             success: true,
-            data: {
-              orderId: 'aaaa0000-0000-4000-8000-000000000003',
-              orderNo: 'ORD-DEMO-001',
-              checkoutGroupId: 'aaaa0000-0000-4000-8000-000000000004',
-              enterpriseId: '11111111-1111-4111-8111-000000000001',
-              enterpriseName: 'South Omo Beekeeping Union',
-              buyerId: mockUsers.buyer.id,
-              status: 'PAID',
-              currency: 'ETB',
-              totalAmount: 470,
-              items: [],
-              statusHistories: [],
-            },
+            data: cancellationOrder(),
           })
         : unavailable(),
   ),

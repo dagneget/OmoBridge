@@ -1,0 +1,15 @@
+{
+  "title": "Cancel this order",
+  "start": "Cancel order",
+  "question": "Cancel order {{reference}}?",
+  "refundNotice": "Order cancellation and refunds are separate. Cancellation does not confirm that money was returned. Check the payment and refund records below.",
+  "confirm": "Confirm cancellation",
+  "keep": "Keep order",
+  "sending": "Requesting cancellation…",
+  "success": "The server confirmed this order is cancelled. Check the recorded refund status separately.",
+  "forbidden": "This order cannot be cancelled in its current state.",
+  "unverified": "Refresh the order status online before requesting cancellation.",
+  "uncertain": "The cancellation result could not be confirmed. The order may already have changed. Refresh its status before trying again.",
+  "recheck": "Refresh before retrying",
+  "checking": "Checking the current order status…"
+}

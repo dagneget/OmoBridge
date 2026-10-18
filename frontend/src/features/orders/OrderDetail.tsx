@@ -1,6 +1,7 @@
+import CancelOrder from './CancelOrder';
 import RefundDetails from '../payments/RefundDetails';
 import { useOrderScope } from './sessionScope';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../auth';
@@ -18,6 +19,7 @@ import {
 
 export function OrderDetail({ id }: { id?: string }) {
   const scope = useOrderScope();
+  const client = useQueryClient();
   const { text: t, date } = useOrdersText();
   const { user, token, isAuthenticated, isLoading } = useAuthStore();
   const { isOnline } = useNetworkStatus();
@@ -107,6 +109,51 @@ export function OrderDetail({ id }: { id?: string }) {
                   <dd>{date(visible.createdAt)}</dd>
                 </div>
               </dl>
+              <CancelOrder
+                key={`${scope}:${id}`}
+                order={visible}
+                enabled={
+                  isOnline &&
+                  isAuthenticated &&
+                  !isLoading &&
+                  !query.isFetching &&
+                  !query.isError
+                }
+                onCancelled={async (updated) => {
+                  if (
+                    useAuthStore.getState().token !== token ||
+                    useAuthStore.getState().user?.id !== user?.id
+                  )
+                    return;
+                  await client.cancelQueries({
+                    queryKey: ['buyer-orders', user?.id, scope, 'detail', id],
+                    exact: true,
+                  });
+                  if (
+                    useAuthStore.getState().token !== token ||
+                    useAuthStore.getState().user?.id !== user?.id
+                  )
+                    return;
+                  client.setQueryData(
+                    ['buyer-orders', user?.id, scope, 'detail', id],
+                    updated,
+                  );
+                  void client.invalidateQueries({
+                    queryKey: ['buyer-orders', user?.id, scope, 'list'],
+                  });
+                  void client.invalidateQueries({
+                    queryKey: ['buyer-orders', user?.id, scope, 'payment', id],
+                  });
+                }}
+                onRefresh={async () => {
+                  const checked = await query.refetch();
+                  return (
+                    checked.isSuccess &&
+                    checked.data?.buyerId === user?.id &&
+                    checked.data?.orderId === id
+                  );
+                }}
+              />
               <section className="space-y-3" aria-labelledby="order-items">
                 <h2 id="order-items" className="text-xl font-semibold">
                   {t('items')}
