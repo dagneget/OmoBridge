@@ -145,6 +145,14 @@ frontend/
 - Screen wake lock and permission state are best-effort and never block capture. The background-tracking limitation notice is F-1108.
 - Persistence and upload are **not** part of this layer: points are buffered in memory only. The IndexedDB queue and batched upload belong to F-1104.
 
+### Offline Location Queue
+- `features/delivery/locationQueue.ts` defines a `LocationQueue` interface with two adapters: IndexedDB (default) and in-memory. The in-memory one is both the test double and the runtime fallback when `indexedDB` is unavailable (private browsing, non-secure contexts).
+- Points are read through a compound `(jobId, recordedAt)` index, so a job's points come back already ordered by device timestamp. A late upload therefore cannot reorder the breadcrumb.
+- `syncJobLocations` sends batches of at most **50**, removing a batch only after the server confirms it. A failed request leaves its points queued; a failure part-way through keeps only the un-sent batches.
+- The backend has **no rate limiter and no size cap** (`@NotEmpty` is the only constraint), so the 50-point cap is enforced client-side.
+- **"Job already delivered" is a 200 with a stored count of `0`, not an error.** `DeliveryService.ingestLocations` never dedupes, so a non-empty batch that yields `0` can only mean the job is terminal server-side. Those points are dropped and the job is marked finished, otherwise the queue retries forever and never drains. The server's answer wins over the locally known status, because a job can be finished by a dispatcher or the SMS checkpoint fallback while the device is offline.
+- The provider home and the F-1501 sync centre reuse `syncAllJobs`; nothing here is specific to the detail screen.
+
 ### Offline & Queue Scopes
 - Service worker precaches app shell and fonts.
 - Public GET endpoints use network-first with stale-while-revalidate.

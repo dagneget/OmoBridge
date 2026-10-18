@@ -77,6 +77,8 @@
     "locationPointsOne": "1 point recorded",
     "locationPointsOther": "{{count}} points recorded",
     "locationPermissionDenied": "Location access was blocked. Allow it for this site in your browser settings, then start again.",
-    "locationUnavailable": "Your device could not provide a location fix. Check that location services are switched on."
+    "locationUnavailable": "Your device could not provide a location fix. Check that location services are switched on.",
+    "syncUploaded": "Uploaded {{count}} saved points.",
+    "syncJobFinished": "This job was already finished, so its saved points were discarded."
   }
 }

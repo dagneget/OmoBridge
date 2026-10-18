@@ -77,6 +77,8 @@
     "locationPointsOne": "1 ቦታ ተመዝግቧል",
     "locationPointsOther": "{{count}} ቦታዎች ተመዝግበዋል",
     "locationPermissionDenied": "የአካባቢ መደረስ ተከልክሏል። በአሳሽከርዎ ቅንብሮች ላይ ለዚህ ድረ-ገጽ ይፈቃዱ፤ ከዚያ ጀምረው።",
-    "locationUnavailable": "መሣሪያዎ የአካባቢ ምልክት ማቅረብ አልተቻለም። የአካባቢ አገልግሎቶች ማስጀመርተዎትን ያረጋግጡ።"
+    "locationUnavailable": "መሣሪያዎ የአካባቢ ምልክት ማቅረብ አልተቻለም። የአካባቢ አገልግሎቶች ማስጀመርተዎትን ያረጋግጡ።",
+    "syncUploaded": "{{count}} የተቀመጡ ቦታዎች ተልኳል።",
+    "syncJobFinished": "ይህ ስራ አስቀድሞም ተጠናቅቷል፤ ስለዚህ የተቀመጡ ቦታዎቹ ጣርተዋል።"
   }
 }

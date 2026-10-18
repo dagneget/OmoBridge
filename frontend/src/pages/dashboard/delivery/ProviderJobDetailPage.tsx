@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -25,6 +25,10 @@ import {
   useGeolocationPermission,
   useLocationCapture,
   useWakeLock,
+  createIdbLocationQueue,
+  syncJobLocations,
+  type LocationQueue,
+  type CapturedLocation,
 } from '../../../features/delivery';
 import type { DeliveryJobStatus } from '../../../features/delivery';
 import { useNetworkStatus } from '../../../hooks/useNetworkStatus';
@@ -194,8 +198,77 @@ export default function ProviderJobDetailPage() {
   const isPending = mutation.isPending;
   const jobIsActive = job ? isActiveStatus(job.status) : false;
   const permission = useGeolocationPermission();
-  const capture = useLocationCapture(jobIsActive);
+
+  // F-1104: captured points are queued for upload rather than held in memory.
+  const queueRef = useRef<LocationQueue | null>(null);
+  const [queue, setQueue] = useState<LocationQueue | null>(null);
+  const [queuedCount, setQueuedCount] = useState(0);
+  const [syncNote, setSyncNote] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void createIdbLocationQueue().then((created) => {
+      if (cancelled) return;
+      queueRef.current = created;
+      setQueue(created);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const enqueuePoint = useCallback(
+    (point: CapturedLocation) => {
+      const target = queueRef.current;
+      if (!target || !jobId) return;
+      void target.enqueue(jobId, [point]).then(() => target.count(jobId)).then(setQueuedCount);
+    },
+    [jobId]
+  );
+
+  const capture = useLocationCapture(jobIsActive, { onPoint: enqueuePoint });
   useWakeLock(jobIsActive && capture.isTracking);
+
+  const refreshQueuedCount = useCallback(() => {
+    if (!queue || !jobId) return;
+    void queue.count(jobId).then(setQueuedCount);
+  }, [queue, jobId]);
+
+  useEffect(() => {
+    refreshQueuedCount();
+  }, [refreshQueuedCount]);
+
+  // Drain the queue as soon as there is a connection again.
+  useEffect(() => {
+    if (!queue || !jobId || !isOnline) return;
+    let cancelled = false;
+
+    void syncJobLocations({
+      queue,
+      jobId,
+      upload: (targetJobId, points) => deliveryService.ingestLocations(targetJobId, points),
+    }).then((result) => {
+      if (cancelled) return;
+      setQueuedCount(result.remaining);
+      setSyncNote(
+        result.jobFinishedOnServer
+          ? tr('delivery.syncJobFinished', 'This job was already finished, so its saved points were discarded.')
+          : result.uploaded > 0
+            ? tr('delivery.syncUploaded', 'Uploaded {{count}} saved points.').replace(
+                '{{count}}',
+                String(result.uploaded)
+              )
+            : null
+      );
+    });
+
+    return () => {
+      cancelled = true;
+    };
+    // `job` is intentionally excluded: the sync depends on connectivity and identity, not on
+    // the job's current status, and re-running on every status change would re-upload nothing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queue, jobId, isOnline]);
 
   if (!providerId) {
     return (
@@ -376,6 +449,16 @@ export default function ProviderJobDetailPage() {
               )}
             </p>
 
+            {syncNote && (
+              <p
+                role="status"
+                data-testid="location-sync-note"
+                className="rounded-lg border border-border bg-muted/40 p-3 text-sm text-foreground"
+              >
+                {syncNote}
+              </p>
+            )}
+
             {capture.error === 'permission-denied' && (
               <p
                 role="alert"
@@ -437,11 +520,11 @@ export default function ProviderJobDetailPage() {
 
               <p className="text-xs text-muted-foreground" data-testid="location-point-count">
                 <Navigation className="w-3.5 h-3.5 inline mr-1" aria-hidden="true" />
-                {capture.points.length === 1
-                  ? tr('delivery.locationPointsOne', '1 point recorded')
-                  : tr('delivery.locationPointsOther', '{{count}} points recorded').replace(
+                {queuedCount === 1
+                  ? tr('delivery.locationPointsOne', '1 point waiting to upload')
+                  : tr('delivery.locationPointsOther', '{{count}} points waiting to upload').replace(
                       '{{count}}',
-                      String(capture.points.length)
+                      String(queuedCount)
                     )}
               </p>
             </div>

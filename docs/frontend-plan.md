@@ -183,14 +183,14 @@ Update the counts when you finish a task.
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
-| FP11 | Delivery provider app | 3 / 8 |
+| FP11 | Delivery provider app | 4 / 8 |
 | FP12 | Guide dashboard | 0 / 4 |
 | FP13 | Admin and authority | 0 / 5 |
 | FP14 | Reviews | 0 / 3 |
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **57 / 134** |
+| | **Total** | **58 / 134** |
 
 ### What can run in parallel
 
@@ -871,11 +871,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: points are captured with device timestamps in a test using a mocked geolocation.
   Done: @opencode · 2026-10-18 · Tests: `npm test` → 49 files / 301 passed (21 new: 12 engine + 9 screen); `npm run typecheck`, `oxlint` and `npm run build` clean. Capture runs through a mocked `navigator.geolocation` and stamps each point with the device clock, matching the backend's `LocationIngestionRequest.recordedAt`. Points are buffered in memory only — IndexedDB persistence and batched upload are F-1104. Wake lock, permission state and stop-on-terminal-status are implemented; the background-tracking notice is F-1108.
 
-- [ ] **F-1104 · Offline location queue** · T1
+- [x] **F-1104 · Offline location queue** · T1
   Needs: F-1103, F-104 · Backend: B-1004
   Build: store points in IndexedDB with `recorded_at`; upload in batches when online, within the backend rate limits; clear after success; handle "job already delivered".
   Done when: a test goes offline, records points, reconnects and uploads them in order.
-  Owner: —
+  Done: @opencode · 2026-10-18 · Tests: `npm test` → 50 files / 316 passed (15 new); `npm run typecheck`, `oxlint` and `npm run build` clean. Required scenario covered: points enqueued out of order while offline are uploaded in `recordedAt` order on reconnect. IndexedDB adapter with a compound `(jobId, recordedAt)` index; batches capped at 50 client-side because the backend has no size cap or rate limiter. "Job already delivered" is handled as the backend's HTTP 200 + stored count 0, which can only mean the job is terminal server-side, so those points are dropped instead of retried forever. **Not covered:** the IndexedDB adapter itself, because jsdom lacks IndexedDB and `fake-indexeddb` needs a package change — requested from Codex in `docs/handoffs/F-1104.md`.
 
 - [ ] **F-1105 · Offline status queue** · T2
   Needs: F-1102
@@ -1307,3 +1307,4 @@ Activity: 2026-10-18 · @claude-agent · F-808 · Completed · Unpaid delivery c
   Scope: Combine committed primary enterprise/tourism work with the tested Codex feature history; preserve active F-809 changes outside this worktree; reconcile shared contracts/mocks/routes and verify the combined app.
 | 2026-10-18 | @opencode | F-1102 | Done | Added `pages/dashboard/delivery/ProviderJobDetailPage.tsx` with only the legal next statuses, `deliveryService.updateJobStatus`, and a `nextStatuses` table mirroring the backend `DeliveryStatus.canTransitionTo` (the server does not publish the legal set). The screen always renders the server's returned job and re-reads it after a rejection, so it cannot drift. Fixed a real offline bug found by tests: with no cached job and no connection the page said "job not found"; it now says it cannot load. Tests 47 files / 280 passed (17 new); typecheck, lint, build clean; axe audit passes. Handoff in `docs/handoffs/F-1102.md` — Codex must add the `/dashboard/delivery/jobs/:jobId` route, which is why `routes/index.tsx` was left untouched. |
 | 2026-10-18 | @opencode | F-1103 | Done | Added `features/delivery/locationCapture.ts` (a framework-agnostic capture engine) and `useLocationCapture.ts` (permission state, screen wake lock, capture lifecycle), plus a Location sharing card on the provider job screen. Points match the backend `LocationIngestionRequest` and carry the device clock, which is what the server sorts replayed batches by. `watchPosition` has no interval, so accepted fixes are throttled to one per 30 s with `enableHighAccuracy: false` — the explicit battery requirement. Impossible GPS jumps, non-finite and out-of-range coordinates, and replayed fixes are dropped. Capture is offered only while the job is active and the watch is torn down on a terminal status. In-memory only; F-1104 owns the IndexedDB queue and upload. Tests 49 files / 301 passed (21 new); typecheck, lint, build clean. |
+| 2026-10-18 | @opencode | F-1104 | Done | Added `features/delivery/locationQueue.ts` (queue interface, IndexedDB + in-memory adapters) and `locationSync.ts`, plus `deliveryService.ingestLocations`. Design was taken from reading the backend rather than assumed: `ingestLocations` never dedupes and returns the stored count, and returns 0 with HTTP 200 for a DELIVERED/CANCELLED job — so a non-empty batch yielding 0 can only mean the job is terminal server-side. Those points are dropped and the job is marked finished, which is what stops the queue retrying forever when a dispatcher or the SMS fallback closes a job while the device is offline. Batches are capped at 50 on the client because the server has no size cap and no rate limiter. Failed requests keep their points; a mid-sync failure keeps only the un-sent batches. Capture now feeds the queue through an `onPoint` sink instead of accumulating in memory. Tests 50 files / 316 passed (15 new). Not covered: the IndexedDB adapter, since jsdom has no IndexedDB and `fake-indexeddb` requires a package change — requested from Codex. |

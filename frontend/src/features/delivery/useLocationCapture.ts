@@ -138,6 +138,14 @@ export function useWakeLock(active: boolean): void {
   }, [active, release]);
 }
 
+export interface UseLocationCaptureOptions {
+  /**
+   * Called for every accepted fix. Supply this to persist points (F-1104 enqueues them);
+   * when omitted the hook keeps them in memory only.
+   */
+  onPoint?: (point: CapturedLocation) => void;
+}
+
 export interface UseLocationCaptureResult {
   points: CapturedLocation[];
   isTracking: boolean;
@@ -155,13 +163,26 @@ export interface UseLocationCaptureResult {
  *
  * Points are buffered in memory only. Persisting them and uploading in batches is F-1104.
  */
-export function useLocationCapture(enabled: boolean): UseLocationCaptureResult {
+export function useLocationCapture(
+  enabled: boolean,
+  options: UseLocationCaptureOptions = {}
+): UseLocationCaptureResult {
   const [points, setPoints] = useState<CapturedLocation[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const captureRef = useRef<ReturnType<typeof createLocationCapture> | null>(null);
   const [requested, setRequested] = useState(false);
   const shouldTrack = enabled && requested;
+
+  // Keep the sink in a ref so a caller passing an inline arrow does not restart the watch on
+  // every render, which would silently reset the throttle window. Updated in an effect rather
+  // than during render; effects run in declaration order, so this is set before the capture
+  // effect below reads it.
+  const onPointRef = useRef(options.onPoint);
+
+  useEffect(() => {
+    onPointRef.current = options.onPoint;
+  }, [options.onPoint]);
 
   // Derived during render rather than stored: the device's capability is not state we own.
   const geolocation = (
@@ -179,7 +200,14 @@ export function useLocationCapture(enabled: boolean): UseLocationCaptureResult {
 
     const capture = createLocationCapture({
       geolocation,
-      onPoint: (point) => setPoints((current) => [...current, point]),
+      onPoint: (point) => {
+        const sink = onPointRef.current;
+        if (sink) {
+          sink(point);
+        } else {
+          setPoints((current) => [...current, point]);
+        }
+      },
       onError: (geoError) => {
         setError(
           geoError.code === PERMISSION_DENIED ? 'permission-denied' : 'gps-unavailable'

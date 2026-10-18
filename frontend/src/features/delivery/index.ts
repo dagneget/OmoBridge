@@ -35,4 +35,19 @@ export {
   useLocationCapture,
   useWakeLock,
 } from './useLocationCapture';
-export type { PermissionState, UseLocationCaptureResult } from './useLocationCapture';
+export type {
+  PermissionState,
+  UseLocationCaptureResult,
+  UseLocationCaptureOptions,
+} from './useLocationCapture';
+export {
+  createMemoryLocationQueue,
+  createIdbLocationQueue,
+  sortQueueEntries,
+  planBatches,
+  toIngestionRequest,
+  MAX_LOCATION_BATCH_SIZE,
+} from './locationQueue';
+export type { LocationQueue, LocationQueueEntry } from './locationQueue';
+export { syncJobLocations, syncAllJobs } from './locationSync';
+export type { LocationSyncResult, LocationBatchUploader } from './locationSync';
