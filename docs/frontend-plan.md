@@ -853,11 +853,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
 
 ### FP11: Delivery provider app
 
-- [ ] **F-1101 · Provider home and job list** · T1
+- [~] **F-1101 · Provider home and job list** · T1
   Needs: F-207 · Backend: B-1003
   Build: assigned jobs with status and pickup and drop-off.
   Done when: only own jobs appear.
-  Owner: —
+  Owner: @opencode · Started: 2026-10-18
 
 - [ ] **F-1102 · Job detail and status updates** · T1
   Needs: F-1101 · Backend: B-1003
@@ -1221,6 +1221,8 @@ Confirm each against the real backend before the affected task. Do not invent en
 | F-508-T1 | F-508 | How does a buyer obtain an order’s delivery tracking token? | Open: live `OrderDetailResponse` has no tracking reference and no buyer order-to-delivery lookup exists. Provider/enterprise delivery-job endpoints are not a buyer mapping. Expose an authorized tracking token/reference, regenerate types, then connect `/track/:token`; frontend currently shows unavailable. |
 | F-508-P1 | F-508 | Does payment lookup enforce ownership? | Security gap: `BuyerPaymentController.getPaymentByOrderId` uses only `isAuthenticated()`; `PaymentService.getPaymentByOrderId` looks up payment by order UUID without checking the buyer. Frontend verifies the order before its lookup, but direct API access remains unprotected. Backend must enforce payer/order ownership. |
 
+| F-1101-E1 | F-1101 | How does a logged-in delivery provider discover their own `providerId`, which `GET /api/v1/delivery/providers/{providerId}/jobs` requires? | Open: `/api/v1/auth/me` returns `UserProfileResponse`, which carries `enterpriseId` and `farmerCode` but **no** `deliveryProviderId`, and there is no `GET /api/v1/delivery/providers/me` equivalent (`GET /api/v1/tourism/guides/me` exists for guides). `providerId` is the `DeliveryProvider.id`, not the `User.id`, so the profile id must not be substituted — it would 404. Frontend reads an optional `deliveryProviderId` from the profile and shows an explicit configuration error when it is absent; no endpoint or contract was invented. Backend should add the field (or a `/providers/me` route), then types are regenerated. |
+
 ## 11. Activity log
 
 Add a row for every claim, completion and blocker. Newest at the bottom.
@@ -1228,6 +1230,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | Date | Agent | Task | Event | Note |
 |---|---|---|---|---|
 | 2026-10-18 | — | — | Plan created | 134 tasks across 18 phases |
+| 2026-10-18 | @opencode | F-1101 | Claimed | Provider home and job list. Verified F-207 `RoleGuard` exists, so the dependency is met. Backend gap F-1101-E1 logged: providers cannot self-discover `providerId`. |
 | 2026-10-18 | @claude-agent | F-001 | Completed | Pre-implementation audit completed, decisions logged in ADR-004 |
 | 2026-10-18 | @claude-agent | F-002 | Completed | Tooling baseline, Vitest, testing-library, strict TS, scripts, openapi-typescript verified |
 | 2026-10-18 | @claude-agent | F-003 | Completed | Design tokens, Tailwind v4 import, Ethiopic/Amharic script support, dark/light themes, touch targets verified |
