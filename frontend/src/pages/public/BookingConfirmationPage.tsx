@@ -29,6 +29,7 @@ import {
 import { bookingService } from '../../features/bookings/bookingService';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
 import { formatEthiopianPhoneDisplay } from '../../utils/phone';
+import { TelebirrPaymentModal } from '../../features/payments';
 import type { BookingResponse } from '../../types/api';
 
 const STATUS_STEPS = [
@@ -48,6 +49,7 @@ export default function BookingConfirmationPage() {
 
   const [copied, setCopied] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
 
   const {
@@ -440,7 +442,7 @@ export default function BookingConfirmationPage() {
             <Button
               variant="primary"
               size="lg"
-              onClick={() => navigate(`/checkout?bookingId=${booking.id}`)}
+              onClick={() => setShowPaymentModal(true)}
               className="w-full sm:w-auto font-bold shadow-md flex items-center gap-2 touch-target"
               data-testid="pay-booking-cta"
             >
@@ -529,6 +531,26 @@ export default function BookingConfirmationPage() {
           </div>
         </div>
       </Modal>
+
+      {/* Telebirr Payment Modal */}
+      <TelebirrPaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        bookingId={booking.id}
+        amount={booking.totalAmount || booking.subtotal || 0}
+        currency={booking.currency || 'ETB'}
+        referenceCode={booking.bookingCode}
+        payerPhone={booking.contactPhone}
+        onPaymentSuccess={() => {
+          queryClient.setQueryData(['booking', bookingId], (old: BookingResponse | undefined) => {
+            if (!old) return old;
+            return {
+              ...old,
+              status: 'PAID',
+            };
+          });
+        }}
+      />
     </div>
   );
 }

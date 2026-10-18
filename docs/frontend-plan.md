@@ -174,7 +174,7 @@ Update the counts when you finish a task.
 | FP1 | App shell, design system, PWA core | 7 / 10 |
 | FP2 | Authentication and roles | 9 / 9 |
 | FP3 | Public tourism | 5 / 11 |
-| FP4 | Bookings | 4 / 5 |
+| FP4 | Bookings | 5 / 5 |
 | FP5 | Catalog, cart, checkout | 0 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
@@ -483,11 +483,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: another user's booking is not reachable.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/myBookings.test.tsx (4/4 passed), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-405 · Pay for a booking** · T1
+- [x] **F-405 · Pay for a booking** · T1
   Needs: F-601, F-403 · Backend: B-902, B-906
   Build: connect the shared payment flow to a booking; show paid state only after the server confirms.
   Done when: tests show pending, success, failure and retry.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/payBooking.test.tsx (5/5 passed), typecheck (clean), lint (clean), build (clean)
 
 ---
 
