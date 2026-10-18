@@ -144,8 +144,19 @@ export const mockProducts: ProductResponse[] = [
   {
     id: 'ffffffff-ffff-4fff-8fff-000000000001',
     name: 'Pure Wild South Omo White Honey (1kg)',
+    enterpriseName: 'South Omo Beekeeping Union',
+    enterpriseId: '11111111-1111-4111-8111-000000000001',
+    story: 'Demo: harvested by local beekeepers using traditional hanging beehives.',
+    unit: 'kg',
+    traceToken: 'TRACE-HONEY-001',
+    priceBreakdown: {
+      purchaseCost: 180, processingCost: 40, packagingCost: 25, laborCost: 45,
+      transportCost: 20, enterpriseMargin: 50, communityFund: 10, taxAmount: 15,
+      platformFee: 35, totalPrice: 420,
+    },
     description:
       'Multi-floral raw honey ethically harvested by traditional beekeepers in the Mago river valley.',
+    currency: 'ETB',
     unitPrice: 420,
     availableStock: 150,
     category: 'Honey & Hive Products',
@@ -156,6 +167,7 @@ export const mockProducts: ProductResponse[] = [
     name: 'Organic White Sesame Seeds (5kg)',
     description:
       'Cleaned, sun-dried, pesticide-free sesame cultivated along the fertile Omo floodplains.',
+    currency: 'ETB',
     unitPrice: 650,
     availableStock: 300,
     category: 'Oilseeds & Grains',
@@ -165,6 +177,7 @@ export const mockProducts: ProductResponse[] = [
     id: 'ffffffff-ffff-4fff-8fff-000000000003',
     name: 'Handcrafted Hamar Glass Bead Necklace',
     description: 'Authentic traditional beadwork crafted by the Turmi Women Artisans Cooperative.',
+    currency: 'ETB',
     unitPrice: 380,
     availableStock: 45,
     category: 'Artisan Crafts',

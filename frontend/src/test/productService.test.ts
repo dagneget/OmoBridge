@@ -21,3 +21,21 @@ describe('Public product service', () => {
     await expect(productService.getProducts()).rejects.toThrow('Network failure');
   });
 });
+
+describe('Public product detail service', () => {
+  it('uses the public detail path and forwards cancellation', async () => {
+    const product = { id: 'test/id', published: true };
+    const get = vi.spyOn(httpClient, 'get').mockResolvedValue({ data: { success: true, data: product } });
+    const controller = new AbortController();
+    expect(await productService.getProduct(product.id, controller.signal)).toEqual(product);
+    expect(get).toHaveBeenCalledWith('/api/v1/public/products/test%2Fid', { signal: controller.signal });
+  });
+  it.each([undefined, [], 'invalid'])('rejects malformed product response %j', async (data) => {
+    vi.spyOn(httpClient, 'get').mockResolvedValue({ data: { success: true, data } });
+    await expect(productService.getProduct('id')).rejects.toThrow('Invalid product detail response');
+  });
+  it('rejects unsuccessful envelopes', async () => {
+    vi.spyOn(httpClient, 'get').mockResolvedValue({ data: { success: false, data: { id: 'id' } } });
+    await expect(productService.getProduct('id')).rejects.toThrow('Invalid product detail response');
+  });
+});

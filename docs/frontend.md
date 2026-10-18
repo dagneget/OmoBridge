@@ -303,3 +303,18 @@ Hotel fixture names, amenities, contact details and prices are retained with UUI
 Node 22 typecheck, lint, production build and all 183 tests in 31 files pass.
 Real-device installation and 360 px keyboard/contrast verification remain pending.
 Merge into the active frontend branch after its shared task-board edits are committed.
+
+## Product detail (F-502)
+
+`/products/:id` now delegates to the products feature. It renders public product
+story, description, stock and unit price, integrates the server-only price
+breakdown, and links an encoded trace token to `/trace/:token`. It does not infer
+producer percentages or checkout totals. Missing/unpublished records, loading,
+errors/retry, access errors and both offline states are covered. Public access
+needs no role guard; the backend remains the publication/access authority.
+
+See [product feature verification and handoff](../frontend/src/features/products/README.md).
+Node 22 typecheck, lint, build and all 202 frontend tests pass. Firefox at an exact
+360 CSS-pixel viewport passes detail overflow/contrast checks, keyboard trace
+navigation, cached-offline and unavailable states. Live OpenAPI verified; the
+running catalog is empty, so populated detail used contract-based MSW fixtures.

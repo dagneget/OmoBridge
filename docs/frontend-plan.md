@@ -175,7 +175,7 @@ Update the counts when you finish a task.
 | FP2 | Authentication and roles | 9 / 9 |
 | FP3 | Public tourism | 4 / 11 |
 | FP4 | Bookings | 0 / 5 |
-| FP5 | Catalog, cart, checkout | 0 / 9 |
+| FP5 | Catalog, cart, checkout | 1 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 0 / 10 |
@@ -505,12 +505,13 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Tests: Node 22 npm run typecheck, npm run lint, npm run build, npm test → passed (131 tests, 26 files; 11 catalog/service cases).
   Blocked: Real-browser 360 px, keyboard, contrast and service-worker offline-after-visit verification pending (no browser runner); backend localhost:8080 unavailable for live integration. Source contract checked. Standalone mock mode also requires earlier commit 519b08f.
 
-- [~] **F-502 · Product detail** · T1
+- [x] **F-502 · Product detail** · T1
   Needs: F-501, F-507 · Backend: B-704, B-605
   Build: story, price breakdown, producer share, link to the trace page, stock status.
   Done when: all sections render and the trace link works.
-  Owner: @codex · Started: 2026-10-18
-  Dependency note: F-501/F-507 implementations included; their real-browser verification remains pending. Public API source and generated types verified; live OpenAPI check attempted.
+  Done: @codex · 2026-10-18 · Tests: Node 22 typecheck, lint, build, npm test → passed (202 tests, 32 files; 22 targeted detail/service tests).
+  Verified: Live OpenAPI fields/path and 404; contract-based populated mock. Firefox exact 360 px viewport: no detail overflow, axe including contrast passes, keyboard Tab/Enter trace navigation works, cached offline and unavailable states render. Loading/error/retry/access and cold offline covered in tests. Public route needs no role guard.
+  Scope: Server producer purchase cost displayed without inferred percentage; no authoritative client totals. Empty live catalog means populated UI uses MSW. F-501/F-507 implementations included; their broader outstanding checks remain recorded separately. Primary checkout untouched.
 
 - [ ] **F-503 · Cart store** · T1
   Needs: F-501
@@ -1227,6 +1228,8 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-303 | Completed | ExperienceDetailsPage with prominent cultural rules, safety notes, story, hours, community consent ref & date, and booking CTA verified |
 | 2026-10-18 | @claude-agent | F-304 | Completed | Lazy-loaded MapComponent with offline fallback, coordinates display, directions link, and code-split leaflet-vendor bundle verified |
 | 2026-10-18 | @claude-agent | F-305 | Blocked [!] | HotelsPage implemented with search, amenities, rate display, and Map modal; blocked from live backend verification by 500 LazyInitializationException on GET /api/v1/tourism/hotels (logged in Section 10 #17); verified 5/5 against OpenAPI MSW mock |
+
+| 2026-10-18 | @codex | F-502 | Completed | Product detail, existing price breakdown, encoded trace link and four data states; 202 tests pass; Firefox 360 px/contrast/keyboard checked; live catalog empty. |
 
 ## 12. Change log (requirements)
 
