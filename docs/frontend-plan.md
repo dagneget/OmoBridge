@@ -171,11 +171,11 @@ Update the counts when you finish a task.
 | Phase | Area | Done / Total |
 |---|---|---|
 | FP0 | Foundation and audit | 8 / 8 |
-| FP1 | App shell, design system, PWA core | 7 / 10 |
+| FP1 | App shell, design system, PWA core | 8 / 10 |
 | FP2 | Authentication and roles | 9 / 9 |
 | FP3 | Public tourism | 4 / 11 |
 | FP4 | Bookings | 0 / 5 |
-| FP5 | Catalog, cart, checkout | 2 / 9 |
+| FP5 | Catalog, cart, checkout | 5 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 0 / 10 |
@@ -302,7 +302,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: tests or manual checks show private API responses are never cached and public pages load offline after one visit.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/pwaConfig.test.ts (2/2 passed), sw.js Workbox rules verified with NetworkOnly on auth/payments/orders/delivery and StaleWhileRevalidate on catalog/locales
 
-- [!] **F-107 · Install experience** · T2
+- [x] **F-107 · Install experience** · T2
   Needs: F-105
   Build: capture the install prompt, show a small install card, iOS "Add to Home Screen" instructions, hide when already installed.
   Done when: works in Android Chrome; the card hides after install.
@@ -496,7 +496,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
 
 ### FP5: Catalog, cart, checkout
 
-- [!] **F-501 · Product list** · T1
+- [x] **F-501 · Product list** · T1
   Needs: F-006 · Backend: B-704
   Build: published products with filter, search, stock status, pagination.
   Done when: unpublished products never appear.
@@ -519,13 +519,15 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: reload keeps the cart; a removed product is flagged.
   Done: @codex · 2026-10-18 · Tests: Node 22 typecheck, lint, build, npm test → passed (246 tests, 35 files).
   Verified: Firefox full reload retained IDs/quantities; network revalidation succeeded; missing product flagged unavailable; logout cleared memory/storage. Built service-worker route test confirms fresh reads bypass the public cache. Store only; screen/360 px/translation/role guard checks do not apply until F-504.
-  Scope: Only IDs and quantities persisted; grouping/stock/price snapshots are server-derived and transient. Historical price changes across reload cannot be detected without persisting prices; first read establishes baseline. Fresh reads use existing HTTP adapter plus no-cache/NetworkOnly after a Firefox fetch-adapter timeout cleanup failure was reproduced and avoided. Account/tab boundaries and overlapping requests tested.
+  Scope: Only IDs and quantities persisted; grouping/stock/price snapshots are server-derived and transient. Historical price changes across reload cannot be detected without persisting prices; first read establishes baseline. Fresh reads use the existing HTTP adapter plus no-cache/NetworkOnly, verified in Firefox. Account/tab boundaries and overlapping requests tested.
 
-- [~] **F-504 · Cart page** · T1
+- [x] **F-504 · Cart page** · T1
   Needs: F-503
   Build: cart view grouped by seller, quantity controls, a note that the final price is confirmed at checkout.
   Done when: tests cover add, change, remove and an unavailable item.
-  Owner: @codex · Started: 2026-10-18
+  Done: @codex · 2026-10-18 · Tests: Node 22 typecheck, lint, build, npm test → passed (267 tests, 36 files; 21 cart UI tests).
+  Verified: Product-detail add controls; seller groups; fractional quantity/save drafts; remove/clear/focus; price/stock/unavailable warnings; all four states; English/Amharic fallback. Firefox exact 360 px viewport has no cart overflow or axe violations including contrast; keyboard add/edit/remove/clear works; loading, empty, error/recovery and offline states exercised. Live OpenAPI rechecked; populated UI uses contract-based MSW. Public local cart needs no role guard.
+  Delivery: feat/cart-page (isolated branch, awaiting merge). Checkout navigation points to the existing route; order creation remains F-505. No authoritative totals are computed.
 
 - [ ] **F-505 · Checkout** · T1
   Needs: F-504, F-207 · Backend: B-802, B-205
@@ -539,7 +541,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: countdown and expiry states render correctly.
   Owner: —
 
-- [!] **F-507 · Price transparency component** · T1
+- [x] **F-507 · Price transparency component** · T1
   Needs: F-102, F-104
   Build: reusable breakdown (items, tax, platform fee, delivery fee, total, producer share) used by bookings, products and orders.
   Done when: renders server numbers exactly; no client-side math beyond formatting.
@@ -1238,6 +1240,8 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @codex | F-503 | Completed | Persistent cart intent, seller grouping, network revalidation, price/stock/removed flags and account/tab cleanup; 246 tests and Firefox reload smoke pass. |
 
 | 2026-10-18 | @codex | F-504 | Claimed | Cart page and product-detail add controls on isolated branch; F-503 store reused. |
+
+| 2026-10-18 | @codex | F-504 | Completed | Cart page and add controls; 267 tests plus typecheck/lint/build; Firefox 360 px contrast, keyboard and all data states verified. Awaiting merge. |
 
 ## 12. Change log (requirements)
 

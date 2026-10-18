@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
+import { AddToCart } from '../cart';
 import { PriceBreakdown } from '../../components/pricing';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { normalizeApiError } from '../../services/apiError';
@@ -75,6 +76,7 @@ export function ProductDetail({ id }: { id: string }) {
           </div>}
           {product.unit && <div><dt className="font-semibold">{text('unit')}</dt><dd>{product.unit}</dd></div>}
         </dl>
+        <AddToCart product={product} />
         <section className="space-y-2">
           <h2 className="text-xl font-semibold">{text('description')}</h2>
           <p className="whitespace-pre-line">{product.description || text('noDescription')}</p>

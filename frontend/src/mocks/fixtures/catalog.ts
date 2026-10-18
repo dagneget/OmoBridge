@@ -165,6 +165,9 @@ export const mockProducts: ProductResponse[] = [
   {
     id: 'ffffffff-ffff-4fff-8fff-000000000002',
     name: 'Organic White Sesame Seeds (5kg)',
+    enterpriseId: '11111111-1111-4111-8111-000000000001',
+    enterpriseName: 'South Omo Beekeeping Union',
+    unit: 'pack',
     description:
       'Cleaned, sun-dried, pesticide-free sesame cultivated along the fertile Omo floodplains.',
     currency: 'ETB',
@@ -176,6 +179,9 @@ export const mockProducts: ProductResponse[] = [
   {
     id: 'ffffffff-ffff-4fff-8fff-000000000003',
     name: 'Handcrafted Hamar Glass Bead Necklace',
+    enterpriseId: '11111111-1111-4111-8111-000000000002',
+    enterpriseName: 'Turmi Women Artisans Cooperative',
+    unit: 'piece',
     description: 'Authentic traditional beadwork crafted by the Turmi Women Artisans Cooperative.',
     currency: 'ETB',
     unitPrice: 380,

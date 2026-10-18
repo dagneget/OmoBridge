@@ -31,9 +31,8 @@ No totals, stock reservations or authoritative prices are computed.
 Revalidate before checkout. Cart reads use the existing HTTP client adapter with
 Cache-Control: no-cache; the built Workbox rule routes those public product reads
 to NetworkOnly before the normal public cache rule. Browser HTTP caches must
-revalidate them too. Ordinary browsing can still use the public cache. The fetch
-adapter was rejected after a real Firefox check exposed an Axios timeout cleanup
-failure; the existing browser adapter passes that same check.
+revalidate them too. Ordinary browsing can still use the public cache. Fresh reads retain the existing browser adapter and its shared-client timeout;
+this path passes the Firefox smoke check.
 
 Revalidation requests are sequential to bound concurrency on metered connections.
 Known offline status fails closed without requests. Missing/unpublished/mismatched
@@ -61,5 +60,40 @@ removed products, price/currency changes, stock, offline failures, account/tab
 boundaries, overlapping requests and production service-worker route priority.
 Firefox smoke verification confirms real reload persistence, fresh validation,
 404-product flagging and logout clearing with contract-derived MSW fixtures.
-This task exposes store APIs only. Product add controls and the cart screen belong
-to F-504; no new screen, text translations or role guard is required here.
+The F-503 store itself has no screen. F-504 now adds the UI described below.
+
+## Cart screen and add controls (F-504)
+
+`CartPage` delegates to `CartView`; product details render `AddToCart`. Import both
+through the feature index. The store/session singleton moved to cartState.ts so
+feature UI can use it without importing its own public barrel. No route, layout,
+generated API type or backend endpoint is changed. The cart is public local intent,
+so it requires no role guard. Checkout authorization remains F-505.
+
+The cart groups server seller IDs, displays server unit prices without totals,
+and allows fractional quantity edits, removal and clearing. It checks on entry,
+on reconnect and after saved edits. Refresh explicitly repeats network validation.
+Missing products, inadequate stock, failed reads and changed price/currency block
+checkout navigation. Price changes require acknowledgement. Unsaved quantity drafts
+also block checkout and survive regrouping/refresh. Removing an item or clearing
+the cart returns keyboard focus to the heading and announces the change.
+
+Offline users can edit local intent but cannot refresh, accept prices or continue
+to checkout. Previously checked product details are labelled potentially stale;
+cold offline visits retain IDs/quantities with unresolved product/seller labels.
+Storage failure gets an explicit warning. Empty/loading/error/recovery states are
+covered. English/Amharic live in the isolated cart namespace with the required
+selected language → Amharic → English fallback.
+
+Verification: Node 22 typecheck/lint/build pass; all 267 tests across 36 files pass,
+including 21 cart UI tests. Live OpenAPI detail contract rechecked (HTTP 200).
+Populated UI uses generated-contract MSW fixtures. Headless Firefox in an exact
+360×800 CSS-pixel same-origin frame: two seller groups, no overflow, no axe
+violations including contrast; keyboard add/view-cart/edit .125/remove/clear work;
+focus returns to the heading. Unsaved drafts and offline state block checkout.
+Loading, empty, network error and recovery were exercised in the actual UI.
+Physical-device testing is separate from this viewport check.
+
+Session artifacts: /tmp/omobridge-cart-page-360.png and
+/tmp/omobridge-cart-page-browser-results.json. The existing /checkout destination
+is still implemented under F-505; this task does not create an order or charge.

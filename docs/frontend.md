@@ -331,8 +331,23 @@ Price-change comparison starts with the first server read after each reload.
 App startup registers cart logout/account-switch and cross-tab cleanup even before
 the cart screen is visited. Mutations invalidate prior checks; superseded requests
 cannot restore stale eligibility. Checkout must still revalidate and rely on the
-backend for stock and money. Cart controls and screen remain F-504.
+backend for stock and money. Cart controls and screen are now implemented in F-504.
 
 [Cart API and integration guide](../frontend/src/features/cart/README.md).
 Node 22 typecheck, lint, build and all 246 tests in 35 files pass. Real Firefox
 reload, fresh validation, removed-product and logout smoke checks pass using MSW.
+
+## Cart page and add controls (F-504)
+
+`/cart` now renders a seller-grouped cart feature. Product details include quantity
+and add-to-cart controls. Only local IDs/quantities are mutated; prices and stock
+are revalidated on the server. Unit prices are shown without calculated totals.
+Unsaved edits, price changes, unavailable products, stock shortages, failures and
+offline status block checkout navigation. Drafts survive refresh; removal restores
+keyboard focus. Public cart intent requires no role guard. The existing checkout
+route is the next task, F-505.
+
+English/Amharic and all data states are covered. All 267 tests in 36 files pass,
+plus typecheck/lint/build. Firefox 360 px checks pass for overflow, contrast,
+keyboard add/edit/remove/clear, loading, empty, error/recovery and offline behavior.
+See [cart integration guide](../frontend/src/features/cart/README.md).
