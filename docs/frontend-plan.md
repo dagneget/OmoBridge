@@ -171,7 +171,7 @@ Update the counts when you finish a task.
 | Phase | Area | Done / Total |
 |---|---|---|
 | FP0 | Foundation and audit | 8 / 8 |
-| FP1 | App shell, design system, PWA core | 4 / 10 |
+| FP1 | App shell, design system, PWA core | 6 / 10 |
 | FP2 | Authentication and roles | 0 / 9 |
 | FP3 | Public tourism | 0 / 11 |
 | FP4 | Bookings | 0 / 5 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **12 / 134** |
+| | **Total** | **14 / 134** |
 
 ### What can run in parallel
 
@@ -290,17 +290,17 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: unit tests cover edge values and time zones.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/formatting.test.tsx (15/15 passed, 67/67 total), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-105 · PWA manifest and icons** · T1
+- [x] **F-105 · PWA manifest and icons** · T1
   Needs: F-002
   Build: `vite-plugin-pwa` config; manifest (name, short name, standalone, theme and background colors, language, scope, start URL); 192 and 512 icons plus a maskable icon; update mode set to prompt.
   Done when: the build output contains the manifest and service worker; installability checks pass.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/pwaConfig.test.ts (2/2 passed, 69/69 total), manifest.webmanifest with 192/512/maskable icons verified, build clean
 
-- [ ] **F-106 · Caching strategy** · T1
+- [x] **F-106 · Caching strategy** · T1
   Needs: F-105
   Build: implement the table "PWA caching rules" in Section 2 with Workbox; navigation fallback that excludes `/api` and docs routes; cache expiry and size limits.
   Done when: tests or manual checks show private API responses are never cached and public pages load offline after one visit.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/pwaConfig.test.ts (2/2 passed), sw.js Workbox rules verified with NetworkOnly on auth/payments/orders/delivery and StaleWhileRevalidate on catalog/locales
 
 - [ ] **F-107 · Install experience** · T2
   Needs: F-105
@@ -1194,6 +1194,8 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-102 | Completed | Base accessible components (Button, Input, Select, Checkbox, Modal, Toast, Table, Card, Badge, StatusChip, Tabs, Skeleton, EmptyState, Pagination, FormField) verified with unit & axe audits |
 | 2026-10-18 | @claude-agent | F-103 | Completed | Forms foundation (React Hook Form + Zod, Ethiopian phone normalization/validation, server 400/422 field-error mapping, double-submit protection) verified |
 | 2026-10-18 | @claude-agent | F-104 | Completed | Formatting utilities (ETB currency, quantity pluralization, Africa/Addis_Ababa UTC+3 timezone date/time, decimal-safe helpers, status i18n keys) verified |
+| 2026-10-18 | @claude-agent | F-105 | Completed | PWA manifest, standalone display, #047857 theme color, 192/512/maskable icons, prompt update mode verified |
+| 2026-10-18 | @claude-agent | F-106 | Completed | Workbox runtime caching strategy (NetworkOnly on auth/payments/orders/delivery, StaleWhileRevalidate on public catalog/tourism/locales, /api fallback denylist) verified |
 
 ## 12. Change log (requirements)
 
