@@ -521,11 +521,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Verified: Firefox full reload retained IDs/quantities; network revalidation succeeded; missing product flagged unavailable; logout cleared memory/storage. Built service-worker route test confirms fresh reads bypass the public cache. Store only; screen/360 px/translation/role guard checks do not apply until F-504.
   Scope: Only IDs and quantities persisted; grouping/stock/price snapshots are server-derived and transient. Historical price changes across reload cannot be detected without persisting prices; first read establishes baseline. Fresh reads use existing HTTP adapter plus no-cache/NetworkOnly after a Firefox fetch-adapter timeout cleanup failure was reproduced and avoided. Account/tab boundaries and overlapping requests tested.
 
-- [ ] **F-504 · Cart page** · T1
+- [~] **F-504 · Cart page** · T1
   Needs: F-503
   Build: cart view grouped by seller, quantity controls, a note that the final price is confirmed at checkout.
   Done when: tests cover add, change, remove and an unavailable item.
-  Owner: —
+  Owner: @codex · Started: 2026-10-18
 
 - [ ] **F-505 · Checkout** · T1
   Needs: F-504, F-207 · Backend: B-802, B-205
@@ -1236,6 +1236,8 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @codex | F-503 | Claimed | Persistent ID/quantity cart with fresh server revalidation; isolated branch. |
 
 | 2026-10-18 | @codex | F-503 | Completed | Persistent cart intent, seller grouping, network revalidation, price/stock/removed flags and account/tab cleanup; 246 tests and Firefox reload smoke pass. |
+
+| 2026-10-18 | @codex | F-504 | Claimed | Cart page and product-detail add controls on isolated branch; F-503 store reused. |
 
 ## 12. Change log (requirements)
 
