@@ -859,11 +859,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: only own jobs appear.
   Done: @opencode · 2026-10-18 · Tests: `npm test` → 45 files / 256 passed (15 new); `npm run typecheck` and `npm run build` clean. Endpoint `GET /api/v1/delivery/providers/{providerId}/jobs`; ownership enforced server-side, client passes only the session's own provider id. Loading/empty/error/403/offline states covered; axe audit passes. Blocked on backend gap F-1101-E1 for the id itself.
 
-- [ ] **F-1102 · Job detail and status updates** · T1
+- [~] **F-1102 · Job detail and status updates** · T1
   Needs: F-1101 · Backend: B-1003
   Build: update to picked up, in transit, delivered with only valid next steps; show the server's state after each change.
   Done when: tests cover valid and rejected transitions.
-  Owner: —
+  Owner: @opencode · Started: 2026-10-18
 
 - [ ] **F-1103 · GPS capture** · T1
   Needs: F-1102
@@ -1232,6 +1232,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | — | — | Plan created | 134 tasks across 18 phases |
 | 2026-10-18 | @opencode | F-1101 | Claimed | Provider home and job list. Verified F-207 `RoleGuard` exists, so the dependency is met. Backend gap F-1101-E1 logged: providers cannot self-discover `providerId`. |
 | 2026-10-18 | @opencode | F-1101 | Done | Added `features/delivery` (`deliveryService`, `deliveryStatus`, `providerIdentity`) and rebuilt `DeliveryDashboardPage` with the assigned-jobs list, status filter, and loading/empty/error/403/offline states. i18n keys added under `delivery.*` in `en` and `am`. Tests 45 files / 256 passed (15 new); typecheck, lint and build clean; axe audit passes on the populated screen. The job list is fully wired to the real endpoint but cannot render live data until the backend supplies `deliveryProviderId` (gap F-1101-E1) — the screen shows an explicit "provider profile is not ready" state and deliberately does **not** fall back to `user.id`, which would 404. No shared files changed: the page already existed at `/dashboard/delivery` behind `RoleGuard`. |
+| 2026-10-18 | @opencode | F-1102 | Claimed | Job detail and status updates. Verified there is no single-job GET for providers, so the detail view resolves the job from the list already fetched by F-1101. Route `/dashboard/delivery/jobs/:jobId` needs a `routes/index.tsx` entry, which is Codex-owned; submitting as a handoff patch. |
 | 2026-10-18 | @claude-agent | F-001 | Completed | Pre-implementation audit completed, decisions logged in ADR-004 |
 | 2026-10-18 | @claude-agent | F-002 | Completed | Tooling baseline, Vitest, testing-library, strict TS, scripts, openapi-typescript verified |
 | 2026-10-18 | @claude-agent | F-003 | Completed | Design tokens, Tailwind v4 import, Ethiopic/Amharic script support, dark/light themes, touch targets verified |
