@@ -100,6 +100,11 @@ export type FarmerPayableResponse = Schemas['FarmerPayableResponse'];
 export type FarmerPaymentResponse = Schemas['FarmerPaymentResponse'];
 export type FarmerPaymentRequest = Schemas['FarmerPaymentRequest'];
 export type FarmerBalanceSummaryResponse = Schemas['FarmerBalanceSummaryResponse'];
+export type FarmerResponse = Schemas['FarmerResponse'];
+export type BuyingPriceRequest = Schemas['BuyingPriceRequest'];
+export type BuyingPriceResponse = Schemas['BuyingPriceResponse'];
+export type SupplyDeliveryInspectionItemRequest = Schemas['SupplyDeliveryInspectionItemRequest'];
+export type EnterpriseImpactMetricsResponse = Schemas['EnterpriseImpactMetricsResponse'];
 
 // Traceability Models
 export type ProductionBatchCreateRequest = Schemas['ProductionBatchCreateRequest'];

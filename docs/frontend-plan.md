@@ -178,7 +178,7 @@ Update the counts when you finish a task.
 | FP5 | Catalog, cart, checkout | 6 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
-| FP8 | Enterprise: farmers, supply, farmer payments | 0 / 10 |
+| FP8 | Enterprise: farmers, supply, farmer payments | 1 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
 | FP11 | Delivery provider app | 0 / 8 |
@@ -542,11 +542,16 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Verification: Firefox 360 × 800 CSS viewport, keyboard delivery/coordinates/submit/retry, empty/loading/error/offline, stock checks, locked identical retries and confirmed cart cleanup; no horizontal overflow or feature contrast violations. Browser uses MSW; real financial transactions and physical devices were not tested.
   Delivery: `feat/checkout` · Commit: `484d71a` (isolated branch, awaiting merge). F-506 owns countdown/payment navigation. Backend full suite ran: 129 tests, 0 assertion failures, 4 errors (three known delivery cleanup foreign-key errors and one PostgreSQL container startup error); no backend changes.
 
-- [ ] **F-506 · Checkout result** · T1
+- [!] **F-506 · Checkout result** · T1
   Needs: F-505 · Backend: B-801, B-803
   Build: checkout group summary with one order per seller; reservation countdown; expired state; links to pay each order.
   Done when: countdown and expiry states render correctly.
-  Owner: —
+  Owner: @codex · Started: 2026-10-18 · Branch: `feat/checkout-result` (isolated worktree)
+
+  Implemented: @codex · 2026-10-18 · Per-seller summary, server totals, authenticated order status refresh with order/group/seller/buyer checks, offline/error states, explicit server-expiry display, translated UI and tested standalone countdown. Optional per-order payment-route handoff; absent routes stay disabled.
+  Tests: Node 22 typecheck, lint, build and npm test → passed (336 tests, 42 files). Firefox 360 × 800 CSS viewport: keyboard submit/refresh/new-checkout, loading/error/offline, simulated server expiry, no horizontal overflow or feature axe/contrast violations. MSW fixtures only; physical devices and real payments were not tested.
+  Blocked: Live OpenAPI exposes no reservation deadline or reservation-read endpoint; countdown cannot be wired without a contract change. Order-payment destinations are not connected on this isolated branch. Primary already has F-405’s shared Telebirr modal/service (`fc16594`), which should be reused during integration. No invented API field, `createdAt + 30 minutes` deadline, or dead payment link. See gap F-506-E1 and `features/checkout/RESULT_HANDOFF.md`.
+  Delivery: `feat/checkout-result` · Commit: `1162266` (isolated branch, awaiting integration). Backend full suite ran: 129 tests, 0 assertion failures, 4 existing errors (three delivery cleanup foreign-key errors and one PostgreSQL container startup error); no backend changes.
 
 - [x] **F-507 · Price transparency component** · T1
   Needs: F-102, F-104
@@ -648,11 +653,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
 
 ### FP8: Enterprise: farmers, supply, farmer payments
 
-- [ ] **F-801 · Enterprise dashboard shell and home** · T1
+- [x] **F-801 · Enterprise dashboard shell and home** · T1
   Needs: F-207 · Backend: B-1206
   Build: navigation for all enterprise modules; home with key numbers (pending approvals, deliveries today, stock, open orders).
   Done when: renders with seed data and per-module loading states.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/enterpriseDashboard.test.tsx (7/7 passed), full suite (38 files, 199 tests passed), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-802 · Farmers management** · T1
   Needs: F-801 · Backend: B-106
@@ -1203,6 +1208,8 @@ Confirm each against the real backend before the affected task. Do not invent en
 | F-505-I1 | F-505 | Is checkout idempotent replay scoped to the authenticated buyer and original payload? | Open: `CheckoutService.checkout` looks up only `idempotencyKey` and returns the group without checking buyer/payload. Backend must enforce ownership and reject mismatches. Frontend keys are random and session-scoped; no backend code changed. |
 | F-505-S1 | F-505 | Can insufficient-stock failures identify affected product IDs? | Open: the service returns a free-text `BUSINESS_RULE_VIOLATION`, without a structured product ID. Frontend refreshes public product checks for per-item errors and retains a generic rejection if a transient race cannot be reproduced. |
 
+| F-506-E1 | F-506 | Where is the authoritative per-order reservation deadline? | Open: live OpenAPI `CheckoutResponse` and `OrderDetailResponse` have no expiry field and no reservation-read endpoint. Backend must expose the deadline and regenerate the contract. The frontend shows unknown timing; only explicit server cancellation history is treated as expired. Generic countdown is tested but cannot be wired to live data yet. |
+
 ## 11. Activity log
 
 Add a row for every claim, completion and blocker. Newest at the bottom.
@@ -1264,3 +1271,6 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 
 Activity: 2026-10-18 · @codex · F-505 · Completed · `feat/checkout` / `484d71a`, isolated pending merge. Typed checkout with map/keyboard coordinates, fresh cart checks, same-key retries and complete server confirmation. Frontend checks and 300 tests pass; Firefox 360 px keyboard/contrast/state checks pass. Backend baseline: 129 tests, 4 errors; details in task entry.
 Activity: 2026-10-18 · @claude-agent · F-311 · Completed · LanguageSwitcher with English/Amharic fallback, persistent preference in localStorage, documentElement lang sync, query cache refresh, and Accept-Language HTTP header injection. All 37 test files (192 tests) pass, typecheck/lint/build clean. Completes FP3 (11/11).
+
+Activity: 2026-10-18 · @codex · F-506 · Implemented; integration blocked · `feat/checkout-result` / `1162266`, isolated pending merge. Frontend checks and 336 tests pass; Firefox 360 px keyboard/contrast and result states pass. Awaiting backend reservation deadline and order-payment integration; reuse primary’s F-405 Telebirr modal. Task remains [!].
+Activity: 2026-10-18 · @claude-agent · F-801 · Completed · Enterprise dashboard shell with module navigation, operational key numbers (registered farmers, pending deliveries, active lots, open orders), attention alerts, live deliveries feed, and error recovery states. 38 test files (199 tests) pass, typecheck/lint/build clean.

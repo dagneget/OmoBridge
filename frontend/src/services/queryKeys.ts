@@ -85,4 +85,16 @@ export const queryKeys = {
     summary: (targetType: string, targetId: string) => [...queryKeys.reviews.all, 'summary', targetType, targetId] as const,
     user: () => [...queryKeys.reviews.all, 'user'] as const,
   },
+  enterprise: {
+    all: ['enterprise'] as const,
+    metrics: (enterpriseId: string) => [...queryKeys.enterprise.all, 'metrics', enterpriseId] as const,
+    balances: (enterpriseId: string) => [...queryKeys.enterprise.all, 'balances', enterpriseId] as const,
+    farmers: (enterpriseId: string) => [...queryKeys.enterprise.all, 'farmers', enterpriseId] as const,
+    deliveries: (enterpriseId: string) => [...queryKeys.enterprise.all, 'deliveries', enterpriseId] as const,
+    orders: (enterpriseId: string) => [...queryKeys.enterprise.all, 'orders', enterpriseId] as const,
+    lots: (enterpriseId: string, status?: string) => [...queryKeys.enterprise.all, 'lots', enterpriseId, status || 'all'] as const,
+    pricing: (enterpriseId: string) => [...queryKeys.enterprise.all, 'pricing', enterpriseId] as const,
+    productTypes: (category?: string) => [...queryKeys.enterprise.all, 'productTypes', category || 'all'] as const,
+    payments: (enterpriseId: string) => [...queryKeys.enterprise.all, 'payments', enterpriseId] as const,
+  },
 };
