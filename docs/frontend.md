@@ -406,3 +406,8 @@ Delivered in `0f8ce5f`: Account now links to buyer payment history and receipt r
 ### F-606 refunds on orders and bookings
 
 Delivered in `f687759`: owned order and booking details share a refund section showing server-calculated partial/full coverage, amounts and paginated status/reference/reason/date records. Authorized booking-payment and refund-summary APIs enforce payer ownership; pending/failed refunds do not contribute to completed totals. Error and missing reads stay unknown, while offline details are labelled as last-confirmed. Verification: 614 frontend tests, 170 backend tests, typecheck/lint/build and Firefox 360 px partial-order/full-booking keyboard checks pass. See [payment/refund guide](../frontend/src/features/payments/README.md).
+
+
+### F-509 cancel an owned order
+
+Delivered in `c45cf04`: order detail now offers explicit confirmation for server-supported cancellable states, with offline/ownership guards, duplicate-submit protection and uncertain-result recovery. A validated server cancellation updates only that order after stopping stale detail reads; refund/payment states stay separate. English/Amharic text and keyboard focus support are feature-scoped. Verification: 638 frontend tests, 15 focused PostgreSQL order tests, typecheck/lint/build and Firefox 360 px keyboard/axe checks pass. See [order guide](../frontend/src/features/orders/README.md).

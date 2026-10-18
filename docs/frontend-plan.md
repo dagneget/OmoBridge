@@ -177,7 +177,7 @@ Update the counts when you finish a task.
 | FP2 | Authentication and roles | 9 / 9 |
 | FP3 | Public tourism | 10 / 11 |
 | FP4 | Bookings | 5 / 5 |
-| FP5 | Catalog, cart, checkout | 6 / 9 |
+| FP5 | Catalog, cart, checkout | 7 / 9 |
 | FP6 | Payments and live tracking | 4 / 7 |
 | FP7 | Traceability | 0 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
@@ -190,7 +190,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **60 / 134** |
+| | **Total** | **61 / 134** |
 
 ### What can run in parallel
 
@@ -578,11 +578,13 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Blocked: Buyer order contract exposes no tracking token/mapping (F-508-T1). F-508-P1 is resolved on `integration/four-agent-baseline` / `0f8ce5f`: backend order-payment reads require matching payer and order buyer; dependent branches must adopt that commit. Tracking shows unavailable; no API or token is invented. See `features/orders/README.md`.
   Delivery: `feat/my-orders` · Commit: `caed304` (isolated branch, awaiting integration). Preserve the other agent’s route table and Account changes when merging.
 
-- [ ] **F-509 · Cancel order** · T2
+- [x] **F-509 · Cancel order** · T2
   Needs: F-508 · Backend: B-804, B-905
   Build: cancel where allowed; explain the refund state.
   Done when: tests cover allowed and forbidden cancellations.
-  Owner: —
+  Owner: @codex · Started: 2026-10-18 · Completed: 2026-10-19 · Branch: `integration/four-agent-baseline` · Commit: `c45cf04`
+  Delivered: Explicit English/Amharic confirmation on owned, freshly verified online order details, matching existing backend PLACED/PAID/PACKED/IN_TRANSIT eligibility. Delivered/cancelled, foreign and unverified/offline orders cannot submit. Duplicate clicks are blocked; uncertain results require a successful status refresh before explicit retry. Only a validated server CANCELLED response updates that order, and older in-flight reads are cancelled before the cache update. Cancellation never claims a refund; existing payment/refund records retain their server states. No new API, offline queue or backend production change.
+  Verification: 638 frontend tests (73 files), typecheck/lint/build pass with existing inspection/bundle warnings. All 15 focused PostgreSQL order tests pass, including eight new cancellation cases for allowed/terminal/foreign/anonymous states, held-stock release and no automatic refund. Firefox 360 px verifies keyboard confirm/keep/focus restoration, offline blocking, cancellation after server response, unchanged partial refund, persisted cancellation after refresh, no overflow and zero order-section axe violations. Browser/API tests use isolated fixtures; no live customer cancellation, real money movement or physical-device claim. F-508 tracking remains blocked separately.
 
 ---
 

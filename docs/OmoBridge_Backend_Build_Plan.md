@@ -1030,3 +1030,6 @@ Payment read follow-up · F-603 · 2026-10-18 · @codex · `0f8ce5f`: added boun
 
 
 Refund read follow-up · F-606 · 2026-10-18 · @codex · `f687759`: added own-payment refund summary/history and authorized booking-payment lookup. Completed-only aggregate and coverage use BigDecimal on the server; refund pages are bounded and sorted by createdAt/id descending. The refund endpoint uses a read-only repeatable-read transaction on PostgreSQL to keep summary and page reads consistent. DTO mapping fetches only to-one payment relations; measured service query budget is four including payment authorization, completed sum, page and count. No migrations or refund-write behavior changed. Backend suite: 170 passing.
+
+
+Buyer cancellation verification · F-509 · 2026-10-19 · @codex · `c45cf04`: existing bodyless buyer cancel endpoint verified for all four allowed states and both terminal states, anonymous/cross-buyer rejection, held reservation release, and unchanged RELEASED payment/no new refund after paid cancellation. OrderAndCheckoutIntegrationTest: 15 passing tests including eight new cancellation cases. No backend production or migration change.

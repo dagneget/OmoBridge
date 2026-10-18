@@ -201,3 +201,6 @@ Codex delivery update · 2026-10-18: F-603 is complete on `integration/four-agen
 
 
 Codex delivery update · 2026-10-18: F-606 is complete on `integration/four-agent-baseline` / `f687759` (614 frontend tests, 170 backend tests; typecheck/lint/build and 360 px partial-order/full-booking refund checks pass). Refund totals and coverage are server-calculated and payer-scoped. No refund issuance UI or other agent source was changed. F-607 remains dependent on OpenCode’s F-605 tracking integration; preserve that ownership. F-506 expiry and F-508 tracking remain blocked.
+
+
+Codex delivery update · 2026-10-19: F-509 is complete on `integration/four-agent-baseline` / `c45cf04` (638 frontend tests, 15 focused PostgreSQL order tests; typecheck/lint/build and 360 px keyboard/axe checks pass). Buyer cancellation uses the existing endpoint with confirmation, same-account checks, uncertain-response recovery and no refund inference. The existing F-508 order-detail implementation is sufficient for this action; F-508 tracking and F-506 expiry remain blocked. F-607 still depends on OpenCode’s F-605; preserve that ownership when selecting the next ready Codex task.
