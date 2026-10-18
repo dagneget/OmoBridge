@@ -209,14 +209,25 @@ frontend/
 - The notice deliberately does not name a destination number: none is configured in the backend and no endpoint exposes one (gap F-1108-E1).
 - It is hidden once the job is terminal, where it would only cause confusion — the location card is already gated on the job being active.
 
+### Pending Sync Center
+- `features/delivery/syncCenter.ts` (rules) + `PendingSyncCenter.tsx` (screen) + `usePendingSyncCount.ts` (badge count), all exported from the `features/delivery` barrel. `pages/dashboard/delivery/PendingSyncPage.tsx` is the shell.
+- **Not yet reachable by URL.** The route lives in `routes/index.tsx`, a shared file, so the wiring ships as a handoff patch in `docs/handoffs/F-1501.md`. `DashboardLayout.tsx` already lists `/dashboard/delivery/sync` ("Offline Sync Queue"), so until the patch lands that nav entry falls through to `/dashboard/delivery/*` and renders the job list.
+- **Discarding a status change takes everything queued behind it, and says so first.** Queued changes replay oldest-first against the job's live server state, so dropping an early one makes every later one replay from a state it was never meant to follow; the backend refuses that transition and `syncJobStatuses` treats a refusal as final, removing the change. Discarding one would therefore silently discard the rest. They go together, in one confirmed step, with the count stated. `statusChangesDiscardedWith` is the rule and returns `[]` for an id not in the list, so a stale copy of the queue cannot discard anything by accident.
+- **Location points do not cascade.** Each fix is independent, so a job's points are discarded as a whole without that warning and without touching its status chain.
+- **Nothing is sent on mount.** Opening the screen with a large queue would otherwise fire requests the provider never asked for.
+- **Sending while offline is refused up front**, not attempted and failed — a guaranteed failure carries no information, and it would erase the difference between "the server said no" and "there was no server". Offline is its own state.
+- **A failed queue read is an error state, not an empty one.** Showing a clean slate when storage could not be read would tell the provider their queued work is gone.
+- **A refusal surfaces the server's own words**, because it means the device has been acting on a stale view (a dispatcher or the SMS checkpoint moved the job while it was offline).
+- `usePendingSyncCount` polls **only while the count is above zero** and stops the moment the queue drains; it is mounted in the dashboard layout for every screen a provider visits, so a permanent interval would be a background cost for a badge that would read zero either way. It returns `null` rather than throwing if storage is unavailable.
+
 ### Offline & Queue Scopes
 - Service worker precaches app shell and fonts.
 - Public GET endpoints use network-first with stale-while-revalidate.
 - Offline mutations are strictly scoped to:
   1. Driver GPS location point collection (`recorded_at` device timestamp).
   2. Delivery status updates — queued and replayed, with conflicts surfaced (F-1105).
+- Both provider queues are reviewed, retried and discarded from the pending sync center (F-1501).
 - Payments, bookings, orders, and registrations are **strictly online-only** with helpful offline notices.
-
 ### Styling & Typography
 - Tailwind CSS v4 configured via `@tailwindcss/vite` in `vite.config.ts`.
 - Mobile-first layout targeting minimum **360px width** viewports.

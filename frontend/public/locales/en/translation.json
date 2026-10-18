@@ -173,5 +173,32 @@
     "unavailableTitle": "Traceability is unavailable right now",
     "unavailableBody": "We could not reach the traceability service. Please try again shortly.",
     "retry": "Try again"
+  },
+  "sync": {
+    "title": "Pending sync",
+    "summary": "Changes saved on this device that have not been sent yet.",
+    "emptyBody": "Everything on this device has reached the server.",
+    "emptyTitle": "Nothing waiting to sync",
+    "loading": "Reading pending changes…",
+    "sendAll": "Send everything now",
+    "send": "Send",
+    "sent": "Sent to the server.",
+    "stillQueued": "Still queued — the server could not be reached.",
+    "attemptFailed": "Sending failed. Nothing was lost.",
+    "conflict": "The server refused a change.",
+    "offline": "You are offline. Sending is paused, but nothing here has been lost.",
+    "loadFailedTitle": "Could not read the pending queue",
+    "loadFailedBody": "Your queued changes are probably still on this device. Reload the page to try again.",
+    "reload": "Try again",
+    "discardStatus": "Discard changes",
+    "discardLocations": "Discard",
+    "locationPoints": "location points",
+    "queuedSince": "Queued since",
+    "confirmTitle": "Discard these changes?",
+    "confirmChain": "This removes this change and every later change for this job. Queued changes replay in order, so the ones behind it would be refused and lost anyway.",
+    "confirmSingle": "This removes the change from this device. It will never be sent.",
+    "confirmCount": "Changes to discard:",
+    "confirmYes": "Discard",
+    "confirmNo": "Keep them"
   }
 }

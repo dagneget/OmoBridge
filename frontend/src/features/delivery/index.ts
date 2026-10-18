@@ -78,3 +78,16 @@ export {
   SMS_CHECKPOINT_KEYWORDS,
 } from './smsCheckpoint';
 export type { SmsCheckpointStatus } from './smsCheckpoint';
+
+export {
+  summarizeQueues,
+  statusChangesDiscardedWith,
+  isDestructiveDiscard,
+  loadPendingSync,
+} from './syncCenter';
+export type { JobSyncSummary, SyncAttemptReport } from './syncCenter';
+
+export { PendingSyncCenter } from './PendingSyncCenter';
+export type { PendingSyncCenterProps } from './PendingSyncCenter';
+export { usePendingSyncCount } from './usePendingSyncCount';
+export type { UsePendingSyncCountOptions } from './usePendingSyncCount';
