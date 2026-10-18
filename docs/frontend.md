@@ -291,3 +291,15 @@ in its own namespace. See [mounting and verification notes](../frontend/src/comp
 The frontend owner must mount one instance in a persistent layout early in app
 startup; this branch does not modify any existing page, route or layout. Real
 Android Chrome/Safari and 360 px/contrast verification remain pending.
+
+## Combined frontend integration (F-INT-001)
+
+Branch `integration/frontend-support` combines the mock contract corrections, public
+product catalog, reusable price breakdown and PWA install card with hotel commit
+`9702020`. `App.tsx` now mounts exactly one install card across routes. A navigation
+test confirms that a captured browser offer remains usable after changing routes.
+Hotel fixture names, amenities, contact details and prices are retained with UUID IDs.
+
+Node 22 typecheck, lint, production build and all 183 tests in 31 files pass.
+Real-device installation and 360 px keyboard/contrast verification remain pending.
+Merge into the active frontend branch after its shared task-board edits are committed.

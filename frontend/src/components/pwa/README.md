@@ -1,8 +1,7 @@
 # InstallCard (F-107)
 
-Import `InstallCard` from `components/pwa` and mount one instance in a persistent
-layout near app startup. This branch leaves that placement to the frontend owner;
-no existing layout, route, barrel export or shared locale file is changed.
+`App.tsx` mounts one `InstallCard` after the route content in a centered container.
+It stays mounted across route navigation. Do not add another instance in layouts.
 
 ```tsx
 import { InstallCard } from '../components/pwa';

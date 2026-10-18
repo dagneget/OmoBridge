@@ -309,7 +309,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Owner: @codex · Started: 2026-10-18
   Implemented: Isolated InstallCard/usePwaInstall with one-use browser prompts, iOS Safari instructions, installed/standalone hiding, optional session dismissal and English/Amharic namespace.
   Tests: Node 22 npm run typecheck, npm run lint, npm run build, npm test → passed (136 tests, 26 files; 13 install cases).
-  Blocked: Android Chrome/Safari installation, 360 px, keyboard and contrast checks need a real browser/device. No browser runner installed. Persistent-layout mounting intentionally left to frontend owner to avoid overlapping layout edits.
+  Blocked: Android Chrome/Safari installation, 360 px, keyboard and contrast checks need a real browser/device. No browser runner installed. Mounted once in App.tsx during F-INT-001; route-navigation persistence covered by an integration test.
 
 - [x] **F-108 · Offline UX** · T1
   Needs: F-101
@@ -1251,6 +1251,9 @@ Activity: 2026-10-18 · @codex · F-501 · Implemented; browser/live verificatio
 
 Activity: 2026-10-18 · @codex · F-107 · Implemented; placement and device verification pending · Independent PWA install component and handoff; all 136 frontend tests pass.
 
-- [~] **F-INT-001 · Integrate completed frontend support work**
+- [!] **F-INT-001 · Integrate completed frontend support work**
   Owner: @codex · Started: 2026-10-18
   Scope: Combine mock fixes, catalog, pricing and install card; mount one install card at the app root; run combined frontend checks. Preserve active hotel work.
+
+  Verified: @codex · 2026-10-18 · Node 22 typecheck, lint, build and npm test pass (183 tests, 31 files), including install-offer persistence across route navigation. Hotel commit 9702020 included; hotel fixture data preserved with UUID identifiers.
+  Blocked: Merge into frontend/full-build waits for the other agent’s uncommitted shared task-board edits. Real-device installation, 360 px keyboard and contrast checks remain pending.
