@@ -205,3 +205,56 @@ npm run preview
 
 ### Running in Standalone Mock Mode (No Backend Needed)
 Set `VITE_USE_MOCKS=true` in `frontend/.env` and start `npm run dev`. MSW intercepts all API calls in the browser with seed fixtures.
+
+
+## Shared mock contract fixes (F-FIX-001)
+
+The browser worker is committed at `frontend/public/mockServiceWorker.js`.
+Set `VITE_USE_MOCKS=true` in `frontend/.env.local` and run Vite. This enables the
+shared mock handlers; it does not start a backend or make payments real.
+
+Use password `Password123!` with these **mock-only** accounts:
+
+| Phone | Role |
+|---|---|
+| +251911000001 | BUYER_VISITOR |
+| +251911000002 | PRODUCER_FARMER |
+| +251911000003 | MICRO_ENTERPRISE |
+| +251911000004 | DELIVERY_PROVIDER |
+| +251911000005 | TOUR_GUIDE |
+| +251911000006 | SYSTEM_ADMIN |
+| +251911000007 | TOURISM_AUTHORITY |
+
+Login and profile handlers serve `/api/v1/auth/login` and `/api/v1/auth/me`
+(and the backend's `/api/auth` aliases). `/me` resolves the mock bearer token to
+its own user rather than always returning the buyer. Incorrect credentials and
+missing/unrecognized tokens return 401. These tokens are placeholders, not JWTs
+accepted by the backend. Registration, throttling, token expiry, and account
+mutation are outside this mock fix; use the backend or explicit test overrides
+for those workflows.
+
+Tourism uses `/api/v1/tourism/packages`, `/hotels`, `/guides`, `/transports`, and
+`/guidelines`. Product catalog reads use `/api/v1/public/products`. Use IDs from
+the fixture exports rather than old strings such as `pack-001`; catalog entity
+IDs are UUIDs now. Unknown package/product detail IDs return structured 404s.
+Package category and product category/search filters support empty-result states.
+Package language requests currently return the English fixture fallback; this
+does not demonstrate translation selection or the required Amharic fallback.
+
+Session fixtures use `2026-11-01`, with one OPEN session (6 seats) and one CLOSED
+session (0 seats) for the first package. Request
+`/api/v1/tourism/packages/{packageId}/sessions?date=2026-11-01` to see them.
+Other dates/packages return empty lists. Without `date`, only today's sessions
+are returned, following the backend's date selection behavior. Session start
+times are omitted pending verification of the generated LocalTime object
+schema against actual JSON; don't use these fixtures to validate time rendering.
+
+For loading/error/offline component tests, override the shared handlers using
+`server.use(http.get(...))` and MSW's `delay`, a JSON response with an error
+status, or `HttpResponse.error()`, respectively. Restore handlers after each
+test. Existing checkout/booking/payment mock mutations are legacy placeholders;
+this fix does not certify their response contracts or financial behavior.
+
+Verification commands (Node 22): `npm run typecheck`, `npm run lint`,
+`npm run build`, then `npm test`. Browser interaction and visual/accessibility
+checks remain the responsibility of the screen tasks consuming these mocks.

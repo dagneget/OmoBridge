@@ -1175,6 +1175,8 @@ Confirm each against the real backend before the affected task. Do not invent en
 | 15 | Deployment | Which origin will serve the app (HTTPS needed for the service worker) and is CORS configured for it? | Resolved: Development origin `http://localhost:5173` allowed by backend `SecurityConfig`; production uses HTTPS reverse proxy |
 | 16 | F-1103 | PWAs cannot track GPS reliably in the background. Is a native wrapper out of scope, with SMS checkpoints as the fallback? | Resolved: Native wrapper out of MVP scope; foreground geolocation tracking with offline queue + SMS keywords fallback (`ARRIVED`, `LEFT`) |
 
+| 17 | F-401, F-FIX-001 | Generated SessionResponse.startTime uses a LocalTime object. Confirm its actual JSON representation before building time selectors. | Open: session mock omits startTime pending live verification; generated types unchanged. |
+
 ## 11. Activity log
 
 Add a row for every claim, completion and blocker. Newest at the bottom.
@@ -1219,3 +1221,12 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | Frontend aligned to the completed backend (OpenAPI contract, idempotency keys, verified payments, multi-seller checkout groups, token tracking, consent-aware traceability) | All |
 | 2026-10-18 | USSD is a backend integration; the frontend provides help content and a separate simulator tool only | F-1004, F-1707 |
 | 2026-10-18 | Tourism pages follow the agreed list: packages with prices, hotels and resorts, essential information, transport, guides, booking, payment, testimonials, safety, contact | FP3, FP4 |
+
+## Frontend follow-up fixes
+
+- [x] **F-FIX-001 · Shared mock contract alignment**
+  Done: @codex · 2026-10-18 · Tests: Node 22 npm run typecheck, npm run lint, npm run build, npm test → passed (128 tests, 21 files).
+  Verification scope: Shared mocks only; no new screen/role guard or browser visual checks. Existing authService exercised against mocks for all seven roles.
+  Scope: frontend/src/mocks/ and mswMocks.test.ts; align login/me roles, tourism transport/sessions, UUID fixtures and detail 404 behavior. No page/route changes.
+
+Activity: 2026-10-18 · @codex · F-FIX-001 · Completed · Login/me contracts and canonical roles, public catalog/transport paths, UUID fixtures, session date filtering, detail 404s, browser worker and developer handoff; 128 frontend tests pass.
