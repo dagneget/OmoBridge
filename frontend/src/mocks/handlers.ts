@@ -448,9 +448,9 @@ export const handlers = [
     }
     order.statusHistories.push({
       id: `hist-${Date.now()}`,
-      previousStatus: currentStatus as any,
-      newStatus: newStatus as any,
-      changedByUserName: 'Enterprise Manager',
+      fromStatus: currentStatus as any,
+      toStatus: newStatus as any,
+      changedBy: 'Enterprise Manager',
       reason: body.reason || `Status updated to ${newStatus}`,
       createdAt: new Date().toISOString(),
     });
@@ -583,7 +583,7 @@ export const handlers = [
       id: batchId,
       batchCode,
       enterpriseId: String(enterpriseId),
-      status: body.completeImmediately ? 'COMPLETED' : 'DRAFT',
+      status: (body.completeImmediately ? 'COMPLETED' : 'DRAFT') as 'COMPLETED' | 'DRAFT',
       processedAt: body.completeImmediately ? new Date().toISOString() : undefined,
       laborCost: Number(body.laborCost || 0),
       processingCost: Number(body.processingCost || 0),

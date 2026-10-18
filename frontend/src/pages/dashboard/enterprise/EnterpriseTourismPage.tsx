@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
@@ -10,17 +10,11 @@ import {
   Users,
   ShieldCheck,
   CheckCircle2,
-  AlertTriangle,
   ExternalLink,
   Edit3,
   Trash2,
   MapPin,
-  Sparkles,
   DollarSign,
-  Calendar,
-  Eye,
-  EyeOff,
-  BookOpen,
 } from 'lucide-react';
 import { useAuthStore } from '../../../features/auth/authStore';
 import { tourismService } from '../../../features/tourism/tourismService';
@@ -79,7 +73,6 @@ export default function EnterpriseTourismPage() {
   const {
     data: packages = [],
     isLoading: packagesLoading,
-    isError: packagesError,
     refetch: refetchPackages,
   } = useQuery({
     queryKey: queryKeys.enterprise.tourismPackages(enterpriseId),
@@ -147,11 +140,11 @@ export default function EnterpriseTourismPage() {
 
   const openEditModal = (pkg: TourPackageResponse) => {
     setEditingPackage(pkg);
-    setFormName(pkg.name);
-    setFormCategory(pkg.category);
-    setFormOverview(pkg.overview);
+    setFormName(pkg.name || '');
+    setFormCategory(pkg.category || 'CULTURAL');
+    setFormOverview(pkg.overview || '');
     setFormStory(pkg.story || '');
-    setFormLocation(pkg.locationText);
+    setFormLocation(pkg.locationText || '');
     setFormDurationHours(String(pkg.durationHours || 4));
     setFormMaxGroupSize(String(pkg.maxGroupSize || 8));
     setFormPriceAmount(String(pkg.priceAmount || 1500));
@@ -159,7 +152,7 @@ export default function EnterpriseTourismPage() {
     setFormCulturalRules(pkg.culturalRules || '');
     setFormSafetyNotes(pkg.safetyNotes || '');
     setFormApprovalRef(pkg.communityApprovalRef || 'ELDERS-COUNCIL-2026-KESKE-08');
-    setFormIsActive(pkg.isActive);
+    setFormIsActive(Boolean(pkg.isActive));
     setModalOpen(true);
   };
 
@@ -185,7 +178,7 @@ export default function EnterpriseTourismPage() {
     };
 
     if (editingPackage) {
-      updatePackageMutation.mutate({ id: editingPackage.id, req });
+      updatePackageMutation.mutate({ id: editingPackage.id || '', req });
     } else {
       createPackageMutation.mutate(req);
     }
@@ -197,8 +190,8 @@ export default function EnterpriseTourismPage() {
       const q = searchTerm.toLowerCase();
       const matchesSearch =
         !q ||
-        pkg.name.toLowerCase().includes(q) ||
-        pkg.locationText.toLowerCase().includes(q) ||
+        (pkg.name && pkg.name.toLowerCase().includes(q)) ||
+        (pkg.locationText && pkg.locationText.toLowerCase().includes(q)) ||
         (pkg.overview && pkg.overview.toLowerCase().includes(q));
       return matchesCat && matchesSearch;
     });
@@ -377,7 +370,7 @@ export default function EnterpriseTourismPage() {
               <div className="space-y-2.5">
                 <div className="flex items-start justify-between gap-2">
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-                    {pkg.category.replace('_', ' ')}
+                    {(pkg.category || 'CULTURAL').replace('_', ' ')}
                   </span>
                   <span
                     data-testid={`package-status-${pkg.id}`}
@@ -457,7 +450,7 @@ export default function EnterpriseTourismPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => deletePackageMutation.mutate(pkg.id)}
+                    onClick={() => deletePackageMutation.mutate(pkg.id || '')}
                     data-testid={`delete-pkg-${pkg.id}`}
                     className="p-1.5 rounded-lg border border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 transition"
                     title="Delete package"

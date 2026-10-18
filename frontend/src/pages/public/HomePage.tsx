@@ -305,7 +305,7 @@ export default function HomePage() {
         {/* Packages Cards Grid with Visual Image Headers */}
         {!isLoading && !isError && featuredPackages.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6" data-testid="packages-list">
-            {featuredPackages.map((pkg, idx) => (
+            {featuredPackages.map((pkg) => (
               <Card
                 key={pkg.id}
                 className="flex flex-col justify-between overflow-hidden rounded-2xl hover:shadow-lg hover:border-emerald-500/40 transition-all group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800"

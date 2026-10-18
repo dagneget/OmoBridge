@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
-  FileText,
   Sparkles,
   TrendingUp,
   Users,
@@ -13,12 +12,9 @@ import {
   AlertCircle,
   Clock,
   Send,
-  Download,
-  Languages,
   ChevronRight,
   ArrowLeft,
   X,
-  Share2,
   ShieldCheck,
 } from 'lucide-react';
 import { useAuthStore } from '../../../features/auth/authStore';

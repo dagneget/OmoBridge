@@ -12,6 +12,72 @@
   "common": {
     "welcome": "Welcome to OmoBridge",
     "viewMore": "View More",
-    "search": "Search"
+    "search": "Search",
+    "loading": "Loading…",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "viewAll": "View All",
+    "today": "Today",
+    "na": "N/A"
+  },
+  "farmer": {
+    "dashboard": {
+      "title": "Farmer Dashboard",
+      "subtitle": "Track your crop deliveries, verified weights, net payments, and USSD mobile money access.",
+      "ussdTitle": "USSD Fast Access: {{code}}",
+      "ussdDesc": "Check your crop balances without internet from any basic mobile phone by dialing {{code}}."
+    },
+    "balance": {
+      "title": "Outstanding Balance",
+      "totalDelivered": "Total Delivered Value",
+      "totalSettled": "Total Settled",
+      "pendingPayout": "Pending Payout",
+      "openPayables": "Open Payables"
+    },
+    "deliveries": {
+      "title": "Recent Crop Deliveries",
+      "subtitle": "Your latest supply intake records with accepted and rejected quantities",
+      "empty": "No deliveries recorded yet. Your crop intake history will appear here.",
+      "deliveryNo": "Delivery #",
+      "commodity": "Commodity & Grade",
+      "deliveredQty": "Delivered Qty",
+      "acceptedQty": "Accepted Qty",
+      "rejectedQty": "Rejected Qty",
+      "status": "Status",
+      "value": "Value"
+    },
+    "prices": {
+      "title": "Today's Buying Prices",
+      "subtitle": "Current rates offered by your cooperative for raw materials",
+      "empty": "No active buying prices published at this time.",
+      "productType": "Product Type",
+      "grade": "Grade",
+      "pricePerUnit": "Price / Unit",
+      "unit": "Unit"
+    },
+    "payments": {
+      "title": "Recent Payments",
+      "empty": "No payments received yet. Your payment history will appear here.",
+      "paymentNo": "Payment #",
+      "amount": "Amount",
+      "method": "Method",
+      "status": "Status",
+      "date": "Date",
+      "reference": "Reference"
+    },
+    "status": {
+      "RECORDED": "Recorded",
+      "INSPECTED": "Inspected",
+      "CANCELLED": "Cancelled",
+      "OPEN": "Open",
+      "PARTIAL": "Partial",
+      "SETTLED": "Settled",
+      "SUCCESS": "Successful",
+      "PENDING": "Pending",
+      "FAILED": "Failed"
+    },
+    "errors": {
+      "loadFailed": "Could not load your dashboard data. Please check your connection and try again."
+    }
   }
 }

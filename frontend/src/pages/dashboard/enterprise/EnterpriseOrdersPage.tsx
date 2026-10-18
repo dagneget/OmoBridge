@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import {
   ShoppingBag,
   Search,
-  Filter,
   CheckCircle2,
   Clock,
   Truck,
@@ -13,15 +12,12 @@ import {
   XCircle,
   Printer,
   Eye,
-  ArrowRight,
   ChevronRight,
   X,
-  Building2,
   MapPin,
   Phone,
   User,
   DollarSign,
-  Calendar,
   QrCode,
   ArrowLeft,
   FileText,
@@ -30,7 +26,7 @@ import { useAuthStore } from '../../../features/auth/authStore';
 import { enterpriseService } from '../../../features/enterprise/enterpriseService';
 import { queryKeys } from '../../../services/queryKeys';
 import { formatETB } from '../../../utils/formatters';
-import type { OrderDetailResponse, OrderSummaryResponse } from '../../../types/api';
+import type { OrderSummaryResponse } from '../../../types/api';
 
 const DEMO_ENTERPRISE_ID = '33333333-3333-3333-3333-333333333333';
 
@@ -56,7 +52,6 @@ export default function EnterpriseOrdersPage() {
     data: orders = [],
     isLoading: ordersLoading,
     isError: ordersError,
-    refetch: refetchOrders,
   } = useQuery({
     queryKey: queryKeys.enterprise.orders(enterpriseId),
     queryFn: () => enterpriseService.getEnterpriseOrders(enterpriseId),
@@ -618,15 +613,15 @@ export default function EnterpriseOrdersPage() {
                           <div className="flex-1">
                             <div className="flex items-center justify-between">
                               <span className="font-semibold text-slate-900 dark:text-slate-100">
-                                {hist.previousStatus ? `${hist.previousStatus} → ` : ''}
-                                {hist.newStatus}
+                                {hist.fromStatus ? `${hist.fromStatus} → ` : ''}
+                                {hist.toStatus}
                               </span>
                               <span className="text-slate-400 text-[11px]">
                                 {hist.createdAt ? new Date(hist.createdAt).toLocaleString() : ''}
                               </span>
                             </div>
                             <div className="text-slate-600 dark:text-slate-400 mt-0.5">
-                              {hist.reason || 'Status updated'} · By {hist.changedByUserName || 'Enterprise Officer'}
+                              {hist.reason || 'Status updated'} · By {hist.changedBy || 'Enterprise Officer'}
                             </div>
                           </div>
                         </div>

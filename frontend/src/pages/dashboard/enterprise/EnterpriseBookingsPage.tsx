@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
@@ -8,14 +8,10 @@ import {
   Clock,
   Users,
   CheckCircle2,
-  XCircle,
-  AlertTriangle,
   UserCheck,
   DollarSign,
   Phone,
-  Mail,
   ShieldCheck,
-  FileText,
   Calendar,
 } from 'lucide-react';
 import { useAuthStore } from '../../../features/auth/authStore';
@@ -23,7 +19,7 @@ import { bookingService } from '../../../features/bookings/bookingService';
 import { tourismService } from '../../../features/tourism/tourismService';
 import { queryKeys } from '../../../services/queryKeys';
 import { formatETB } from '../../../utils/formatters';
-import type { BookingResponse, BookingStatusUpdateRequest, GuideResponse } from '../../../types/api';
+import type { BookingResponse, BookingStatusUpdateRequest } from '../../../types/api';
 
 const DEMO_ENTERPRISE_ID = '33333333-3333-3333-3333-333333333333';
 
@@ -46,7 +42,6 @@ export default function EnterpriseBookingsPage() {
   const {
     data: bookings = [],
     isLoading: bookingsLoading,
-    isError: bookingsError,
     refetch: refetchBookings,
   } = useQuery({
     queryKey: queryKeys.enterprise.bookings(enterpriseId),
@@ -77,9 +72,9 @@ export default function EnterpriseBookingsPage() {
     const guide = guides.find((g) => g.id === selectedGuideId);
     // In our backend/client, status update can carry notes or guide link
     updateStatusMutation.mutate({
-      id: guideModalBooking.id,
+      id: guideModalBooking.id || '',
       payload: {
-        status: guideModalBooking.status,
+        status: (guideModalBooking.status || 'CONFIRMED') as any,
         notes: `Assigned certified local guide: ${guide?.fullName || 'Certified Guide'}`,
       },
     });
@@ -101,7 +96,7 @@ export default function EnterpriseBookingsPage() {
       const q = searchTerm.toLowerCase();
       const matchesSearch =
         !q ||
-        b.bookingCode.toLowerCase().includes(q) ||
+        (b.bookingCode && b.bookingCode.toLowerCase().includes(q)) ||
         (b.buyerName && b.buyerName.toLowerCase().includes(q)) ||
         (b.contactName && b.contactName.toLowerCase().includes(q));
       return matchesStatus && matchesSearch;
@@ -356,7 +351,7 @@ export default function EnterpriseBookingsPage() {
                             data-testid={`confirm-booking-btn-${b.id}`}
                             onClick={() =>
                               updateStatusMutation.mutate({
-                                id: b.id,
+                                id: b.id || '',
                                 payload: { status: 'CONFIRMED' as any, notes: 'Confirmed by cooperative operator' },
                               })
                             }
@@ -372,7 +367,7 @@ export default function EnterpriseBookingsPage() {
                             data-testid={`mark-paid-btn-${b.id}`}
                             onClick={() =>
                               updateStatusMutation.mutate({
-                                id: b.id,
+                                id: b.id || '',
                                 payload: { status: 'PAID' as any, notes: 'Telebirr payment settled' },
                               })
                             }
@@ -388,7 +383,7 @@ export default function EnterpriseBookingsPage() {
                             data-testid={`complete-booking-btn-${b.id}`}
                             onClick={() =>
                               updateStatusMutation.mutate({
-                                id: b.id,
+                                id: b.id || '',
                                 payload: { status: 'COMPLETED' as any, notes: 'Tour successfully completed' },
                               })
                             }

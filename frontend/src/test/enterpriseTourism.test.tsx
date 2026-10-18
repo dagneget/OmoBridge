@@ -46,9 +46,10 @@ describe('F-911: Cultural Tourism Experiences & Package Management', () => {
       activeRole: 'MICRO_ENTERPRISE',
     });
 
-    vi.spyOn(tourismService, 'getEnterprisePackages').mockResolvedValue(
-      mockTourPackages.map((p) => ({ ...p }))
-    );
+    vi.spyOn(tourismService, 'getEnterprisePackages').mockResolvedValue([
+      { ...mockTourPackages[0], id: 'pack-001' },
+      { ...mockTourPackages[1], id: 'pack-002' },
+    ]);
 
     vi.spyOn(tourismService, 'createPackage').mockImplementation(async (_eid, req) => {
       return {

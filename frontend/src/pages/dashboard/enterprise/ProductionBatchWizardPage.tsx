@@ -10,19 +10,12 @@ import {
   AlertTriangle,
   CheckCircle2,
   DollarSign,
-  ArrowRight,
   RefreshCw,
   Sparkles,
-  Info,
   Scale,
-  ShieldCheck,
-  FileText,
   Search,
   History,
   QrCode,
-  Tag,
-  Building2,
-  Users,
 } from 'lucide-react';
 import { useAuthStore } from '../../../features/auth/authStore';
 import { enterpriseService } from '../../../features/enterprise/enterpriseService';
@@ -33,7 +26,6 @@ import type {
   ProductionInputRequest,
   ProductionOutputRequest,
   ProductionLossRequest,
-  BatchStatus,
 } from '../../../types/api';
 
 const DEMO_ENTERPRISE_ID = '33333333-3333-3333-3333-333333333333';
@@ -77,9 +69,6 @@ export default function ProductionBatchWizardPage() {
   // 1. Fetch Active Lots for Inputs
   const {
     data: availableLots = [],
-    isLoading: lotsLoading,
-    isError: lotsError,
-    refetch: refetchLots,
   } = useQuery({
     queryKey: queryKeys.enterprise.lots(enterpriseId, 'ACTIVE'),
     queryFn: () => enterpriseService.getEnterpriseLots(enterpriseId, 'ACTIVE'),
@@ -88,7 +77,6 @@ export default function ProductionBatchWizardPage() {
   // 2. Fetch Product Types for Outputs
   const {
     data: productTypes = [],
-    isLoading: productTypesLoading,
   } = useQuery({
     queryKey: queryKeys.enterprise.productTypes(),
     queryFn: () => enterpriseService.getProductTypes(),
@@ -97,7 +85,6 @@ export default function ProductionBatchWizardPage() {
   // 3. Fetch Storage Locations for Storing Outputs
   const {
     data: locations = [],
-    isLoading: locationsLoading,
   } = useQuery({
     queryKey: queryKeys.enterprise.locations(enterpriseId),
     queryFn: () => enterpriseService.getLocations(enterpriseId),
@@ -107,7 +94,6 @@ export default function ProductionBatchWizardPage() {
   const {
     data: batches = [],
     isLoading: batchesLoading,
-    isError: batchesError,
     refetch: refetchBatches,
   } = useQuery({
     queryKey: queryKeys.enterprise.batches(enterpriseId),
@@ -221,13 +207,13 @@ export default function ProductionBatchWizardPage() {
     setInputLots((prev) => [
       ...prev,
       {
-        lotId: lot.id,
-        lotCode: lot.lotCode,
-        productTypeName: lot.productTypeName,
-        grade: lot.grade,
-        balanceQty: lot.balanceQty,
-        unit: lot.unit,
-        quantity: String(lot.balanceQty), // Default to full remaining balance
+        lotId: lot.id || '',
+        lotCode: lot.lotCode || '',
+        productTypeName: lot.productTypeName || '',
+        grade: lot.grade || '',
+        balanceQty: lot.balanceQty || 0,
+        unit: lot.unit || 'KG',
+        quantity: String(lot.balanceQty || 0), // Default to full remaining balance
       },
     ]);
     setSelectedLotToAdd('');
@@ -319,7 +305,7 @@ export default function ProductionBatchWizardPage() {
       queryClient.invalidateQueries({ queryKey: queryKeys.enterprise.batches(enterpriseId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.enterprise.lots(enterpriseId) });
       setSuccessBatch({
-        batchCode: data.batchCode,
+        batchCode: data.batchCode || '',
         traceToken: data.traceToken,
       });
       setServerError(null);
@@ -413,7 +399,7 @@ export default function ProductionBatchWizardPage() {
       const q = searchTerm.toLowerCase();
       const matchesSearch =
         !q ||
-        b.batchCode.toLowerCase().includes(q) ||
+        (b.batchCode && b.batchCode.toLowerCase().includes(q)) ||
         (b.notes && b.notes.toLowerCase().includes(q)) ||
         (b.traceToken && b.traceToken.toLowerCase().includes(q));
       return matchesStatus && matchesSearch;
@@ -1432,7 +1418,7 @@ export default function ProductionBatchWizardPage() {
                             </span>
                           </td>
                           <td className="py-3.5 px-4">
-                            {batch.inputs.map((inItem) => (
+                            {(batch.inputs || []).map((inItem) => (
                               <div key={inItem.id} className="text-[11px]">
                                 <span className="font-semibold text-slate-800 dark:text-slate-200">
                                   {inItem.quantity} {inItem.unit}
@@ -1444,7 +1430,7 @@ export default function ProductionBatchWizardPage() {
                             ))}
                           </td>
                           <td className="py-3.5 px-4">
-                            {batch.outputs.map((outItem) => (
+                            {(batch.outputs || []).map((outItem) => (
                               <div key={outItem.id} className="text-[11px]">
                                 <span className="font-semibold text-blue-700 dark:text-blue-300">
                                   {outItem.quantity} {outItem.unit}
@@ -1456,7 +1442,7 @@ export default function ProductionBatchWizardPage() {
                             ))}
                           </td>
                           <td className="py-3.5 px-4">
-                            {batch.losses.length > 0 ? (
+                            {batch.losses && batch.losses.length > 0 ? (
                               batch.losses.map((lossItem) => (
                                 <div key={lossItem.id} className="text-[11px] text-amber-700 dark:text-amber-300">
                                   {lossItem.quantity} {lossItem.unit}

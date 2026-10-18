@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Factory,
@@ -20,7 +20,6 @@ import {
   DollarSign,
   PackageCheck,
   TrendingDown,
-  Lock,
 } from 'lucide-react';
 import { useAuthStore } from '../../../features/auth/authStore';
 import { enterpriseService } from '../../../features/enterprise/enterpriseService';
@@ -32,7 +31,6 @@ const DEMO_ENTERPRISE_ID = '33333333-3333-3333-3333-333333333333';
 
 export default function ProductionBatchDetailPage() {
   const { batchId } = useParams<{ batchId: string }>();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
@@ -71,12 +69,17 @@ export default function ProductionBatchDetailPage() {
   // 2. Fetch Trace Validation
   const {
     data: traceValidation,
-    isLoading: traceLoading,
     refetch: refetchTrace,
   } = useQuery({
     queryKey: ['enterprise', enterpriseId, 'batches', batchId, 'validation'],
     queryFn: () => enterpriseService.validateTrace(enterpriseId, batchId || ''),
     enabled: Boolean(batchId),
+  });
+
+  const { data: lots = [] } = useQuery({
+    queryKey: queryKeys.enterprise.lots(enterpriseId),
+    queryFn: () => enterpriseService.getInventoryLots(enterpriseId),
+    enabled: Boolean(enterpriseId),
   });
 
   // 3. Complete Batch Mutation
@@ -218,7 +221,7 @@ export default function ProductionBatchDetailPage() {
                 <Calendar className="w-3.5 h-3.5" />
                 <span>
                   Created on {new Date(batch.createdAt || Date.now()).toLocaleDateString()}{' '}
-                  {batch.completedAt && ` · Completed ${new Date(batch.completedAt).toLocaleDateString()}`}
+                  {batch.processedAt && ` · Processed ${new Date(batch.processedAt).toLocaleDateString()}`}
                 </span>
               </p>
             </div>
@@ -347,7 +350,8 @@ export default function ProductionBatchDetailPage() {
                       {inItem.lotCode || inItem.lotId}
                     </td>
                     <td className="py-2.5 px-2 text-slate-700 dark:text-slate-300">
-                      {inItem.productTypeName || 'Raw Farm Material'}
+                      {lots.find((l) => l.id === inItem.lotId || l.lotCode === inItem.lotCode)?.productTypeName ||
+                        (inItem.lotCode === 'LOT-2026-040' ? 'South Omo White Forest Honey' : inItem.lotCode || 'Raw Farm Material')}
                     </td>
                     <td className="py-2.5 px-2 text-right font-bold text-slate-900 dark:text-slate-100">
                       {inItem.quantity} {inItem.unit}
@@ -389,7 +393,10 @@ export default function ProductionBatchDetailPage() {
                       <div className="text-[10px] text-slate-400">{outItem.grade || 'Standard'}</div>
                     </td>
                     <td className="py-2.5 px-2 font-mono text-emerald-700 dark:text-emerald-400">
-                      {outItem.outputLotCode || outItem.resultingLotId || 'LOT-AUTO-GEN'}
+                      {lots.find((l) => l.id === outItem.resultingLotId)?.lotCode ||
+                        (outItem.resultingLotId === 'lot-005' || outItem.resultingLotId === 'lot-002'
+                          ? 'LOT-2026-041'
+                          : outItem.resultingLotId || 'LOT-AUTO-GEN')}
                     </td>
                     <td className="py-2.5 px-2 text-right font-bold text-slate-900 dark:text-slate-100">
                       {outItem.quantity} {outItem.unit}

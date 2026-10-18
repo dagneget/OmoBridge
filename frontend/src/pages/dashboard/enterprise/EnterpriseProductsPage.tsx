@@ -14,10 +14,7 @@ import {
   Boxes,
   ShieldCheck,
   CheckCircle2,
-  AlertCircle,
   ExternalLink,
-  ChevronDown,
-  Info,
   Layers,
 } from 'lucide-react';
 import { useAuthStore } from '../../../features/auth/authStore';
@@ -27,7 +24,6 @@ import { formatETB } from '../../../utils/formatters';
 import type {
   ProductResponse,
   ProductCreateFromOutputRequest,
-  ProductPriceBreakdownResponse,
 } from '../../../types/api';
 
 const DEMO_ENTERPRISE_ID = '33333333-3333-3333-3333-333333333333';
@@ -64,23 +60,18 @@ export default function EnterpriseProductsPage() {
   const [formSku, setFormSku] = useState(`OMO-HNY-${Math.floor(100 + Math.random() * 900)}`);
   const [formName, setFormName] = useState('South Omo Wild White Honey (500g Jar)');
   const [formCategory, setFormCategory] = useState('Honey & Hive Products');
-  const [formDescription, setFormDescription] = useState(
-    'Pure raw forest honey cold-filtered and bottled under certified community standards.'
-  );
-  const [formStory, setFormStory] = useState(
-    'Harvested from wild hives in the Mago river basin by local beekeeping families.'
-  );
+  const formDescription = 'Pure raw forest honey cold-filtered and bottled under certified community standards.';
+  const formStory = 'Harvested from wild hives in the Mago river basin by local beekeeping families.';
   const [formPackSize, setFormPackSize] = useState('0.5');
   const [formInitialStock, setFormInitialStock] = useState('50');
-  const [formTransportCost, setFormTransportCost] = useState('15');
-  const [formMarginRate, setFormMarginRate] = useState('0.15');
+  const formTransportCost = '15';
+  const formMarginRate = '0.15';
   const [formPublishImmediately, setFormPublishImmediately] = useState(true);
 
   // 1. Fetch Enterprise Products
   const {
     data: products = [],
     isLoading: productsLoading,
-    isError: productsError,
     refetch: refetchProducts,
   } = useQuery({
     queryKey: queryKeys.enterprise.products(enterpriseId),
@@ -101,7 +92,7 @@ export default function EnterpriseProductsPage() {
         list.push({
           id: out.id || `out-${b.id}`,
           name: out.productTypeName || 'Processed Material',
-          batchCode: b.batchCode,
+          batchCode: b.batchCode || '',
           grade: out.grade || 'Standard',
           quantity: Number(out.quantity || 0),
           unit: out.unit || 'KG',
@@ -215,8 +206,8 @@ export default function EnterpriseProductsPage() {
       const q = searchTerm.toLowerCase();
       const matchesSearch =
         !q ||
-        p.name.toLowerCase().includes(q) ||
-        p.sku.toLowerCase().includes(q) ||
+        (p.name && p.name.toLowerCase().includes(q)) ||
+        (p.sku && p.sku.toLowerCase().includes(q)) ||
         (p.category && p.category.toLowerCase().includes(q));
 
       return matchesStatus && matchesSearch;
@@ -477,7 +468,7 @@ export default function EnterpriseProductsPage() {
                         <button
                           type="button"
                           data-testid={`toggle-publish-btn-${p.id}`}
-                          onClick={() => publishMutation.mutate({ productId: p.id, publish: !p.published })}
+                          onClick={() => publishMutation.mutate({ productId: p.id || '', publish: !p.published })}
                           className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition flex items-center gap-1 ${
                             p.published
                               ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-950 dark:text-amber-300'
@@ -844,7 +835,7 @@ export default function EnterpriseProductsPage() {
                 data-testid="confirm-stock-adjust-btn"
                 onClick={() =>
                   adjustStockMutation.mutate({
-                    productId: stockModalProduct.id,
+                    productId: stockModalProduct.id || '',
                     quantity: parseFloat(stockDelta) || 0,
                     reason: stockReason,
                   })

@@ -12,6 +12,72 @@
   "common": {
     "welcome": "እንኳን ወደ ኦሞብሪጅ በደህና መጡ",
     "viewMore": "ተጨማሪ ይመልከቱ",
-    "search": "ፈልግ"
+    "search": "ፈልግ",
+    "loading": "በመጫን ላይ…",
+    "retry": "እንደገና ሞክር",
+    "refresh": "አድስ",
+    "viewAll": "ሁሉንም ይመልከቱ",
+    "today": "ዛሬ",
+    "na": "የለም"
+  },
+  "farmer": {
+    "dashboard": {
+      "title": "የአርሶ አደር ዳሽቦርድ",
+      "subtitle": "የሰብል አስረክቦ፣ ክብደት፣ ክፍያ እና USSD የሞባይል ገንዘብ ተደራሽነትን ይከታተሉ።",
+      "ussdTitle": "USSD ፈጣን ተደራሽነት: {{code}}",
+      "ussdDesc": "{{code}} ደውለው ያለ ኢንተርኔት የሰብል ቀሪ ሒሳብዎን ያረጋግጡ።"
+    },
+    "balance": {
+      "title": "ቀሪ ሒሳብ",
+      "totalDelivered": "ጠቅላላ የተረከቡ ዋጋ",
+      "totalSettled": "ጠቅላላ የተከፈለ",
+      "pendingPayout": "ክፍያ በጥበቃ ላይ",
+      "openPayables": "ክፍት ሒሳቦች"
+    },
+    "deliveries": {
+      "title": "የቅርብ ጊዜ የሰብል አስረክቦ",
+      "subtitle": "ዝርዝር የሰብል ቀበቃ መዝገቦች ከተቀበሉና ከተወገዱ መጠኖች ጋር",
+      "empty": "ምንም አስረክቦ አልተመዘገበም። የሰብል ቀበቃ ታሪክዎ ይህ ቦታ ላይ ይታያል።",
+      "deliveryNo": "ቀበቃ #",
+      "commodity": "ሸቀጥ እና ደረጃ",
+      "deliveredQty": "የተረከቡ መጠን",
+      "acceptedQty": "የተቀበሉ መጠን",
+      "rejectedQty": "የተወገደ መጠን",
+      "status": "ሁኔታ",
+      "value": "ዋጋ"
+    },
+    "prices": {
+      "title": "የዛሬ የመግዣ ዋጋዎች",
+      "subtitle": "ለጥሬ ዕቃዎ ማህበሩ የሚሰጠው ወቅታዊ ዋጋ",
+      "empty": "አሁን ንቁ የመግዣ ዋጋ አልታተመም።",
+      "productType": "የምርት አይነት",
+      "grade": "ደረጃ",
+      "pricePerUnit": "ዋጋ / አሃድ",
+      "unit": "አሃድ"
+    },
+    "payments": {
+      "title": "የቅርብ ጊዜ ክፍያዎች",
+      "empty": "ምንም ክፍያ አልተቀበሉም። የክፍያ ታሪክዎ ይህ ቦታ ላይ ይታያል።",
+      "paymentNo": "ክፍያ #",
+      "amount": "መጠን",
+      "method": "ዘዴ",
+      "status": "ሁኔታ",
+      "date": "ቀን",
+      "reference": "ማጣቀሻ"
+    },
+    "status": {
+      "RECORDED": "ተመዝግቧል",
+      "INSPECTED": "ተፈትሷል",
+      "CANCELLED": "ተሰርዟል",
+      "OPEN": "ክፍት",
+      "PARTIAL": "ከፊል",
+      "SETTLED": "ተከፍሏል",
+      "SUCCESS": "ተሳክቷል",
+      "PENDING": "በጥበቃ ላይ",
+      "FAILED": "አልተሳካም"
+    },
+    "errors": {
+      "loadFailed": "የዳሽቦርድ ዳታ መጫን አልተቻለም። ግንኙነቱን ያረጋግጡ እንደገናም ሞክሩ።"
+    }
   }
 }

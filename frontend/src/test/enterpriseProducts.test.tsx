@@ -99,9 +99,9 @@ describe('F-907 & F-908: Enterprise Product Creation from Output & Transparent P
       return {
         id: 'smov-test-01',
         productId,
-        movementType: req.quantity >= 0 ? 'RESTOCK' : 'ADJUSTMENT_DAMAGE',
+        movementType: req.quantity >= 0 ? 'RESTOCK' : 'ADJUSTMENT',
         quantity: req.quantity,
-        balanceAfter: 67,
+        stockAfter: 67,
         reason: req.reason,
         createdAt: new Date().toISOString(),
       };
