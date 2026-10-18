@@ -793,17 +793,19 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: unpaid orders and unapproved providers are rejected with clear messages.
   Owner: —
 
-- [ ] **F-911 · Tourism management** · T1
+- [x] **F-911 · Tourism management** · T1
   Needs: F-801 · Backend: B-302, B-303, B-304, B-305, B-306
   Build: packages (including cultural rules and community approval details), availability sessions, hotels, transport, safety guidelines.
   Done when: create and edit flows work for each item type.
-  Owner: —
+  Owner: @antigravity · Completed: 2026-10-18
+  Test: `vitest run src/test/enterpriseTourism.test.tsx` (5/5 passed)
 
-- [ ] **F-912 · Booking management** · T1
+- [x] **F-912 · Booking management** · T1
   Needs: F-911 · Backend: B-310, B-311
   Build: list, confirm, assign a guide, complete, cancel.
   Done when: capacity changes are reflected.
-  Owner: —
+  Owner: @antigravity · Completed: 2026-10-18
+  Test: `vitest run src/test/enterpriseBookings.test.tsx` (7/7 passed)
 
 - [ ] **F-913 · Finance views** · T2
   Needs: F-801 · Backend: B-904, B-908

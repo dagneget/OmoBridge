@@ -57,6 +57,8 @@ const InventoryManagementPage = lazy(() => import('../pages/dashboard/enterprise
 const ProductionBatchWizardPage = lazy(() => import('../pages/dashboard/enterprise/ProductionBatchWizardPage'));
 const ProductionBatchDetailPage = lazy(() => import('../pages/dashboard/enterprise/ProductionBatchDetailPage'));
 const EnterpriseProductsPage = lazy(() => import('../pages/dashboard/enterprise/EnterpriseProductsPage'));
+const EnterpriseTourismPage = lazy(() => import('../pages/dashboard/enterprise/EnterpriseTourismPage'));
+const EnterpriseBookingsPage = lazy(() => import('../pages/dashboard/enterprise/EnterpriseBookingsPage'));
 const FarmerDashboardPage = lazy(() => import('../pages/dashboard/FarmerDashboardPage'));
 const DeliveryDashboardPage = lazy(() => import('../pages/dashboard/DeliveryDashboardPage'));
 const GuideDashboardPage = lazy(() => import('../pages/dashboard/GuideDashboardPage'));
@@ -248,6 +250,22 @@ export default function AppRoutes() {
                 element={
                   <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
                     <EnterpriseProductsPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/tourism"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <EnterpriseTourismPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/bookings"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <EnterpriseBookingsPage />
                   </RoleGuard>
                 }
               />
