@@ -417,6 +417,108 @@ export const handlers = [
     );
   }),
 
+  http.post('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/adjustments', async ({ params, request }) => {
+    const { lotId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const lot = mockInventoryLots.find((l) => l.id === lotId);
+    if (!lot) {
+      return HttpResponse.json({ success: false, message: 'Lot not found' }, { status: 404 });
+    }
+    const currentBalance = Number(lot.balanceQty) || 0;
+    const adjQty = Number(body.quantity) || 0;
+    const newBalance = currentBalance + adjQty;
+    if (newBalance < 0) {
+      return HttpResponse.json(
+        { success: false, message: `Adjustment would result in negative balance (${newBalance} ${lot.unit})` },
+        { status: 400 }
+      );
+    }
+    lot.balanceQty = newBalance;
+    const movement = {
+      id: `mov-${Date.now()}`,
+      lotId: lot.id,
+      movementType: 'ADJUSTMENT',
+      quantity: adjQty,
+      balanceAfter: newBalance,
+      reason: body.reason || 'Manual quantity adjustment',
+      referenceType: 'MANUAL_ADJUSTMENT',
+      referenceId: `adj-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    };
+    return HttpResponse.json({ success: true, data: movement });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/transfers', async ({ params, request }) => {
+    const { lotId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const lot = mockInventoryLots.find((l) => l.id === lotId);
+    if (!lot) {
+      return HttpResponse.json({ success: false, message: 'Lot not found' }, { status: 404 });
+    }
+    const currentBalance = Number(lot.balanceQty) || 0;
+    const transferQty = Number(body.quantity) || 0;
+    if (transferQty <= 0) {
+      return HttpResponse.json({ success: false, message: 'Transfer quantity must be greater than zero' }, { status: 400 });
+    }
+    if (transferQty > currentBalance) {
+      return HttpResponse.json(
+        { success: false, message: `Transfer quantity exceeds available balance of ${currentBalance} ${lot.unit}` },
+        { status: 400 }
+      );
+    }
+    const newBalance = currentBalance - transferQty;
+    lot.balanceQty = newBalance;
+    const movement = {
+      id: `mov-${Date.now()}`,
+      lotId: lot.id,
+      movementType: 'TRANSFER_OUT',
+      quantity: -transferQty,
+      balanceAfter: newBalance,
+      reason: body.reason || 'Inter-facility transfer',
+      referenceType: 'LOCATION_TRANSFER',
+      referenceId: body.targetLocationId,
+      createdAt: new Date().toISOString(),
+    };
+    return HttpResponse.json({ success: true, data: movement });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/disposals', async ({ params, request }) => {
+    const { lotId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const lot = mockInventoryLots.find((l) => l.id === lotId);
+    if (!lot) {
+      return HttpResponse.json({ success: false, message: 'Lot not found' }, { status: 404 });
+    }
+    const currentBalance = Number(lot.balanceQty) || 0;
+    const disposeQty = Number(body.quantity) || 0;
+    if (disposeQty <= 0) {
+      return HttpResponse.json({ success: false, message: 'Disposal quantity must be greater than zero' }, { status: 400 });
+    }
+    if (disposeQty > currentBalance) {
+      return HttpResponse.json(
+        { success: false, message: `Disposal quantity exceeds available balance of ${currentBalance} ${lot.unit}` },
+        { status: 400 }
+      );
+    }
+    const newBalance = currentBalance - disposeQty;
+    lot.balanceQty = newBalance;
+    if (newBalance === 0) {
+      lot.status = 'DISPOSED';
+    }
+    const movement = {
+      id: `mov-${Date.now()}`,
+      lotId: lot.id,
+      movementType: 'DISPOSAL',
+      quantity: -disposeQty,
+      balanceAfter: newBalance,
+      reason: body.reason || 'Damaged/expired goods disposal',
+      referenceType: 'SCRAP_DISPOSAL',
+      referenceId: `disp-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    };
+    return HttpResponse.json({ success: true, data: movement });
+  }),
+
   // Farmer Portal / Payables / Payments
   http.get('*/api/v1/farmers/:farmerId/payables', () => {
     return HttpResponse.json({
@@ -429,6 +531,22 @@ export const handlers = [
     return HttpResponse.json({
       success: true,
       data: mockFarmerBalanceSummary,
+    });
+  }),
+
+  // Farmer Self-Service: deliveries (own crop delivery history)
+  http.get('*/api/v1/farmers/:farmerId/deliveries', () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockDeliveries,
+    });
+  }),
+
+  // Farmer Self-Service: payments received
+  http.get('*/api/v1/farmers/:farmerId/payments', () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockFarmerPayments,
     });
   }),
 

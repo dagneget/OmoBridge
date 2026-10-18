@@ -14,6 +14,9 @@ import {
   Clock,
   ArrowUpRight,
   ArrowDownLeft,
+  ArrowRightLeft,
+  Trash2,
+  SlidersHorizontal,
   X,
   ChevronRight,
   MapPin,
@@ -26,6 +29,9 @@ import { queryKeys } from '../../../services/queryKeys';
 import type {
   InventoryLotResponse,
   InventoryLocationRequest,
+  InventoryAdjustmentRequest,
+  InventoryTransferRequest,
+  InventoryDisposalRequest,
 } from '../../../types/api';
 
 const DEMO_ENTERPRISE_ID = '33333333-3333-3333-3333-333333333333';
@@ -74,6 +80,32 @@ export default function InventoryManagementPage() {
   });
   const [locationFormError, setLocationFormError] = useState<string | null>(null);
   const [locationFormSuccess, setLocationFormSuccess] = useState<string | null>(null);
+
+  // Action Modals State: Adjustment
+  const [selectedLotForAdjust, setSelectedLotForAdjust] = useState<InventoryLotResponse | null>(null);
+  const [adjustType, setAdjustType] = useState<'INCREASE' | 'DECREASE'>('INCREASE');
+  const [adjustQuantity, setAdjustQuantity] = useState<string>('');
+  const [adjustReason, setAdjustReason] = useState<string>('');
+  const [adjustConfirmed, setAdjustConfirmed] = useState<boolean>(false);
+  const [adjustError, setAdjustError] = useState<string | null>(null);
+  const [adjustSuccess, setAdjustSuccess] = useState<string | null>(null);
+
+  // Action Modals State: Transfer
+  const [selectedLotForTransfer, setSelectedLotForTransfer] = useState<InventoryLotResponse | null>(null);
+  const [transferTargetLocationId, setTransferTargetLocationId] = useState<string>('');
+  const [transferQuantity, setTransferQuantity] = useState<string>('');
+  const [transferReason, setTransferReason] = useState<string>('');
+  const [transferConfirmed, setTransferConfirmed] = useState<boolean>(false);
+  const [transferError, setTransferError] = useState<string | null>(null);
+  const [transferSuccess, setTransferSuccess] = useState<string | null>(null);
+
+  // Action Modals State: Disposal
+  const [selectedLotForDispose, setSelectedLotForDispose] = useState<InventoryLotResponse | null>(null);
+  const [disposeQuantity, setDisposeQuantity] = useState<string>('');
+  const [disposeReason, setDisposeReason] = useState<string>('');
+  const [disposeConfirmed, setDisposeConfirmed] = useState<boolean>(false);
+  const [disposeError, setDisposeError] = useState<string | null>(null);
+  const [disposeSuccess, setDisposeSuccess] = useState<string | null>(null);
 
   // Queries
   const {
@@ -132,6 +164,72 @@ export default function InventoryManagementPage() {
     },
   });
 
+  // Adjustment Mutation
+  const adjustMutation = useMutation({
+    mutationFn: ({ lotId, data }: { lotId: string; data: InventoryAdjustmentRequest }) =>
+      enterpriseService.adjustLot(enterpriseId, lotId, data),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.enterprise.all });
+      setAdjustSuccess(`Balance adjusted successfully. Balance after: ${res.balanceAfter}`);
+      setTimeout(() => {
+        setSelectedLotForAdjust(null);
+        setAdjustSuccess(null);
+        setAdjustQuantity('');
+        setAdjustReason('');
+        setAdjustConfirmed(false);
+      }, 1200);
+    },
+    onError: (err: any) => {
+      setAdjustError(
+        err?.response?.data?.message || err?.message || 'Failed to record quantity adjustment.'
+      );
+    },
+  });
+
+  // Transfer Mutation
+  const transferMutation = useMutation({
+    mutationFn: ({ lotId, data }: { lotId: string; data: InventoryTransferRequest }) =>
+      enterpriseService.transferLot(enterpriseId, lotId, data),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.enterprise.all });
+      setTransferSuccess(`Transferred successfully. Remaining balance: ${res.balanceAfter}`);
+      setTimeout(() => {
+        setSelectedLotForTransfer(null);
+        setTransferSuccess(null);
+        setTransferQuantity('');
+        setTransferReason('');
+        setTransferConfirmed(false);
+      }, 1200);
+    },
+    onError: (err: any) => {
+      setTransferError(
+        err?.response?.data?.message || err?.message || 'Failed to transfer lot.'
+      );
+    },
+  });
+
+  // Disposal Mutation
+  const disposeMutation = useMutation({
+    mutationFn: ({ lotId, data }: { lotId: string; data: InventoryDisposalRequest }) =>
+      enterpriseService.disposeLot(enterpriseId, lotId, data),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.enterprise.all });
+      setDisposeSuccess(`Disposal recorded successfully. Remaining balance: ${res.balanceAfter}`);
+      setTimeout(() => {
+        setSelectedLotForDispose(null);
+        setDisposeSuccess(null);
+        setDisposeQuantity('');
+        setDisposeReason('');
+        setDisposeConfirmed(false);
+      }, 1200);
+    },
+    onError: (err: any) => {
+      setDisposeError(
+        err?.response?.data?.message || err?.message || 'Failed to record lot disposal.'
+      );
+    },
+  });
+
   const handleCreateLocationSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLocationFormError(null);
@@ -140,6 +238,114 @@ export default function InventoryManagementPage() {
       return;
     }
     createLocationMutation.mutate(locationForm);
+  };
+
+  const handleAdjustSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdjustError(null);
+    if (!selectedLotForAdjust?.id) return;
+    const qty = parseFloat(adjustQuantity);
+    if (isNaN(qty) || qty <= 0) {
+      setAdjustError('Adjustment quantity must be greater than zero.');
+      return;
+    }
+    const currentBal = Number(selectedLotForAdjust.balanceQty) || 0;
+    if (adjustType === 'DECREASE' && qty > currentBal) {
+      setAdjustError(
+        `Cannot write down more than available balance (${currentBal} ${selectedLotForAdjust.unit || 'KG'}).`
+      );
+      return;
+    }
+    if (!adjustReason.trim()) {
+      setAdjustError('Reason for adjustment is mandatory.');
+      return;
+    }
+    if (!adjustConfirmed) {
+      setAdjustError('Please confirm the physical count adjustment.');
+      return;
+    }
+    adjustMutation.mutate({
+      lotId: selectedLotForAdjust.id,
+      data: {
+        quantity: adjustType === 'INCREASE' ? qty : -qty,
+        reason: adjustReason.trim(),
+      },
+    });
+  };
+
+  const handleTransferSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setTransferError(null);
+    if (!selectedLotForTransfer?.id) return;
+    if (!transferTargetLocationId) {
+      setTransferError('Please select a destination storage location.');
+      return;
+    }
+    if (transferTargetLocationId === selectedLotForTransfer.locationId) {
+      setTransferError('Destination location cannot be the same as the current location.');
+      return;
+    }
+    const qty = parseFloat(transferQuantity);
+    if (isNaN(qty) || qty <= 0) {
+      setTransferError('Transfer quantity must be greater than zero.');
+      return;
+    }
+    const currentBal = Number(selectedLotForTransfer.balanceQty) || 0;
+    if (qty > currentBal) {
+      setTransferError(
+        `Transfer quantity cannot exceed current balance of ${currentBal} ${selectedLotForTransfer.unit || 'KG'}.`
+      );
+      return;
+    }
+    if (!transferReason.trim()) {
+      setTransferError('Reason for location transfer is mandatory.');
+      return;
+    }
+    if (!transferConfirmed) {
+      setTransferError('Please confirm the internal warehouse transfer.');
+      return;
+    }
+    transferMutation.mutate({
+      lotId: selectedLotForTransfer.id,
+      data: {
+        targetLocationId: transferTargetLocationId,
+        quantity: qty,
+        reason: transferReason.trim(),
+      },
+    });
+  };
+
+  const handleDisposeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setDisposeError(null);
+    if (!selectedLotForDispose?.id) return;
+    const qty = parseFloat(disposeQuantity);
+    if (isNaN(qty) || qty <= 0) {
+      setDisposeError('Disposal quantity must be greater than zero.');
+      return;
+    }
+    const currentBal = Number(selectedLotForDispose.balanceQty) || 0;
+    if (qty > currentBal) {
+      setDisposeError(
+        `Disposal quantity cannot exceed current balance of ${currentBal} ${selectedLotForDispose.unit || 'KG'}.`
+      );
+      return;
+    }
+    if (!disposeReason.trim()) {
+      setDisposeError('Disposal reason (e.g. spoilage, damage, infestation) is mandatory.');
+      return;
+    }
+    if (!disposeConfirmed) {
+      setDisposeError('Please confirm the decommissioning and disposal of this inventory.');
+      return;
+    }
+    disposeMutation.mutate({
+      lotId: selectedLotForDispose.id,
+      data: {
+        quantity: qty,
+        reason: disposeReason.trim(),
+      },
+    });
   };
 
   // Distinct product types for filter
@@ -546,6 +752,7 @@ export default function InventoryManagementPage() {
                   const balance = Number(lot.balanceQty) || 0;
                   const received = Number(lot.receivedQty) || 0;
                   const percent = received > 0 ? Math.min(100, Math.round((balance / received) * 100)) : 0;
+                  const isOperable = lot.status === 'ACTIVE' && balance > 0;
 
                   return (
                     <tr
@@ -609,15 +816,74 @@ export default function InventoryManagementPage() {
                       </td>
 
                       <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => setSelectedLotForMovements(lot)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
-                          data-testid={`view-movements-btn-${lot.id}`}
-                          title="View movement history"
-                        >
-                          <History className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                          <span>Audit</span>
-                        </button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          {isOperable && (
+                            <>
+                              <button
+                                onClick={() => {
+                                  setSelectedLotForAdjust(lot);
+                                  setAdjustType('INCREASE');
+                                  setAdjustQuantity('');
+                                  setAdjustReason('');
+                                  setAdjustConfirmed(false);
+                                  setAdjustError(null);
+                                  setAdjustSuccess(null);
+                                }}
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors"
+                                data-testid={`adjust-lot-btn-${lot.id}`}
+                                title="Adjust lot quantity"
+                              >
+                                <SlidersHorizontal className="w-3 h-3" />
+                                <span>Adjust</span>
+                              </button>
+
+                              <button
+                                onClick={() => {
+                                  setSelectedLotForTransfer(lot);
+                                  setTransferTargetLocationId('');
+                                  setTransferQuantity('');
+                                  setTransferReason('');
+                                  setTransferConfirmed(false);
+                                  setTransferError(null);
+                                  setTransferSuccess(null);
+                                }}
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md border border-blue-200 dark:border-blue-900/60 bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors"
+                                data-testid={`transfer-lot-btn-${lot.id}`}
+                                title="Transfer lot to another location"
+                              >
+                                <ArrowRightLeft className="w-3 h-3" />
+                                <span>Transfer</span>
+                              </button>
+
+                              <button
+                                onClick={() => {
+                                  setSelectedLotForDispose(lot);
+                                  setDisposeQuantity('');
+                                  setDisposeReason('');
+                                  setDisposeConfirmed(false);
+                                  setDisposeError(null);
+                                  setDisposeSuccess(null);
+                                }}
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition-colors"
+                                data-testid={`dispose-lot-btn-${lot.id}`}
+                                title="Dispose damaged/spoiled items"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                                <span>Dispose</span>
+                              </button>
+                            </>
+                          )}
+
+                          <button
+                            onClick={() => setSelectedLotForMovements(lot)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
+                            data-testid={`view-movements-btn-${lot.id}`}
+                            title="View movement history"
+                          >
+                            <History className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                            <span>Audit</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -746,6 +1012,407 @@ export default function InventoryManagementPage() {
                 Close Audit
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Adjust Balance Modal */}
+      {selectedLotForAdjust && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          data-testid="adjust-lot-modal"
+        >
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between bg-amber-50/40 dark:bg-amber-950/20">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">
+                    {selectedLotForAdjust.lotCode}
+                  </span>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    Adjust Lot Balance
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  Current balance: <span className="font-bold text-slate-800 dark:text-slate-200">{Number(selectedLotForAdjust.balanceQty).toLocaleString()} {selectedLotForAdjust.unit || 'KG'}</span>
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedLotForAdjust(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAdjustSubmit} noValidate className="p-5 space-y-4 text-xs">
+              {adjustError && (
+                <div className="p-3 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 rounded-lg text-rose-800 dark:text-rose-300 flex items-center gap-2" data-testid="adjust-error-alert">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{adjustError}</span>
+                </div>
+              )}
+
+              {adjustSuccess && (
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-900 rounded-lg text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>{adjustSuccess}</span>
+                </div>
+              )}
+
+              {/* Adjustment Direction */}
+              <div>
+                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Adjustment Direction *
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setAdjustType('INCREASE')}
+                    className={`py-2 px-3 rounded-lg border font-semibold flex items-center justify-center gap-1.5 transition-colors ${
+                      adjustType === 'INCREASE'
+                        ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                    }`}
+                  >
+                    <ArrowDownLeft className="w-4 h-4 text-emerald-600" />
+                    <span>Increase (+)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAdjustType('DECREASE')}
+                    className={`py-2 px-3 rounded-lg border font-semibold flex items-center justify-center gap-1.5 transition-colors ${
+                      adjustType === 'DECREASE'
+                        ? 'border-amber-500 bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'
+                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                    }`}
+                  >
+                    <ArrowUpRight className="w-4 h-4 text-amber-600" />
+                    <span>Decrease (-)</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Quantity */}
+              <div>
+                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Adjustment Quantity ({selectedLotForAdjust.unit || 'KG'}) *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  placeholder="e.g. 5.50"
+                  value={adjustQuantity}
+                  onChange={(e) => setAdjustQuantity(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  data-testid="adjust-quantity-input"
+                  required
+                />
+              </div>
+
+              {/* Reason */}
+              <div>
+                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Required Reason / Justification *
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Physical inventory cycle count correction"
+                  value={adjustReason}
+                  onChange={(e) => setAdjustReason(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  data-testid="adjust-reason-input"
+                  required
+                />
+              </div>
+
+              {/* Confirmation Dialog Checkbox */}
+              <div className="pt-1 flex items-start gap-2 bg-amber-50/70 dark:bg-amber-950/30 p-2.5 rounded-lg border border-amber-200 dark:border-amber-900/50">
+                <input
+                  type="checkbox"
+                  id="confirm-adjust-checkbox"
+                  checked={adjustConfirmed}
+                  onChange={(e) => setAdjustConfirmed(e.target.checked)}
+                  className="mt-0.5 rounded text-amber-600 focus:ring-amber-500"
+                  data-testid="confirm-adjust-checkbox"
+                />
+                <label htmlFor="confirm-adjust-checkbox" className="text-[11px] text-amber-900 dark:text-amber-300 cursor-pointer">
+                  I confirm that this adjustment reflects verified physical stock count and will be logged in the immutable audit trail.
+                </label>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedLotForAdjust(null)}
+                  className="px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={adjustMutation.isPending}
+                  className="px-4 py-2 rounded-lg bg-amber-700 hover:bg-amber-800 text-white font-semibold shadow-sm transition-colors disabled:opacity-50"
+                  data-testid="submit-adjust-btn"
+                >
+                  {adjustMutation.isPending ? 'Adjusting...' : 'Confirm Adjustment'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Transfer Location Modal */}
+      {selectedLotForTransfer && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          data-testid="transfer-lot-modal"
+        >
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between bg-blue-50/40 dark:bg-blue-950/20">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300">
+                    {selectedLotForTransfer.lotCode}
+                  </span>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    Transfer Storage Location
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  Current location: <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedLotForTransfer.locationName}</span> · Available: <span className="font-bold text-slate-800 dark:text-slate-200">{Number(selectedLotForTransfer.balanceQty).toLocaleString()} {selectedLotForTransfer.unit || 'KG'}</span>
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedLotForTransfer(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleTransferSubmit} noValidate className="p-5 space-y-4 text-xs">
+              {transferError && (
+                <div className="p-3 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 rounded-lg text-rose-800 dark:text-rose-300 flex items-center gap-2" data-testid="transfer-error-alert">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{transferError}</span>
+                </div>
+              )}
+
+              {transferSuccess && (
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-900 rounded-lg text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>{transferSuccess}</span>
+                </div>
+              )}
+
+              {/* Destination Location Select */}
+              <div>
+                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Destination Storage Location *
+                </label>
+                <select
+                  value={transferTargetLocationId}
+                  onChange={(e) => setTransferTargetLocationId(e.target.value)}
+                  className="w-full py-2 px-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  data-testid="target-location-select"
+                  required
+                >
+                  <option value="">Select Destination Warehouse / Unit</option>
+                  {locations
+                    .filter((loc) => loc.name !== selectedLotForTransfer.locationName)
+                    .map((loc) => (
+                      <option key={loc.id} value={loc.id}>
+                        {loc.name} ({loc.locationType})
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {/* Transfer Quantity */}
+              <div>
+                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Transfer Quantity ({selectedLotForTransfer.unit || 'KG'}) *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  placeholder={`Max: ${Number(selectedLotForTransfer.balanceQty)}`}
+                  value={transferQuantity}
+                  onChange={(e) => setTransferQuantity(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  data-testid="transfer-quantity-input"
+                  required
+                />
+              </div>
+
+              {/* Reason */}
+              <div>
+                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Transfer Reason / Logistics Memo *
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Relocating honey barrels to packing room staging area"
+                  value={transferReason}
+                  onChange={(e) => setTransferReason(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  data-testid="transfer-reason-input"
+                  required
+                />
+              </div>
+
+              {/* Confirmation Dialog Checkbox */}
+              <div className="pt-1 flex items-start gap-2 bg-blue-50/70 dark:bg-blue-950/30 p-2.5 rounded-lg border border-blue-200 dark:border-blue-900/50">
+                <input
+                  type="checkbox"
+                  id="confirm-transfer-checkbox"
+                  checked={transferConfirmed}
+                  onChange={(e) => setTransferConfirmed(e.target.checked)}
+                  className="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
+                  data-testid="confirm-transfer-checkbox"
+                />
+                <label htmlFor="confirm-transfer-checkbox" className="text-[11px] text-blue-900 dark:text-blue-300 cursor-pointer">
+                  I confirm that physical custody of this quantity is moving to the selected destination facility.
+                </label>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedLotForTransfer(null)}
+                  className="px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={transferMutation.isPending}
+                  className="px-4 py-2 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-semibold shadow-sm transition-colors disabled:opacity-50"
+                  data-testid="submit-transfer-btn"
+                >
+                  {transferMutation.isPending ? 'Transferring...' : 'Execute Transfer'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Record Disposal Modal */}
+      {selectedLotForDispose && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          data-testid="dispose-lot-modal"
+        >
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between bg-rose-50/50 dark:bg-rose-950/20">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300">
+                    {selectedLotForDispose.lotCode}
+                  </span>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    Record Item Disposal
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  Decommission spoiled, contaminated, or damaged inventory · Available: <span className="font-bold text-slate-800 dark:text-slate-200">{Number(selectedLotForDispose.balanceQty).toLocaleString()} {selectedLotForDispose.unit || 'KG'}</span>
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedLotForDispose(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleDisposeSubmit} noValidate className="p-5 space-y-4 text-xs">
+              {disposeError && (
+                <div className="p-3 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 rounded-lg text-rose-800 dark:text-rose-300 flex items-center gap-2" data-testid="dispose-error-alert">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{disposeError}</span>
+                </div>
+              )}
+
+              {disposeSuccess && (
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-900 rounded-lg text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>{disposeSuccess}</span>
+                </div>
+              )}
+
+              {/* Disposal Quantity */}
+              <div>
+                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Disposal Quantity ({selectedLotForDispose.unit || 'KG'}) *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  placeholder={`Max: ${Number(selectedLotForDispose.balanceQty)}`}
+                  value={disposeQuantity}
+                  onChange={(e) => setDisposeQuantity(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  data-testid="dispose-quantity-input"
+                  required
+                />
+              </div>
+
+              {/* Reason */}
+              <div>
+                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Mandatory Disposal Reason & Justification *
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Moisture spoilage during monsoon humidity storage"
+                  value={disposeReason}
+                  onChange={(e) => setDisposeReason(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  data-testid="dispose-reason-input"
+                  required
+                />
+              </div>
+
+              {/* Confirmation Dialog Checkbox */}
+              <div className="pt-1 flex items-start gap-2 bg-rose-50/80 dark:bg-rose-950/40 p-2.5 rounded-lg border border-rose-200 dark:border-rose-900/50">
+                <input
+                  type="checkbox"
+                  id="confirm-dispose-checkbox"
+                  checked={disposeConfirmed}
+                  onChange={(e) => setDisposeConfirmed(e.target.checked)}
+                  className="mt-0.5 rounded text-rose-600 focus:ring-rose-500"
+                  data-testid="confirm-dispose-checkbox"
+                />
+                <label htmlFor="confirm-dispose-checkbox" className="text-[11px] text-rose-900 dark:text-rose-300 cursor-pointer">
+                  I confirm that this quantity is unfit for sale/production and will be destroyed or safely disposed of.
+                </label>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedLotForDispose(null)}
+                  className="px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={disposeMutation.isPending}
+                  className="px-4 py-2 rounded-lg bg-rose-700 hover:bg-rose-800 text-white font-semibold shadow-sm transition-colors disabled:opacity-50"
+                  data-testid="submit-dispose-btn"
+                >
+                  {disposeMutation.isPending ? 'Recording...' : 'Record Disposal'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
