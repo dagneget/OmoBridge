@@ -1015,3 +1015,7 @@ These are design gates, not reasons to discard the plan. Record the final decisi
   Scope: Correct GET /api/v1/tourism/guides/me to TOUR_GUIDE; verify guide success, anonymous 401, and other-role 403 using the real security chain. No schema changes.
 
 Activity: 2026-10-18 · @codex · B-FIX-001 · Implemented; verification blocked by three delivery integration setup errors. Focused authorization tests: 9 passed.
+
+- [~] **B-FIX-002 · Delivery integration test cleanup**
+  Owner: @codex · Started: 2026-10-18
+  Scope: Clear dependent payment/review fixtures before delivery tests delete orders; run delivery and full backend suites. Testcontainer data only; no application/schema changes.
