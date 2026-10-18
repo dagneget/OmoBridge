@@ -1,0 +1,102 @@
+# Security
+
+Follow these conventions for securing a Spring Boot application.
+
+---
+
+## TLDR — Mandatory Rules
+- All security config lives in `SecurityConfig` in `config/` — no security annotations in controllers
+- Never commit secrets to source control — use env vars or vault
+- Hash passwords with `BCryptPasswordEncoder` — never store plaintext
+- Return 401 for missing auth, 403 for insufficient permissions — be precise
+- Actuator health/info are public; lock down everything else behind auth
+
+---
+
+## Dependencies
+
+Use **Spring Security** as the foundation. Add:
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+```
+
+---
+
+## Authentication
+
+- Default: **Stateless JWT-based authentication**.
+- Configure via a `SecurityConfig` class in `config/`.
+
+```java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+            .csrf(csrf -> csrf.disable())  // Stateless API — no CSRF needed
+            .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                .requestMatchers("/actuator/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
+            .build();
+    }
+}
+```
+
+---
+
+## CORS
+
+Configure CORS in the security config using externalized properties (see [configuration-properties.md](configuration-properties.md)):
+
+```java
+@Bean
+public CorsConfigurationSource corsConfigurationSource(AppProperties appProperties) {
+    var config = new CorsConfiguration();
+    config.setAllowedOrigins(appProperties.getCors().getAllowedOrigins());
+    config.setAllowedMethods(appProperties.getCors().getAllowedMethods());
+    config.setAllowedHeaders(List.of("*"));
+    var source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/api/**", config);
+    return source;
+}
+```
+
+<!-- CUSTOMIZE: Adjust allowed origins and methods in application.properties -->
+
+In `application.properties`:
+```properties
+app.cors.allowed-origins=${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+app.cors.allowed-methods=GET,POST,PUT,DELETE,PATCH
+```
+---
+
+## Secrets Management
+
+1. **Never commit secrets** to source control.
+2. Store secrets in **environment variables** or a vault.
+3. Reference in `application.properties`:
+   ```properties
+   spring.datasource.password=${DB_PASSWORD}
+   jwt.secret=${JWT_SECRET}
+   ```
+4. Use `.env` files locally (add to `.gitignore`).
+
+---
+
+## Rules
+
+1. **No security config in controllers** — all rules live in `SecurityConfig`.
+2. **NEVER use `@PreAuthorize`** unless URL-based rules in `SecurityConfig` can't express the requirement.
+3. **Hash passwords** with `BCryptPasswordEncoder` — never store plaintext.
+4. **Validate all input** — security starts at the API boundary (see [api-design.md](api-design.md)).
+5. **Return 401 for missing auth, 403 for insufficient permissions** — be precise.
+6. **Actuator is always enabled** — expose health, info, and metrics. Lock down sensitive endpoints behind auth. See [actuator-health.md](actuator-health.md) for full configuration, custom health indicators, and metrics.
