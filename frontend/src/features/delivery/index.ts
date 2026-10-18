@@ -66,3 +66,15 @@ export type {
 
 export { TrackingLimitNotice } from './TrackingLimitNotice';
 export type { TrackingLimitNoticeProps } from './TrackingLimitNotice';
+
+export { SmsCheckpointFallback } from './SmsCheckpointFallback';
+export type { SmsCheckpointFallbackProps } from './SmsCheckpointFallback';
+export {
+  supportsSmsCheckpoint,
+  buildSmsCheckpointText,
+  smsCheckpointKeyword,
+  acceptedWordsFor,
+  alternativeWordsFor,
+  SMS_CHECKPOINT_KEYWORDS,
+} from './smsCheckpoint';
+export type { SmsCheckpointStatus } from './smsCheckpoint';

@@ -30,6 +30,7 @@ import {
   createIdbStatusQueue,
   syncJobStatuses,
   TrackingLimitNotice,
+  SmsCheckpointFallback,
   type LocationQueue,
   type StatusQueue,
   type StatusReplayOutcome,
@@ -735,6 +736,13 @@ export default function ProviderJobDetailPage() {
                 </div>
               </>
             )}
+
+            {/* F-1106: the same checkpoint, ready to send, for when there is no data. */}
+            <SmsCheckpointFallback
+              jobNo={job.jobNo}
+              statuses={available}
+              statusLabel={(status) => statusLabel(status)}
+            />
           </Card>
         </>
       )}

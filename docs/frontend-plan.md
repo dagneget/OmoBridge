@@ -183,14 +183,14 @@ Update the counts when you finish a task.
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
-| FP11 | Delivery provider app | 6 / 8 |
+| FP11 | Delivery provider app | 7 / 8 |
 | FP12 | Guide dashboard | 0 / 4 |
 | FP13 | Admin and authority | 0 / 5 |
 | FP14 | Reviews | 0 / 3 |
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **60 / 134** |
+| | **Total** | **61 / 134** |
 
 ### What can run in parallel
 
@@ -887,11 +887,16 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   message and current job state; a transport failure stays queued. See `docs/frontend.md`
   §Offline Status Queue.
 
-- [ ] **F-1106 · SMS checkpoint fallback** · T2
+- [x] **F-1106 · SMS checkpoint fallback** · T2
   Needs: F-1102 · Backend: B-1107
   Build: instructions and a ready-made SMS text for checkpoints when there is no data.
   Done when: the SMS format matches what the backend accepts.
-  Owner: —
+  Done: @opencode · 2026-10-18 · Tests: `npm test` → 54 files / 352 passed (15 new); typecheck, lint, build ✓
+  Notes: `features/delivery/smsCheckpoint.ts` mirrors `InboundSmsService`'s parse order, and the
+  tests assert the built message against a copy of the backend's own regex and keyword matcher, so
+  "matches what the backend accepts" is checked rather than asserted. Only the three SMS-movable
+  statuses are offered; `FAILED`/`CANCELLED` are excluded because the server has no keyword for
+  them and would silently ignore the message.
 
 - [!] **F-1107 · Provider offline test** · T1
   Needs: F-1104
@@ -1322,3 +1327,4 @@ Activity: 2026-10-18 · @claude-agent · F-808 · Completed · Unpaid delivery c
 | 2026-10-18 | @opencode | F-1107 | Blocked | Wrote `e2e/provider-offline.spec.ts` and `playwright.config.ts` for the browser-level offline scenario, but `@playwright/test` is not installed and is in no agent's allocation, so the spec has never run. Marked `[!]` rather than done. Delivered a runnable equivalent, `src/test/providerOfflineSync.test.tsx` (6 tests, 51 files / 322 total passing), which drives the real component, queue and service and asserts the real axios request bodies: out-of-order offline points upload in `recordedAt` order, a 120-point backlog splits 50/50/20 and arrives chronological, a 5xx keeps the point queued for replay, and the server's `stored: 0` discards without retrying. Fixed a data-loss bug found on the way: `ingestLocations` coerced a missing response field to `0`, which the sync layer reads as "job finished", so any malformed 200 would have deleted a provider's queued history — it now throws. Excluded the e2e files from tsconfig so the build stays green until the dependency exists. |
 | 2026-10-18 | @opencode | F-1105 | Done | Added `features/delivery/statusQueue.ts` + `statusSync.ts` and extracted `deliveryDb.ts` so both queues share one IndexedDB database — they must, because IndexedDB refuses to open a database at a lower version than it is already at. The rule that shapes this feature: **a rejection is dropped, a transport failure is kept.** A 4xx means the server understood and refused, and a refused transition can never become valid later (the job only moves forward), so keeping it would block every change queued behind it; a network error means the server never had an opinion, so it survives and replay stops there. Changes replay oldest-first by `queuedAt` because the backend only accepts a transition legal from the job's current state. Every conflict is shown with the server's own message and the job is re-fetched, so a dispatcher moving the job while the device was offline is visible rather than silent. Deliberate behaviour change: status buttons are now **enabled offline** and queue locally — a driver who has just dropped the goods is the most likely person to have no signal — so F-1102's test asserting they were disabled was updated to assert queuing instead. Tests 52 files / 332 passed (10 new); typecheck, lint, build clean. |
 | 2026-10-18 | @opencode | F-1108 | Done | Added `features/delivery/TrackingLimitNotice.tsx`, rendered on the location card of an active job and hidden once the job is terminal (the card itself is gated on activity, so the notice never appears where it would only confuse). The notice names the three states that stop collection — locking, switching apps, closing the browser — rather than gesturing at "background limitations", and points at the SMS checkpoint with the provider's **own job number** prefilled. Two things came from reading `InboundSmsService` rather than assuming: the checkpoint keywords (`PICKED`/`COLLECTED`, `LEFT`/`TRANSIT`, `ARRIVED`/`DELIVERED`) are matched with `body.contains(...)`, so they are deliberately **not** translation keys — translating them would silently break the checkpoint for every Amharic reader, so only the sentence around them is localised; and no destination number exists anywhere in the backend, so gap F-1108-E1 was logged and the notice tells the provider to use the line they already have instead of inventing one. Tests 53 files / 337 passed (5 new, including an axe audit on the component); typecheck, lint, build clean. |
+| 2026-10-18 | @opencode | F-1106 | Done | Added `features/delivery/smsCheckpoint.ts` and `SmsCheckpointFallback.tsx`, a collapsed section of the status-actions card with the ready-made text for each sendable step, prefilled with the provider's own job number. The format was derived from `InboundSmsService` rather than guessed, and the tests hold this app's output against a copy of the backend's job-number regex and keyword matcher, so "matches what the backend accepts" is verified rather than claimed. Two constraints fell out of the parser: it checks DELIVERED, then TRANSIT, then PICKED, so each status gets exactly one unambiguous keyword (a message naming two would be resolved by check order, not intent); and `FAILED`/`CANCELLED` have no keyword at all, so they are filtered out rather than listed — an SMS for either would be recorded and silently ignored, which is the worst outcome for a driver who thinks they have reported a problem. The text sits in a read-only field as well as behind a copy button, because clipboard access needs a secure context and is unreliable on some handsets; a clipboard rejection is not surfaced as an error since manual selection still works. Hidden without a job number and on terminal jobs. Tests 54 files / 352 passed (15 new, incl. axe); typecheck, lint, build clean. FP11 is now 7/8 — F-1107 remains `[!]` pending `@playwright/test`. |
