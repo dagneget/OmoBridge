@@ -1,5 +1,6 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from 'vite';
+import { securityBuildPlugin } from './vite.security.ts';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -8,6 +9,7 @@ import { fileURLToPath, URL } from 'node:url';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    securityBuildPlugin(),
     react(),
     tailwindcss(),
     VitePWA({
@@ -134,6 +136,7 @@ export default defineConfig({
     }),
   ],
   build: {
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks(id) {

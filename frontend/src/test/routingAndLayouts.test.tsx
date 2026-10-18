@@ -18,16 +18,23 @@ describe('Routing, layouts, and ErrorBoundary (F-101)', () => {
       <MemoryRouter initialEntries={['/']}>
         <Routes>
           <Route element={<PublicLayout />}>
-            <Route index element={<div data-testid="public-content">Public Storefront</div>} />
+            <Route
+              index
+              element={
+                <div data-testid="public-content">Public Storefront</div>
+              }
+            />
           </Route>
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getAllByText('OmoBridge').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Tourism')).toBeInTheDocument();
     expect(screen.getByText('Products')).toBeInTheDocument();
-    expect(screen.getByTestId('public-content')).toHaveTextContent('Public Storefront');
+    expect(screen.getByTestId('public-content')).toHaveTextContent(
+      'Public Storefront',
+    );
   });
 
   it('renders AuthLayout with centered card container and back link', () => {
@@ -35,10 +42,13 @@ describe('Routing, layouts, and ErrorBoundary (F-101)', () => {
       <MemoryRouter initialEntries={['/login']}>
         <Routes>
           <Route element={<AuthLayout />}>
-            <Route path="/login" element={<div data-testid="login-content">Login Form</div>} />
+            <Route
+              path="/login"
+              element={<div data-testid="login-content">Login Form</div>}
+            />
           </Route>
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getByText(/back to home/i)).toBeInTheDocument();
@@ -48,30 +58,35 @@ describe('Routing, layouts, and ErrorBoundary (F-101)', () => {
   it('renders DashboardLayout with role navigation and sign out button', () => {
     localStorage.setItem(
       'omobridge_user',
-      JSON.stringify({ role: 'ENTERPRISE', fullName: 'South Omo Coop' })
+      JSON.stringify({ role: 'ENTERPRISE', fullName: 'South Omo Coop' }),
     );
 
     render(
       <MemoryRouter initialEntries={['/dashboard']}>
         <Routes>
           <Route element={<DashboardLayout />}>
-            <Route path="/dashboard" element={<div data-testid="dash-content">Enterprise View</div>} />
+            <Route
+              path="/dashboard"
+              element={<div data-testid="dash-content">Enterprise View</div>}
+            />
           </Route>
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getByText('Enterprise Hub')).toBeInTheDocument();
     expect(screen.getByText('Registered Farmers')).toBeInTheDocument();
     expect(screen.getByText('Sign Out')).toBeInTheDocument();
-    expect(screen.getByTestId('dash-content')).toHaveTextContent('Enterprise View');
+    expect(screen.getByTestId('dash-content')).toHaveTextContent(
+      'Enterprise View',
+    );
   });
 
   it('renders NotFoundPage with 404 message and home link', () => {
     render(
       <MemoryRouter>
         <NotFoundPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getByTestId('not-found-page')).toBeInTheDocument();
@@ -87,13 +102,17 @@ describe('Routing, layouts, and ErrorBoundary (F-101)', () => {
     render(
       <ErrorBoundary>
         <BuggyComponent />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
     expect(screen.getByTestId('error-boundary-fallback')).toBeInTheDocument();
     expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
-    expect(screen.getByText(/Simulated intentional rendering failure/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /reload page/i })).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Simulated intentional rendering failure/i),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /reload page/i }),
+    ).toBeInTheDocument();
 
     consoleSpy.mockRestore();
   });

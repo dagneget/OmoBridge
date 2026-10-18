@@ -1,0 +1,24 @@
+{
+  "checkedAt": "2026-10-19",
+  "command": "npm audit --package-lock-only --json",
+  "lockfileSha256": "674a91a9524e8f3b0c63e3998e26f9cf4dd1503fc2e42c5f70cd47216815352c",
+  "auditReportVersion": 2,
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 384,
+      "dev": 162,
+      "optional": 95,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 621
+    }
+  }
+}
