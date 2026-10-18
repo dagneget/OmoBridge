@@ -170,7 +170,7 @@ Update the counts when you finish a task.
 
 | Phase | Area | Done / Total |
 |---|---|---|
-| FP0 | Foundation and audit | 6 / 8 |
+| FP0 | Foundation and audit | 7 / 8 |
 | FP1 | App shell, design system, PWA core | 0 / 10 |
 | FP2 | Authentication and roles | 0 / 9 |
 | FP3 | Public tourism | 0 / 11 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **6 / 134** |
+| | **Total** | **7 / 134** |
 
 ### What can run in parallel
 
@@ -250,11 +250,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: a sample list query paginates and refetches correctly in a test.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/queryLayer.test.tsx (1/1 passed, 22/22 total), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-007 · MSW mock layer** · T1
+- [x] **F-007 · MSW mock layer** · T1
   Needs: F-004
   Build: MSW handlers typed from OpenAPI for dev and tests; dev toggle (`VITE_USE_MOCKS`); seed-like fixtures for each role.
   Done when: the app runs with mocks and tests use the same handlers.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/mswMocks.test.ts (5/5 passed, 27/27 total), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-008 · Docs skeleton** · T1
   Needs: F-001
@@ -1188,6 +1188,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-004 | Completed | Generated OpenAPI types, typed schema helpers, api:check drift test verified |
 | 2026-10-18 | @claude-agent | F-005 | Completed | Axios HTTP client, token injection, language header, 401/403/409/422/429 normalized, idempotency helper, retry safe |
 | 2026-10-18 | @claude-agent | F-006 | Completed | TanStack Query client, hierarchical query keys, pagination, mobile-conscious stale times, cache invalidators verified |
+| 2026-10-18 | @claude-agent | F-007 | Completed | MSW mock layer, typed handlers from OpenAPI, role fixtures, dev toggle, integration tests verified |
 
 ## 12. Change log (requirements)
 

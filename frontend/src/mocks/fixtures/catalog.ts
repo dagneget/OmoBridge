@@ -1,0 +1,166 @@
+import type {
+  ProductResponse,
+  TourPackageResponse,
+  Hotel,
+  GuideResponse,
+  TransportService,
+  SafetyGuideline,
+  DeliveryTrackingResponse,
+  PublicTraceResponse,
+} from '../../types/api';
+
+export const mockTourPackages: TourPackageResponse[] = [
+  {
+    id: 'pack-001',
+    enterpriseId: '33333333-3333-3333-3333-333333333333',
+    enterpriseName: 'South Omo Eco Tourism',
+    name: 'Mursi & Hamar Cultural Immersion',
+    category: 'CULTURAL',
+    overview: 'Respectful 3-day guided cultural exchange in Hamar and Mursi territories.',
+    story: 'Guided by community elders, learning local traditions, architecture, and pastoral life.',
+    locationText: 'Turmi & Mago National Park',
+    durationHours: 72,
+    maxGroupSize: 8,
+    priceAmount: 4500,
+    priceUnit: 'PER_PERSON',
+    currency: 'ETB',
+    culturalRules: 'Photography requires community consent; respect sacred trees and quiet hours.',
+    safetyNotes: 'Local certified guide and ranger accompaniment mandatory.',
+    isActive: true,
+  },
+  {
+    id: 'pack-002',
+    enterpriseId: '33333333-3333-3333-3333-333333333333',
+    enterpriseName: 'South Omo Eco Tourism',
+    name: 'Lower Omo River Birding & Flora',
+    category: 'ECO_TOUR',
+    overview: 'Sunrise bird watching expedition along the banks of the Omo River.',
+    locationText: 'Omorate & Dassanech Basin',
+    durationHours: 8,
+    maxGroupSize: 6,
+    priceAmount: 1800,
+    priceUnit: 'PER_PERSON',
+    currency: 'ETB',
+    isActive: true,
+  },
+];
+
+export const mockHotels: Hotel[] = [
+  {
+    id: 'hotel-001',
+    name: 'Turmi Desert Lodge & Eco Resort',
+    locationText: 'Turmi, South Omo',
+    priceFrom: 2200,
+    amenities: 'Eco cottages, traditional meals, cultural evening fires',
+    contactPhone: '+251911445566',
+    active: true,
+  },
+  {
+    id: 'hotel-002',
+    name: 'Jinka Mountain View Hotel',
+    locationText: 'Jinka Town, Center',
+    priceFrom: 1600,
+    amenities: 'Mountain panoramas, solar hot water, WiFi',
+    contactPhone: '+251911778899',
+    active: true,
+  },
+];
+
+export const mockGuides: GuideResponse[] = [
+  {
+    id: 'guide-001',
+    userId: '55555555-5555-5555-5555-555555555555',
+    fullName: 'Desta Girmay',
+    bio: 'Native Hamar guide with 10 years experience in community-based eco tourism.',
+    languages: ['Hamer', 'Amharic', 'English'],
+    specialties: 'Cultural heritage, birdwatching, local botany',
+    dailyRate: 800,
+    isAvailable: true,
+  },
+];
+
+export const mockTransportServices: TransportService[] = [
+  {
+    id: 'trans-001',
+    serviceName: 'Omo 4WD Cooperative',
+    vehicleType: '4WD_LAND_CRUISER',
+    priceAmount: 3500,
+    contactPhone: '+251911554433',
+    routeDescription: 'Jinka, Turmi, Omorate, Dimeka, Key Afer',
+    active: true,
+  },
+];
+
+export const mockSafetyGuidelines: SafetyGuideline[] = [
+  {
+    id: 'safe-001',
+    title: 'Cultural Consent & Photography Protocol',
+    content: 'Always ask verbal permission through your guide before taking portraits. Never photograph sacred ceremonies without elder sanction.',
+    category: 'CULTURAL',
+    displayOrder: 1,
+    active: true,
+  },
+  {
+    id: 'safe-002',
+    title: 'Hydration and Solar Protection',
+    content: 'Daytime temperatures frequently exceed 36°C in Lower Omo. Carry at least 3 liters of water per excursion and broad-brimmed hats.',
+    category: 'HEALTH',
+    displayOrder: 2,
+    active: true,
+  },
+];
+
+export const mockProducts: ProductResponse[] = [
+  {
+    id: 'prod-001',
+    name: 'Pure Wild South Omo White Honey (1kg)',
+    description: 'Multi-floral raw honey ethically harvested by traditional beekeepers in the Mago river valley.',
+    unitPrice: 420,
+    availableStock: 150,
+    category: 'Honey & Hive Products',
+    published: true,
+  },
+  {
+    id: 'prod-002',
+    name: 'Organic White Sesame Seeds (5kg)',
+    description: 'Cleaned, sun-dried, pesticide-free sesame cultivated along the fertile Omo floodplains.',
+    unitPrice: 650,
+    availableStock: 300,
+    category: 'Oilseeds & Grains',
+    published: true,
+  },
+  {
+    id: 'prod-003',
+    name: 'Handcrafted Hamar Glass Bead Necklace',
+    description: 'Authentic traditional beadwork crafted by the Turmi Women Artisans Cooperative.',
+    unitPrice: 380,
+    availableStock: 45,
+    category: 'Artisan Crafts',
+    published: true,
+  },
+];
+
+export const mockTrackingResponse: DeliveryTrackingResponse = {
+  jobId: 'job-001',
+  jobNo: 'TRK-OMO-9876',
+  status: 'IN_TRANSIT',
+  currentLatitude: 5.4678,
+  currentLongitude: 36.5678,
+  lastRecordedAt: new Date().toISOString(),
+  history: [
+    {
+      latitude: 5.4678,
+      longitude: 36.5678,
+    },
+  ],
+};
+
+export const mockPublicTrace: PublicTraceResponse = {
+  publicToken: 'TRACE-HONEY-001',
+  batchCode: 'BATCH-2026-09-HONEY',
+  enterpriseName: 'South Omo Beekeeping Union',
+  originVillage: 'Mago River Valley',
+  originLabel: 'Pure Wild Forest Apiary',
+  processingDate: '2026-09-15T00:00:00Z',
+  publicStory: 'Ethically harvested using traditional hanging beehives without colony destruction.',
+};
