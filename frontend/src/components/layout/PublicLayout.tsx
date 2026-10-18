@@ -181,7 +181,7 @@ export default function PublicLayout() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 mt-auto">
+      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 mt-auto" data-testid="public-footer">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-3">
@@ -210,6 +210,7 @@ export default function PublicLayout() {
                 <li><Link to="/hotels" className="hover:text-emerald-700">Resorts & Lodges</Link></li>
                 <li><Link to="/guides" className="hover:text-emerald-700">Local Certified Guides</Link></li>
                 <li><Link to="/transport" className="hover:text-emerald-700">4WD Transport Services</Link></li>
+                <li><Link to="/testimonials" className="hover:text-emerald-700">Visitor Stories & Reviews</Link></li>
               </ul>
             </div>
 
@@ -231,9 +232,9 @@ export default function PublicLayout() {
               </h3>
               <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
                 <li><Link to="/safety-guidelines" className="hover:text-emerald-700">Cultural Etiquette & Photos</Link></li>
-                <li><Link to="/safety-guidelines" className="hover:text-emerald-700">Emergency Contacts</Link></li>
-                <li><Link to="/design-tokens" className="hover:text-emerald-700">Design System & Amharic</Link></li>
                 <li><Link to="/about" className="hover:text-emerald-700">About OmoBridge</Link></li>
+                <li><Link to="/contact" className="hover:text-emerald-700">Contact & Support Desks</Link></li>
+                <li><Link to="/design-tokens" className="hover:text-emerald-700">Design System & Amharic</Link></li>
               </ul>
             </div>
           </div>

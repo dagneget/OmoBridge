@@ -173,7 +173,7 @@ Update the counts when you finish a task.
 | FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 8 / 10 |
 | FP2 | Authentication and roles | 9 / 9 |
-| FP3 | Public tourism | 8 / 11 |
+| FP3 | Public tourism | 9 / 11 |
 | FP4 | Bookings | 5 / 5 |
 | FP5 | Catalog, cart, checkout | 5 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
@@ -447,11 +447,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: renders and handles an empty list.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/testimonialsPage.test.tsx (7/7 passed), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-310 · About and footer** · T3
+- [x] **F-310 · About and footer** · T3
   Needs: F-101
   Build: about page, footer links, partner mentions.
   Done when: pages render.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/aboutAndFooter.test.tsx (4/4 passed), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-311 · Translated content** · T2
   Needs: F-302, F-1601 · Backend: B-203
