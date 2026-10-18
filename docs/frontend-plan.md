@@ -814,11 +814,12 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: mismatches and ledger entries render.
   Owner: —
 
-- [ ] **F-914 · Reports and AI assistant** · T1
+- [x] **F-914 · Reports and AI assistant** · T1
   Needs: F-801 · Backend: B-1204, B-1205, B-1206
   Build: impact metrics (income, producer share, active farmers, repeat buyers); generate weekly reports and training messages in a chosen language; show a "needs review" badge; only approved messages can be used or sent.
   Done when: a report generates from seed data and unapproved content cannot be sent.
-  Owner: —
+  Owner: @antigravity · Completed: 2026-10-18
+  Test: `vitest run src/test/enterpriseReports.test.tsx` (7/7 passed)
 
 - [ ] **F-915 · Media attachment** · T2
   Needs: F-911 · Backend: B-204

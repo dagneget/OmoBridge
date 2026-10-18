@@ -33,6 +33,8 @@ import type {
   ProductStockAdjustmentRequest,
   ProductStockMovementResponse,
   OrderDetailResponse,
+  AiReportResponse,
+  GenerateReportRequest,
 } from '../../types/api';
 
 export const enterpriseService = {
@@ -49,6 +51,28 @@ export const enterpriseService = {
       `/api/v1/enterprises/${enterpriseId}/reports/farmer-balances`
     );
     return res.data?.data || (res.data as unknown as FarmerBalanceSummaryResponse);
+  },
+
+  getEnterpriseReports: async (enterpriseId: string): Promise<AiReportResponse[]> => {
+    const res = await httpClient.get<StandardApiResponse<AiReportResponse[]>>(
+      `/api/v1/enterprises/${enterpriseId}/ai/reports`
+    );
+    return res.data?.data || (res.data as unknown as AiReportResponse[]) || [];
+  },
+
+  generateAiReport: async (enterpriseId: string, req: GenerateReportRequest): Promise<AiReportResponse> => {
+    const res = await httpClient.post<StandardApiResponse<AiReportResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/ai/reports`,
+      req
+    );
+    return res.data?.data || (res.data as unknown as AiReportResponse);
+  },
+
+  approveAiReport: async (enterpriseId: string, reportId: string, approve: boolean): Promise<AiReportResponse> => {
+    const res = await httpClient.patch<StandardApiResponse<AiReportResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/ai/reports/${reportId}/approval?approve=${approve}`
+    );
+    return res.data?.data || (res.data as unknown as AiReportResponse);
   },
 
   // Farmers Management

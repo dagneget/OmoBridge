@@ -24,6 +24,7 @@ import {
   mockProductionBatches,
   mockEnterpriseProducts,
   mockOrderDetails,
+  mockAiReports,
 } from './fixtures/enterprise';
 
 export const handlers = [
@@ -748,6 +749,77 @@ export const handlers = [
     };
 
     return HttpResponse.json({ success: true, data: movement });
+  }),
+
+  // AI Narrative Reports & Assistant (B-1204, B-1205, B-1206)
+  http.get('*/api/v1/enterprises/:enterpriseId/ai/reports', () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockAiReports,
+    });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/ai/reports', async ({ request, params }) => {
+    const { enterpriseId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const reportType = body.reportType || 'WEEKLY_OPERATIONS_SUMMARY';
+    const period = body.period || '2026-W42';
+    const language = body.language || 'EN';
+
+    let content = '';
+    if (reportType === 'FARMER_TRAINING_MESSAGE') {
+      content = language === 'AM'
+        ? `ለደቡብ ኦሞ አምራቾች የጥራት ማሻሻያ መልዕክት: ምርትን በሚሰበስቡበት ወቅት የንጽህና መስፈርቶችን ያክብሩ። ደረጃ ሀ ማር የተሻለ የገበያ ዋጋ ያስገኛል።`
+        : `Farmer Training Guidance (${period}): Maintain strict clean stainless steel harvesting protocols. Grade A honey guarantees top fair-trade cooperative payout rates.`;
+    } else {
+      content = `AI Generated Narrative Operations Report (${period}) [Language: ${language}]:
+- Active Farmers: 48 registered producers across Turmi and Dimeka woredas.
+- Total Farmer Payout: 345,000 ETB distributed with 76.5% producer price share.
+- Production Efficiency: High throughput achieved in certified raw lot processing.
+- Market Outlook: Growing tourist lodge demand for 500g packaged retail honey.`;
+    }
+
+    const newReport = {
+      id: `rep-${Date.now()}`,
+      enterpriseId: String(enterpriseId),
+      reportType,
+      period,
+      language,
+      content,
+      status: 'GENERATED',
+      createdAt: new Date().toISOString(),
+    };
+
+    mockAiReports.unshift(newReport as any);
+
+    return HttpResponse.json(
+      {
+        success: true,
+        message: 'AI Report generated and pending enterprise review',
+        data: newReport,
+      },
+      { status: 201 }
+    );
+  }),
+
+  http.patch('*/api/v1/enterprises/:enterpriseId/ai/reports/:reportId/approval', ({ params, request }) => {
+    const { reportId } = params;
+    const url = new URL(request.url);
+    const approveParam = url.searchParams.get('approve');
+    const isApproved = approveParam === 'true';
+
+    const report = mockAiReports.find((r) => r.id === reportId);
+    if (!report) {
+      return HttpResponse.json({ success: false, message: 'Report not found' }, { status: 404 });
+    }
+
+    report.status = isApproved ? 'APPROVED' : 'REJECTED';
+
+    return HttpResponse.json({
+      success: true,
+      message: `Report ${reportId} has been ${report.status}`,
+      data: report,
+    });
   }),
 ];
 

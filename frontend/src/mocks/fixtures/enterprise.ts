@@ -15,6 +15,7 @@ import type {
   ProductionBatchResponse,
   ProductResponse,
   OrderDetailResponse,
+  AiReportResponse,
 } from '../../types/api';
 
 export const mockImpactMetrics: EnterpriseImpactMetricsResponse = {
@@ -893,6 +894,48 @@ export const mockOrderDetails: Record<string, OrderDetailResponse> = {
     createdAt: '2026-10-16T14:00:00Z',
   },
 };
+
+export const mockAiReports: AiReportResponse[] = [
+  {
+    id: 'rep-001',
+    enterpriseId: '33333333-3333-3333-3333-333333333333',
+    reportType: 'WEEKLY_OPERATIONS_SUMMARY',
+    period: '2026-W42',
+    language: 'EN',
+    content: `Weekly Operational & Fair-Trade Performance Summary:
+- Total Raw Intake: 485.5 kg raw honey received across 5 certified producer cooperatives.
+- Quality Pass Rate: 96.2% accepted Grade A.
+- Farmer Disbursements: 38,500.00 ETB distributed with zero outstanding overdue balance.
+- Community Impact: 76.5% fair-trade producer price share maintained (+14% above local middleman spot rates).
+- Recommended Action: Expand supers inventory in Turmi Bay A ahead of secondary acacia flowering.`,
+    status: 'APPROVED',
+    createdAt: '2026-10-17T08:00:00Z',
+  },
+  {
+    id: 'rep-002',
+    enterpriseId: '33333333-3333-3333-3333-333333333333',
+    reportType: 'FARMER_TRAINING_MESSAGE',
+    period: '2026-W42',
+    language: 'AM',
+    content: `ለደቡብ ኦሞ ማር አምራች አርሶ አደሮች ሳምንታዊ የጥራት ምክር:
+የማር እንጀራ በሚሰበሰብበት ወቅት ንጽህናቸውን የጠበቁ አይዝጌ እቃዎችን ይጠቀሙ። ማር ከጭስና ከእርጥበት የተጠበቀ መሆኑ ከፍተኛ ዋጋ (ደረጃ ሀ) የሚያስገኝ መሆኑን የህብረት ስራ ማህበሩ ያሳስባል።`,
+    status: 'GENERATED',
+    createdAt: '2026-10-18T09:30:00Z',
+  },
+  {
+    id: 'rep-003',
+    enterpriseId: '33333333-3333-3333-3333-333333333333',
+    reportType: 'IMPACT_ASSESSMENT',
+    period: '2026-Q3',
+    language: 'EN',
+    content: `Q3 Fair-Trade Ecological & Economic Co-benefit Report:
+- Total Beneficiary Households: 48 registered agro-pastoralist beekeepers in Dimeka & Turmi.
+- Income Increment: Average household seasonal disposable income grew by 4,200 ETB.
+- Preservation Dividend: 3% community conservation fund reserved (11,400 ETB allocated to Keske watershed protection).`,
+    status: 'APPROVED',
+    createdAt: '2026-10-15T14:00:00Z',
+  },
+];
 
 
 

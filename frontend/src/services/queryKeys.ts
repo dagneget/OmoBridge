@@ -109,6 +109,7 @@ export const queryKeys = {
     product: (enterpriseId: string, productId: string) => [...queryKeys.enterprise.all, 'product', enterpriseId, productId] as const,
     tourismPackages: (enterpriseId: string) => [...queryKeys.enterprise.all, 'tourismPackages', enterpriseId] as const,
     bookings: (enterpriseId: string) => [...queryKeys.enterprise.all, 'bookings', enterpriseId] as const,
+    reports: (enterpriseId: string) => [...queryKeys.enterprise.all, 'reports', enterpriseId] as const,
   },
   farmer: {
     all: ['farmer'] as const,
