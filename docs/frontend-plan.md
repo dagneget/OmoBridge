@@ -173,9 +173,9 @@ Update the counts when you finish a task.
 | FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 8 / 10 |
 | FP2 | Authentication and roles | 9 / 9 |
-| FP3 | Public tourism | 7 / 11 |
+| FP3 | Public tourism | 8 / 11 |
 | FP4 | Bookings | 5 / 5 |
-| FP5 | Catalog, cart, checkout | 4 / 9 |
+| FP5 | Catalog, cart, checkout | 5 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 0 / 10 |
@@ -441,11 +441,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: all three pages render from the API.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/safetyAndContact.test.tsx (5/5 passed, 133/133 total), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-309 · Testimonials** · T2
+- [x] **F-309 · Testimonials** · T2
   Needs: F-302 · Backend: B-1202
   Build: public reviews with averages.
   Done when: renders and handles an empty list.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/testimonialsPage.test.tsx (7/7 passed), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-310 · About and footer** · T3
   Needs: F-101
@@ -525,11 +525,13 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Scope: Only IDs and quantities persisted; grouping/stock/price snapshots are server-derived and transient. Historical price changes across reload cannot be detected without persisting prices; first read establishes baseline. Fresh reads use existing HTTP adapter plus no-cache/NetworkOnly after a Firefox fetch-adapter timeout cleanup failure was reproduced and avoided. Account/tab boundaries and overlapping requests tested.
   Delivery: `feat/cart-store` · Commit(s): `6ad5b33`. Implementation is on isolated branches; not merged into this checkout.
 
-- [ ] **F-504 · Cart page** · T1
+- [x] **F-504 · Cart page** · T1
   Needs: F-503
   Build: cart view grouped by seller, quantity controls, a note that the final price is confirmed at checkout.
   Done when: tests cover add, change, remove and an unavailable item.
-  Owner: —
+  Done: @codex · 2026-10-18 · Tests: Node 22 typecheck, lint, build, npm test → passed (267 tests, 36 files; 21 cart UI tests).
+  Verified: Product-detail add controls; seller groups; fractional quantity/save drafts; remove/clear/focus; price/stock/unavailable warnings; all four states; English/Amharic fallback. Firefox exact 360 px viewport has no cart overflow or axe violations including contrast; keyboard add/edit/remove/clear works; loading, empty, error/recovery and offline states exercised. Live OpenAPI rechecked; populated UI uses contract-based MSW. Public local cart needs no role guard.
+  Delivery: `feat/cart-page` · Commit: `731dc57` (isolated branch, awaiting merge). Checkout navigation points to the existing route; order creation remains F-505. No authoritative totals are computed.
 
 - [ ] **F-505 · Checkout** · T1
   Needs: F-504, F-207 · Backend: B-802, B-205
@@ -1242,6 +1244,8 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @codex | F-107, F-501, F-507 | Implemented; verification pending | Shared board synchronized from isolated branches; remaining browser/device checks retained as [!], with delivery references. |
 
 | 2026-10-18 | @codex | F-107, F-501, F-507 | Marked [x] at user request | Implementation complete on referenced branches; outstanding verification and merge notes remain applicable. |
+
+| 2026-10-18 | @codex | F-504 | Completed on isolated branch | 731dc57: cart/add controls, English/Amharic and 21 UI tests; 267 total tests, typecheck/lint/build and Firefox 360 px keyboard/contrast/all-state checks pass. Awaiting merge. |
 
 ## 12. Change log (requirements)
 

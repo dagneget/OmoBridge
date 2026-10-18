@@ -80,7 +80,9 @@ export const queryKeys = {
   },
   reviews: {
     all: ['reviews'] as const,
+    testimonials: () => [...queryKeys.reviews.all, 'testimonials'] as const,
     forTarget: (targetType: string, targetId: string) => [...queryKeys.reviews.all, targetType, targetId] as const,
     summary: (targetType: string, targetId: string) => [...queryKeys.reviews.all, 'summary', targetType, targetId] as const,
+    user: () => [...queryKeys.reviews.all, 'user'] as const,
   },
 };
