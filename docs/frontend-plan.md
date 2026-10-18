@@ -538,11 +538,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Verification: Firefox 360 × 800 CSS viewport, keyboard delivery/coordinates/submit/retry, empty/loading/error/offline, stock checks, locked identical retries and confirmed cart cleanup; no horizontal overflow or feature contrast violations. Browser uses MSW; real financial transactions and physical devices were not tested.
   Delivery: `feat/checkout` (isolated branch, awaiting merge). F-506 owns countdown/payment navigation. Backend full suite ran: 129 tests, 0 assertion failures, 4 errors (three known delivery cleanup foreign-key errors and one PostgreSQL container startup error); no backend changes.
 
-- [ ] **F-506 · Checkout result** · T1
+- [~] **F-506 · Checkout result** · T1
   Needs: F-505 · Backend: B-801, B-803
   Build: checkout group summary with one order per seller; reservation countdown; expired state; links to pay each order.
   Done when: countdown and expiry states render correctly.
-  Owner: —
+  Owner: @codex · Started: 2026-10-18 · Branch: `feat/checkout-result` (isolated worktree)
 
 - [x] **F-507 · Price transparency component** · T1
   Needs: F-102, F-104
