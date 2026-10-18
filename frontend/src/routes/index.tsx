@@ -22,6 +22,7 @@ const SafetyGuidelinesPage = lazy(() => import('../pages/public/SafetyGuidelines
 const TestimonialsPage = lazy(() => import('../pages/public/TestimonialsPage'));
 const ContactPage = lazy(() => import('../pages/public/ContactPage'));
 const BookingPage = lazy(() => import('../pages/public/BookingPage'));
+const BookingConfirmationPage = lazy(() => import('../pages/public/BookingConfirmationPage'));
 const CartPage = lazy(() => import('../pages/public/CartPage'));
 const CheckoutPage = lazy(() => import('../pages/public/CheckoutPage'));
 const AboutPage = lazy(() => import('../pages/public/AboutPage'));
@@ -94,6 +95,8 @@ export default function AppRoutes() {
             <Route path="/testimonials" element={<TestimonialsPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/booking" element={<BookingPage />} />
+            <Route path="/booking/confirmation" element={<BookingConfirmationPage />} />
+            <Route path="/booking/confirmation/:id" element={<BookingConfirmationPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/about" element={<AboutPage />} />

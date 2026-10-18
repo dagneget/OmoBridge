@@ -3,6 +3,7 @@ import type {
   SessionResponse,
   BookingCreateRequest,
   BookingResponse,
+  BookingStatusUpdateRequest,
   PriceBreakdownResponse,
   StandardApiResponse,
 } from '../../types/api';
@@ -86,6 +87,23 @@ export const bookingService = {
       '/api/v1/bookings/my'
     );
     return response.data.data || [];
+  },
+
+  /**
+   * Update booking status (cancel, etc.)
+   */
+  async updateStatus(
+    id: string,
+    payload: BookingStatusUpdateRequest
+  ): Promise<BookingResponse> {
+    const response = await httpClient.patch<StandardApiResponse<BookingResponse>>(
+      `/api/v1/bookings/${id}/status`,
+      payload
+    );
+    if (!response.data.data) {
+      throw new Error(response.data.message || 'Failed to update booking status');
+    }
+    return response.data.data;
   },
 };
 

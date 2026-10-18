@@ -1,12 +1,12 @@
 import React from 'react';
 
-export interface StatusChipProps {
+export interface StatusChipProps extends React.HTMLAttributes<HTMLSpanElement> {
   status: string;
   label?: string;
   className?: string;
 }
 
-export const StatusChip: React.FC<StatusChipProps> = ({ status, label, className = '' }) => {
+export const StatusChip: React.FC<StatusChipProps> = ({ status, label, className = '', ...props }) => {
   const norm = status?.toUpperCase() || 'UNKNOWN';
 
   let colorClasses = 'bg-muted text-muted-foreground border-border';
@@ -63,6 +63,7 @@ export const StatusChip: React.FC<StatusChipProps> = ({ status, label, className
   return (
     <span
       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${colorClasses} ${className}`}
+      {...props}
     >
       <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} aria-hidden="true" />
       <span>{displayLabel}</span>
