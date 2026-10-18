@@ -529,11 +529,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Verified: Product-detail add controls; seller groups; fractional quantity/save drafts; remove/clear/focus; price/stock/unavailable warnings; all four states; English/Amharic fallback. Firefox exact 360 px viewport has no cart overflow or axe violations including contrast; keyboard add/edit/remove/clear works; loading, empty, error/recovery and offline states exercised. Live OpenAPI rechecked; populated UI uses contract-based MSW. Public local cart needs no role guard.
   Delivery: feat/cart-page (isolated branch, awaiting merge). Checkout navigation points to the existing route; order creation remains F-505. No authoritative totals are computed.
 
-- [ ] **F-505 · Checkout** · T1
+- [~] **F-505 · Checkout** · T1
   Needs: F-504, F-207 · Backend: B-802, B-205
   Build: delivery address with a map pin, contact details; submit only product ids and quantities with an idempotency key; show insufficient-stock errors per item; all-or-nothing behavior.
   Done when: tests cover success, insufficient stock, repeated submit, and a tampered cart.
-  Owner: —
+  Owner: @codex · Started: 2026-10-18 · Branch: `feat/checkout` (isolated worktree)
 
 - [ ] **F-506 · Checkout result** · T1
   Needs: F-505 · Backend: B-801, B-803
