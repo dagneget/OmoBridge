@@ -64,6 +64,7 @@ function renderConfirmationPage(bookingId = 'b888-pay-test') {
 describe('Pay for a booking (F-405)', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.spyOn(bookingService, 'getBookingById').mockResolvedValue({ ...confirmedBooking, status: 'PAID' });
   });
 
   it('opens Telebirr payment modal with amount and booking reference', async () => {
@@ -128,8 +129,8 @@ describe('Pay for a booking (F-405)', () => {
     });
   });
 
-  it('handles payment success and updates booking state', async () => {
-    vi.spyOn(bookingService, 'getBookingById').mockResolvedValue(confirmedBooking);
+  it('updates booking state only after server-confirmed payment', async () => {
+    vi.spyOn(bookingService, 'getBookingById').mockResolvedValueOnce(confirmedBooking).mockResolvedValue({ ...confirmedBooking, status: 'PAID' });
     const attemptSpy = vi.spyOn(paymentService, 'createAttempt').mockResolvedValue({
       attemptId: 'att-1',
       paymentId: 'pay-1',
@@ -164,7 +165,8 @@ describe('Pay for a booking (F-405)', () => {
         bookingId: 'b888-pay-test',
         provider: 'TELEBIRR',
         idempotencyKey: expect.any(String),
-      })
+      }),
+      expect.any(AbortSignal)
     );
 
     // Close modal via Done button
