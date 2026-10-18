@@ -1,5 +1,9 @@
 import { http, HttpResponse } from 'msw';
-import type { CheckoutRequest, CheckoutResponse } from '../types/api';
+import type {
+  CheckoutRequest,
+  CheckoutResponse,
+  OrderDetailResponse,
+} from '../types/api';
 import { mockUsers, createMockAuthResponse } from './fixtures/users';
 
 // Deliberately fixed demo scenario: one honey unit. No production totals are calculated here.
@@ -73,5 +77,41 @@ export const checkoutHandler = http.post(
       { success: true, data: mockCheckout },
       { status: 201 },
     );
+  },
+);
+
+export const mockOrderConfirmation: OrderDetailResponse = {
+  ...mockCheckout.orders![0],
+  checkoutGroupId: mockCheckout.checkoutGroupId,
+  checkoutGroupNo: mockCheckout.groupNo,
+  buyerId: mockUsers.buyer.id,
+  deliveryAddress: 'Jinka market',
+  deliveryPhone: '+251911000001',
+  items: [],
+  statusHistories: [],
+};
+export const orderConfirmationHandler = http.get(
+  '*/api/v1/orders/:id',
+  ({ request, params }) => {
+    const user = Object.values(mockUsers).find(
+      (candidate) =>
+        request.headers.get('Authorization') ===
+        `Bearer ${createMockAuthResponse(candidate).accessToken}`,
+    );
+    if (!user)
+      return HttpResponse.json(
+        { message: 'Authentication required' },
+        { status: 401 },
+      );
+    if (
+      params.id !== mockOrderConfirmation.orderId ||
+      ![...confirmed.keys()].some((key) => key.startsWith(`${user.id}:`))
+    ) {
+      return HttpResponse.json({ message: 'Order not found' }, { status: 404 });
+    }
+    return HttpResponse.json({
+      success: true,
+      data: { ...mockOrderConfirmation, buyerId: user.id },
+    });
   },
 );

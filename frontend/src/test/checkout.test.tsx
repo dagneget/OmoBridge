@@ -6,6 +6,8 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { orderConfirmationService } from '../features/checkout/orderConfirmationService';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import axe from 'axe-core';
@@ -49,14 +51,20 @@ const result: CheckoutResponse = {
 };
 function show() {
   return render(
-    <main>
-      <MemoryRouter initialEntries={['/checkout']}>
-        <Routes>
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/login" element={<p>Login screen</p>} />
-        </Routes>
-      </MemoryRouter>
-    </main>,
+    <QueryClientProvider
+      client={
+        new QueryClient({ defaultOptions: { queries: { retry: false } } })
+      }
+    >
+      <main>
+        <MemoryRouter initialEntries={['/checkout']}>
+          <Routes>
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/login" element={<p>Login screen</p>} />
+          </Routes>
+        </MemoryRouter>
+      </main>
+    </QueryClientProvider>,
   );
 }
 function fill() {
@@ -82,6 +90,15 @@ beforeEach(async () => {
   useCheckoutStore.getState().reset();
   cartStore.getState().clear();
   cartStore.getState().add(id, 1);
+  vi.spyOn(orderConfirmationService, 'get').mockResolvedValue({
+    orderId: result.orders![0].orderId,
+    checkoutGroupId: result.checkoutGroupId,
+    enterpriseId: seller,
+    buyerId: 'buyer',
+    status: 'PLACED',
+    totalAmount: 999,
+    currency: 'ETB',
+  });
   vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true);
   vi.spyOn(productService, 'getProduct').mockResolvedValue({ ...product });
   vi.spyOn(checkoutService, 'submit').mockResolvedValue(result);
@@ -381,7 +398,9 @@ describe('Checkout F-505', () => {
     expect(
       screen.getByText('Server-confirmed total: 1234.00 ETB'),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Artisans · ORD-002/)).toBeInTheDocument();
+    expect(screen.getByRole('article', { name: 'Artisans' })).toHaveTextContent(
+      'ORD-002',
+    );
   });
   it('creates a new key only after a definite rejection and a corrected action', async () => {
     vi.mocked(checkoutService.submit)

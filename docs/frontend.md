@@ -359,3 +359,11 @@ See [cart integration guide](../frontend/src/features/cart/README.md).
 The page starts stored-session verification locally where needed; shared startup/layout files were left untouched. See `frontend/src/features/checkout/README.md` for the fixed MSW demo scenario, in-memory retry lifetime and F-506 handoff. Backend idempotency ownership and structured stock-error gaps are recorded in the task board. This branch remains isolated pending integration with the other frontend agent's work.
 
 F-505 verification: Node 22 typecheck, lint, build and all 300 Vitest tests (39 files) pass. Firefox at an exact 360 × 800 CSS viewport verifies keyboard delivery entry, coordinates, submit/retry, all data states, same-payload retry and confirmed cart cleanup; no feature overflow or axe violations including contrast. Backend suite: 129 tests, zero assertion failures, four errors (three delivery cleanup foreign-key errors and one PostgreSQL container startup error). No backend changes.
+
+## F-506 checkout result (integration pending)
+
+Successful checkout now renders one order card per seller with server totals, independent authenticated status lookups, refresh, and loading/empty/error/offline states. Responses must match order, group, seller and buyer. Payment actions remain disabled without a real payment destination and while offline or unverified; paying one seller never changes another seller's displayed status. Private query data expires on unmount.
+
+The standalone reservation countdown and confirmed-expiry view are implemented. The live API exposes no deadline, so the current page reports it as unavailable; `createdAt + 30 minutes` is never presented as authoritative. F-506 stays `[!]` until the backend supplies a deadline and F-601/F-602 provide payment routes. See `frontend/src/features/checkout/RESULT_HANDOFF.md` for wiring and verification limits.
+
+F-506 verification: Node 22 typecheck, lint, build and all 336 Vitest tests (42 files) pass. Firefox 360 × 800 CSS viewport passes keyboard submit/refresh/new-checkout, loading/error/offline, simulated server expiry, overflow and feature contrast checks. Backend verification repeats the same 129-test baseline with four errors (three delivery cleanup foreign-key errors and one PostgreSQL container startup error); no backend files changed.

@@ -7,6 +7,7 @@ import {
   normalizeEthiopianPhone,
 } from '../../utils/phone';
 import { useCheckoutStore } from './checkoutStore';
+import { CheckoutResult } from './CheckoutResult';
 import { useCheckoutText } from './useCheckoutText';
 const DeliveryMap = lazy(() => import('./DeliveryMap'));
 const control =
@@ -67,31 +68,10 @@ export function CheckoutForm() {
         {t('title')}
       </h1>
       {result ? (
-        <div role="status" className="space-y-3">
-          <h2 className="text-xl font-semibold">{t('success')}</h2>
-          <p>{t('group', { reference: result.groupNo! })}</p>
-          <p>
-            {t('total', {
-              total: `${result.totalAmount!.toFixed(2)} ${result.currency}`,
-            })}
-          </p>
-          <h3 className="font-semibold">{t('orders')}</h3>
-          <ul className="space-y-2">
-            {result.orders!.map((order) => (
-              <li key={order.orderId}>
-                {order.enterpriseName ?? t('unknown')} · {order.orderNo} ·{' '}
-                {order.totalAmount!.toFixed(2)} {order.currency}
-              </li>
-            ))}
-          </ul>
-          <button
-            type="button"
-            className={control}
-            onClick={() => checkout.reset()}
-          >
-            {t('newOrder')}
-          </button>
-        </div>
+        <CheckoutResult
+          result={result}
+          onNewCheckout={() => checkout.reset()}
+        />
       ) : (
         <>
           <p>{t('intro')}</p>

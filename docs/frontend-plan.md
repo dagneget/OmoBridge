@@ -538,11 +538,16 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Verification: Firefox 360 × 800 CSS viewport, keyboard delivery/coordinates/submit/retry, empty/loading/error/offline, stock checks, locked identical retries and confirmed cart cleanup; no horizontal overflow or feature contrast violations. Browser uses MSW; real financial transactions and physical devices were not tested.
   Delivery: `feat/checkout` (isolated branch, awaiting merge). F-506 owns countdown/payment navigation. Backend full suite ran: 129 tests, 0 assertion failures, 4 errors (three known delivery cleanup foreign-key errors and one PostgreSQL container startup error); no backend changes.
 
-- [~] **F-506 · Checkout result** · T1
+- [!] **F-506 · Checkout result** · T1
   Needs: F-505 · Backend: B-801, B-803
   Build: checkout group summary with one order per seller; reservation countdown; expired state; links to pay each order.
   Done when: countdown and expiry states render correctly.
   Owner: @codex · Started: 2026-10-18 · Branch: `feat/checkout-result` (isolated worktree)
+
+  Implemented: @codex · 2026-10-18 · Per-seller summary, server totals, authenticated order status refresh with order/group/seller/buyer checks, offline/error states, explicit server-expiry display, translated UI and tested standalone countdown. Optional per-order payment-route handoff; absent routes stay disabled.
+  Tests: Node 22 typecheck, lint, build and npm test → passed (336 tests, 42 files). Firefox 360 × 800 CSS viewport: keyboard submit/refresh/new-checkout, loading/error/offline, simulated server expiry, no horizontal overflow or feature axe/contrast violations. MSW fixtures only; physical devices and real payments were not tested.
+  Blocked: Live OpenAPI exposes no reservation deadline or reservation-read endpoint; countdown cannot be wired without a contract change. Order-payment destinations are not connected on this isolated branch. Primary already has F-405’s shared Telebirr modal/service (`fc16594`), which should be reused during integration. No invented API field, `createdAt + 30 minutes` deadline, or dead payment link. See gap F-506-E1 and `features/checkout/RESULT_HANDOFF.md`.
+  Delivery: `feat/checkout-result` (isolated branch, awaiting integration). Backend full suite ran: 129 tests, 0 assertion failures, 4 existing errors (three delivery cleanup foreign-key errors and one PostgreSQL container startup error); no backend changes.
 
 - [x] **F-507 · Price transparency component** · T1
   Needs: F-102, F-104
@@ -1202,6 +1207,8 @@ Confirm each against the real backend before the affected task. Do not invent en
 | F-505-I1 | F-505 | Is checkout idempotent replay scoped to the authenticated buyer and original payload? | Open: `CheckoutService.checkout` looks up only `idempotencyKey` and returns the group without checking buyer/payload. Backend must enforce ownership and reject mismatches. Frontend keys are random and session-scoped; no backend code changed. |
 | F-505-S1 | F-505 | Can insufficient-stock failures identify affected product IDs? | Open: the service returns a free-text `BUSINESS_RULE_VIOLATION`, without a structured product ID. Frontend refreshes public product checks for per-item errors and retains a generic rejection if a transient race cannot be reproduced. |
 
+| F-506-E1 | F-506 | Where is the authoritative per-order reservation deadline? | Open: live OpenAPI `CheckoutResponse` and `OrderDetailResponse` have no expiry field and no reservation-read endpoint. Backend must expose the deadline and regenerate the contract. The frontend shows unknown timing; only explicit server cancellation history is treated as expired. Generic countdown is tested but cannot be wired to live data yet. |
+
 ## 11. Activity log
 
 Add a row for every claim, completion and blocker. Newest at the bottom.
@@ -1283,3 +1290,5 @@ Activity: 2026-10-18 · @codex · F-107 · Implemented; placement and device ver
 Activity: 2026-10-18 · @codex · F-502 · Claimed · FP5 ownership delegated by user; product detail on isolated branch using existing catalog/pricing implementations.
 
 Activity: 2026-10-18 · @codex · F-505 · Completed on isolated branch · Typed checkout, delivery map/keyboard pin, fresh per-item cart checks, same-key retries, complete seller confirmation and network-only worker routing. All 300 frontend tests pass; backend baseline errors recorded above.
+
+Activity: 2026-10-18 · @codex · F-506 · Implemented; integration blocked · Per-seller confirmation and refresh, standalone countdown and server-reported expiry UI; frontend checks/336 tests and Firefox 360 px keyboard/contrast pass. Waiting for backend deadline and real payment routes; task remains [!].

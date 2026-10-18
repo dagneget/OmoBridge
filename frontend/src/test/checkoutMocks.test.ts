@@ -1,6 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { server } from '../mocks/server';
-import { mockCheckout } from '../mocks/checkoutHandler';
+import { mockCheckout, mockOrderConfirmation } from '../mocks/checkoutHandler';
 import { mockUsers, createMockAuthResponse } from '../mocks/fixtures/users';
 import type { CheckoutRequest } from '../types/api';
 const payload: CheckoutRequest = {
@@ -39,6 +39,27 @@ describe('Checkout MSW demo contract', () => {
       deliveryAddress: 'Changed address ignored by idempotent replay',
     });
     expect((await retry.json()).data).toEqual(mockCheckout);
+  });
+  it('returns generated order details only to a session with a completed demo checkout', async () => {
+    await post({ ...payload, idempotencyKey: 'result-demo-test' });
+    const url = `http://localhost/api/v1/orders/${mockOrderConfirmation.orderId}`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${createMockAuthResponse(mockUsers.buyer).accessToken}`,
+      },
+    });
+    expect(response.status).toBe(200);
+    expect((await response.json()).data).toEqual(mockOrderConfirmation);
+    expect(
+      (
+        await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${createMockAuthResponse(mockUsers.guide).accessToken}`,
+          },
+        })
+      ).status,
+    ).toBe(404);
+    expect((await fetch(url)).status).toBe(401);
   });
   it('rejects unsupported demo carts explicitly rather than inventing their totals', async () => {
     const response = await post({
