@@ -170,7 +170,7 @@ Update the counts when you finish a task.
 
 | Phase | Area | Done / Total |
 |---|---|---|
-| FP0 | Foundation and audit | 7 / 8 |
+| FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 0 / 10 |
 | FP2 | Authentication and roles | 0 / 9 |
 | FP3 | Public tourism | 0 / 11 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **7 / 134** |
+| | **Total** | **8 / 134** |
 
 ### What can run in parallel
 
@@ -256,11 +256,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: the app runs with mocks and tests use the same handlers.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/mswMocks.test.ts (5/5 passed, 27/27 total), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-008 · Docs skeleton** · T1
+- [x] **F-008 · Docs skeleton** · T1
   Needs: F-001
   Build: `docs/frontend.md` (structure, routes and roles table, conventions, how to run), entries in `docs/decisions.md`.
   Done when: a new developer can run the frontend with the docs alone.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: docs/frontend.md created with complete architecture, routes matrix, conventions, and run guide
 
 ---
 
@@ -1189,6 +1189,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-005 | Completed | Axios HTTP client, token injection, language header, 401/403/409/422/429 normalized, idempotency helper, retry safe |
 | 2026-10-18 | @claude-agent | F-006 | Completed | TanStack Query client, hierarchical query keys, pagination, mobile-conscious stale times, cache invalidators verified |
 | 2026-10-18 | @claude-agent | F-007 | Completed | MSW mock layer, typed handlers from OpenAPI, role fixtures, dev toggle, integration tests verified |
+| 2026-10-18 | @claude-agent | F-008 | Completed | Docs skeleton docs/frontend.md created with complete architecture, routes matrix, conventions, run guide; FP0 completed |
 
 ## 12. Change log (requirements)
 
