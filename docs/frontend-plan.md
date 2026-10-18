@@ -173,7 +173,7 @@ Update the counts when you finish a task.
 | FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 7 / 10 |
 | FP2 | Authentication and roles | 9 / 9 |
-| FP3 | Public tourism | 0 / 11 |
+| FP3 | Public tourism | 1 / 11 |
 | FP4 | Bookings | 0 / 5 |
 | FP5 | Catalog, cart, checkout | 0 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **24 / 134** |
+| | **Total** | **25 / 134** |
 
 ### What can run in parallel
 
@@ -388,11 +388,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
 
 ### FP3: Public tourism
 
-- [ ] **F-301 · Home page** · T1
+- [x] **F-301 · Home page** · T1
   Needs: F-101, F-209 · Backend: B-302
   Build: hero, join buttons, featured packages, language switcher, links to tourism and products.
   Done when: renders with seed data and offline after one visit.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/homePage.test.tsx (3/3 passed, 110/110 total), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-302 · Service packages list** · T1
   Needs: F-006 · Backend: B-302
@@ -1206,6 +1206,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-207 | Completed | RoleGuard for 7 roles, ForbiddenPage 403 handling, post-login return path redirect, and multi-role RoleSwitcher verified |
 | 2026-10-18 | @claude-agent | F-209 | Completed | JoinPage with role registration cards (producer, enterprise, courier, guide, buyer), USSD notice, and 360px viewport responsiveness verified |
 | 2026-10-18 | @claude-agent | F-208 | Completed | AccountPage with profile view, language preference persistence, linked enterprise & farmer profiles verified; FP2 100% completed |
+| 2026-10-18 | @claude-agent | F-301 | Completed | HomePage with hero, seed packages from API, role registration cards, language toggle, and offline cache resilience verified |
 
 ## 12. Change log (requirements)
 
