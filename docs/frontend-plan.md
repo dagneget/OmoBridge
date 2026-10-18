@@ -171,7 +171,7 @@ Update the counts when you finish a task.
 | Phase | Area | Done / Total |
 |---|---|---|
 | FP0 | Foundation and audit | 8 / 8 |
-| FP1 | App shell, design system, PWA core | 6 / 10 |
+| FP1 | App shell, design system, PWA core | 7 / 10 |
 | FP2 | Authentication and roles | 0 / 9 |
 | FP3 | Public tourism | 0 / 11 |
 | FP4 | Bookings | 0 / 5 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **14 / 134** |
+| | **Total** | **15 / 134** |
 
 ### What can run in parallel
 
@@ -308,11 +308,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: works in Android Chrome; the card hides after install.
   Owner: —
 
-- [ ] **F-108 · Offline UX** · T1
+- [x] **F-108 · Offline UX** · T1
   Needs: F-101
   Build: connectivity indicator, offline fallback page, offline banners, disabling actions that need the network with an explanation.
   Done when: going offline in a test shows the banner and disables network-only buttons.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/offlineUX.test.tsx (5/5 passed, 74/74 total), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-109 · Update flow** · T2
   Needs: F-105
@@ -1196,6 +1196,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-104 | Completed | Formatting utilities (ETB currency, quantity pluralization, Africa/Addis_Ababa UTC+3 timezone date/time, decimal-safe helpers, status i18n keys) verified |
 | 2026-10-18 | @claude-agent | F-105 | Completed | PWA manifest, standalone display, #047857 theme color, 192/512/maskable icons, prompt update mode verified |
 | 2026-10-18 | @claude-agent | F-106 | Completed | Workbox runtime caching strategy (NetworkOnly on auth/payments/orders/delivery, StaleWhileRevalidate on public catalog/tourism/locales, /api fallback denylist) verified |
+| 2026-10-18 | @claude-agent | F-108 | Completed | Offline UX (useNetworkStatus hook, OfflineBanner in Public/Auth/Dashboard layouts, NetworkButton disabled state with explanation, /offline fallback view) verified |
 
 ## 12. Change log (requirements)
 

@@ -18,6 +18,7 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import { TOKEN_STORAGE_KEY } from '../../services/httpClient';
+import { OfflineBanner } from '../common/OfflineBanner';
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -161,6 +162,7 @@ export default function DashboardLayout() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
+        <OfflineBanner />
         {/* Top Navbar */}
         <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">

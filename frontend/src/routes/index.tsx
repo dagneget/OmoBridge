@@ -22,6 +22,7 @@ const BookingPage = lazy(() => import('../pages/public/BookingPage'));
 const CartPage = lazy(() => import('../pages/public/CartPage'));
 const CheckoutPage = lazy(() => import('../pages/public/CheckoutPage'));
 const AboutPage = lazy(() => import('../pages/public/AboutPage'));
+const OfflinePage = lazy(() => import('../pages/public/OfflinePage'));
 const DesignTokensPage = lazy(() => import('../pages/public/DesignTokensPage'));
 const NotFoundPage = lazy(() => import('../pages/public/NotFoundPage'));
 
@@ -74,6 +75,7 @@ export default function AppRoutes() {
             <Route path="/trace/:token" element={<PublicTracePage />} />
             <Route path="/track/:token" element={<LiveTrackingPage />} />
             <Route path="/design-tokens" element={<DesignTokensPage />} />
+            <Route path="/offline" element={<OfflinePage />} />
           </Route>
 
           {/* Authentication Layout */}

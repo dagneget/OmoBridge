@@ -13,6 +13,7 @@ import {
   Moon,
 } from 'lucide-react';
 import { TOKEN_STORAGE_KEY } from '../../services/httpClient';
+import { OfflineBanner } from '../common/OfflineBanner';
 
 export default function PublicLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -39,6 +40,9 @@ export default function PublicLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans">
+      {/* Offline Status Banner */}
+      <OfflineBanner />
+
       {/* Top Notification / Banner */}
       <div className="bg-emerald-900 text-emerald-100 text-xs py-1.5 px-4 text-center font-medium">
         Connecting South Omo agricultural producers and community eco-tourism directly to markets

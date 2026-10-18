@@ -1,10 +1,12 @@
 import { Suspense } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { OfflineBanner } from '../common/OfflineBanner';
 
 export default function AuthLayout() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans">
+      <OfflineBanner />
       {/* Top Header */}
       <header className="p-4 sm:p-6 max-w-7xl mx-auto w-full flex items-center justify-between">
         <Link
