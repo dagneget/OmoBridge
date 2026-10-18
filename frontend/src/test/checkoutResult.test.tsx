@@ -64,17 +64,13 @@ const detailB: OrderDetailResponse = {
   statusHistories: [],
 };
 let client: QueryClient;
-function show(data = result, paymentHref?: (id: string) => string | undefined) {
+function show(data = result) {
   const onNewCheckout = vi.fn();
   const view = render(
     <main>
       <MemoryRouter>
         <QueryClientProvider client={client}>
-          <CheckoutResult
-            result={data}
-            onNewCheckout={onNewCheckout}
-            paymentHref={paymentHref}
-          />
+          <CheckoutResult result={data} onNewCheckout={onNewCheckout} />
         </QueryClientProvider>
       </MemoryRouter>
     </main>,
@@ -134,7 +130,7 @@ describe('Checkout result F-506', () => {
     vi.mocked(orderConfirmationService.get).mockReturnValue(
       new Promise(() => {}),
     );
-    show(result, (id) => `/pay/${id}`);
+    show(result);
     expect(screen.getByText('Checking your orders…')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Pay order ORD-A' }),
@@ -147,35 +143,46 @@ describe('Checkout result F-506', () => {
     ).toBeInTheDocument();
     expect(screen.queryByText('Order created')).not.toBeInTheDocument();
   });
-  it('keeps missing payment routes disabled rather than linking to an unfinished page', async () => {
+  it('enables the integrated payment action only after server verification', async () => {
     show();
     await waitFor(() =>
       expect(
-        screen.queryByText('Checking your orders…'),
-      ).not.toBeInTheDocument(),
+        screen.getByRole('button', { name: 'Pay order ORD-A' }),
+      ).toBeEnabled(),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Pay order ORD-A' }));
+    expect(
+      screen.getByRole('dialog', { name: 'Telebirr Mobile Payment' }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('payment-modal-amount')).toHaveTextContent(
+      '420.00 ETB',
+    );
+    expect(screen.getByText('Ref: ORD-A')).toBeInTheDocument();
+  });
+  it('provides independent payment buttons for both seller orders', async () => {
+    show();
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: 'Pay order ORD-A' }),
+      ).toBeEnabled(),
     );
     expect(
-      screen.getByRole('button', { name: 'Pay order ORD-A' }),
-    ).toBeDisabled();
-    expect(
-      screen.queryByRole('link', { name: 'Pay order ORD-A' }),
-    ).not.toBeInTheDocument();
-  });
-  it('provides separate links when a real payment destination is supplied', async () => {
-    show(result, (id) => `/pay/${id}`);
-    expect(
-      await screen.findByRole('link', { name: 'Pay order ORD-A' }),
-    ).toHaveAttribute('href', `/pay/${orderA}`);
-    expect(
-      await screen.findByRole('link', { name: 'Pay order ORD-B' }),
-    ).toHaveAttribute('href', `/pay/${orderB}`);
+      screen.getByRole('button', { name: 'Pay order ORD-B' }),
+    ).toBeEnabled();
+    expect(screen.queryAllByRole('link', { name: /^Pay order/ })).toHaveLength(
+      0,
+    );
   });
   it('does not mark the other seller paid when one order is paid', async () => {
     vi.mocked(orderConfirmationService.get).mockImplementation(async (id) => ({
       ...(id === orderA ? { ...detailA, status: 'PAID' as const } : detailB),
     }));
-    show(result, (id) => `/pay/${id}`);
-    await screen.findByRole('link', { name: 'Pay order ORD-B' });
+    show(result);
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: 'Pay order ORD-B' }),
+      ).toBeEnabled(),
+    );
     expect(article('Honey cooperative').getByText('Paid')).toBeInTheDocument();
     expect(article('Artisans').getByText('Placed')).toBeInTheDocument();
     expect(
@@ -193,7 +200,7 @@ describe('Checkout result F-506', () => {
         },
       ],
     });
-    show({ ...result, orders: [result.orders![0]] }, (id) => `/pay/${id}`);
+    show({ ...result, orders: [result.orders![0]] });
     expect(
       await screen.findByText(/server reports that this reservation expired/),
     ).toBeInTheDocument();
@@ -253,19 +260,26 @@ describe('Checkout result F-506', () => {
     vi.mocked(orderConfirmationService.get).mockRejectedValue(
       new NormalizedApiError({ status: 403, message: 'denied' }),
     );
-    show(result, (id) => `/pay/${id}`);
+    show(result);
     expect(
       await screen.findAllByText(
         'This order is no longer available to this account.',
       ),
     ).toHaveLength(2);
-    expect(screen.queryAllByRole('link', { name: /^Pay order/ })).toHaveLength(
-      0,
-    );
+    expect(
+      screen.getByRole('button', { name: 'Pay order ORD-A' }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Pay order ORD-B' }),
+    ).toBeDisabled();
   });
-  it('preserves cached confirmation offline but disables links, and refreshes on reconnect', async () => {
-    show(result, (id) => `/pay/${id}`);
-    await screen.findByRole('link', { name: 'Pay order ORD-A' });
+  it('preserves cached confirmation offline but disables payments, and refreshes on reconnect', async () => {
+    show(result);
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: 'Pay order ORD-A' }),
+      ).toBeEnabled(),
+    );
     act(() => {
       vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
       window.dispatchEvent(new Event('offline'));
@@ -273,9 +287,12 @@ describe('Checkout result F-506', () => {
     expect(
       screen.getByText(/These are the last confirmed details/),
     ).toBeInTheDocument();
-    expect(screen.queryAllByRole('link', { name: /^Pay order/ })).toHaveLength(
-      0,
-    );
+    expect(
+      screen.getByRole('button', { name: 'Pay order ORD-A' }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Pay order ORD-B' }),
+    ).toBeDisabled();
     expect(
       screen.getByRole('button', { name: 'Refresh order status' }),
     ).toBeDisabled();
@@ -283,7 +300,11 @@ describe('Checkout result F-506', () => {
       vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true);
       window.dispatchEvent(new Event('online'));
     });
-    await screen.findByRole('link', { name: 'Pay order ORD-A' });
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: 'Pay order ORD-A' }),
+      ).toBeEnabled(),
+    );
     expect(orderConfirmationService.get).toHaveBeenCalledTimes(4);
   });
   it('supports a cold offline result without fetching private data', () => {

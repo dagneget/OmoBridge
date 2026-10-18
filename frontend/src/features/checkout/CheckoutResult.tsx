@@ -1,5 +1,6 @@
 import { useQueries } from '@tanstack/react-query';
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
+import { TelebirrPaymentModal } from '../payments';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../auth';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
@@ -25,17 +26,21 @@ const reservationExpired = (order?: OrderDetailResponse) =>
 interface Props {
   result: CheckoutResponse;
   onNewCheckout: () => void;
-  /** F-601/F-602 can provide a real payment route; absent routes never become dead links. */
-  paymentHref?: (orderId: string) => string | undefined;
 }
-export function CheckoutResult({ result, onNewCheckout, paymentHref }: Props) {
+export function CheckoutResult({ result, onNewCheckout }: Props) {
   const t = useCheckoutResultText();
   const headingRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     headingRef.current?.focus();
   }, []);
   const { isOnline } = useNetworkStatus();
-  const { user, isAuthenticated, isLoading } = useAuthStore();
+  const { user, token, isAuthenticated, isLoading } = useAuthStore();
+  const [selection, setSelection] = useState<{
+    orderId: string;
+    buyerId: string;
+    token: string | null;
+    groupId: string;
+  } | null>(null);
   const orders = result.orders ?? [];
   const queries = useQueries({
     queries: orders.map((order) => ({
@@ -82,6 +87,45 @@ export function CheckoutResult({ result, onNewCheckout, paymentHref }: Props) {
     })),
   });
   const refreshing = queries.some((query) => query.isFetching);
+  const confirmedOrders = queries.filter(
+    (query) =>
+      query.isSuccess && !query.isError && query.data?.buyerId === user?.id,
+  );
+  const paidCount = confirmedOrders.filter((query) =>
+    ['PAID', 'PACKED', 'IN_TRANSIT', 'DELIVERED'].includes(
+      query.data?.status || '',
+    ),
+  ).length;
+  const completeStatus =
+    orders.length > 0 &&
+    confirmedOrders.length === orders.length &&
+    !refreshing &&
+    isOnline &&
+    isAuthenticated &&
+    !isLoading;
+  const selectedIndex = orders.findIndex(
+    (order) => order.orderId === selection?.orderId,
+  );
+  const selectedQuery = selectedIndex >= 0 ? queries[selectedIndex] : undefined;
+  const selectedOrder = selectedQuery?.data;
+  const selectionActive =
+    !!selection &&
+    selection.buyerId === user?.id &&
+    selection.token === token &&
+    selection.groupId === result.checkoutGroupId &&
+    isOnline &&
+    isAuthenticated &&
+    !isLoading &&
+    !selectedQuery?.isError &&
+    !!selectedOrder &&
+    selectedOrder.buyerId === user?.id &&
+    selectedOrder.status !== 'CANCELLED' &&
+    typeof selectedOrder.totalAmount === 'number' &&
+    Number.isFinite(selectedOrder.totalAmount) &&
+    selectedOrder.totalAmount > 0 &&
+    !!selectedOrder.currency?.trim();
+  if (selection && !selectionActive) setSelection(null);
+
   const amount = (value?: number, currency?: string) =>
     typeof value === 'number' &&
     Number.isFinite(value) &&
@@ -118,6 +162,27 @@ export function CheckoutResult({ result, onNewCheckout, paymentHref }: Props) {
           >
             {t('refresh')}
           </button>
+          <div
+            role="status"
+            className="space-y-2"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <p>
+              {t('paymentProgress', { paid: paidCount, total: orders.length })}
+            </p>
+            <p>
+              {t(
+                !completeStatus
+                  ? 'paymentProgressUnknown'
+                  : paidCount === orders.length
+                    ? 'groupPaid'
+                    : paidCount > 0
+                      ? 'groupPartPaid'
+                      : 'groupUnpaid',
+              )}
+            </p>
+          </div>
           <h3 className="font-semibold">{t('summary')}</h3>
           <div className="space-y-4">
             {orders.map((order, index) => {
@@ -134,13 +199,14 @@ export function CheckoutResult({ result, onNewCheckout, paymentHref }: Props) {
                 isAuthenticated &&
                 !isLoading;
               const expired = reservationExpired(current);
-              const href =
+              const payable =
                 verified &&
                 current?.status === 'PLACED' &&
                 !expired &&
-                order.orderId
-                  ? paymentHref?.(order.orderId)
-                  : undefined;
+                typeof current.totalAmount === 'number' &&
+                Number.isFinite(current.totalAmount) &&
+                current.totalAmount > 0 &&
+                !!current.currency?.trim();
               return (
                 <SellerOrder
                   key={order.orderId ?? index}
@@ -155,12 +221,41 @@ export function CheckoutResult({ result, onNewCheckout, paymentHref }: Props) {
                   forbidden={forbidden}
                   verified={verified}
                   expired={expired}
-                  href={href}
+                  payable={payable}
+                  onPay={() => {
+                    if (
+                      payable &&
+                      current?.orderId &&
+                      user?.id &&
+                      result.checkoutGroupId
+                    ) {
+                      setSelection({
+                        orderId: current.orderId,
+                        buyerId: user.id,
+                        token,
+                        groupId: result.checkoutGroupId,
+                      });
+                    }
+                  }}
                 />
               );
             })}
           </div>
         </>
+      )}
+      {selectionActive && selectedOrder && (
+        <TelebirrPaymentModal
+          isOpen
+          onClose={() => setSelection(null)}
+          orderId={selectedOrder.orderId}
+          amount={selectedOrder.totalAmount!}
+          currency={selectedOrder.currency}
+          referenceCode={selectedOrder.orderNo}
+          onPaymentSuccess={() => {
+            // Re-read only the selected order. A callback never marks this group or another seller paid.
+            void selectedQuery?.refetch();
+          }}
+        />
       )}
       <Link className={control} to="/account/orders">
         {t('myOrders')}
@@ -179,7 +274,8 @@ function SellerOrder({
   forbidden,
   verified,
   expired,
-  href,
+  payable,
+  onPay,
 }: {
   order: OrderSummaryResponse;
   current?: OrderDetailResponse;
@@ -188,7 +284,8 @@ function SellerOrder({
   forbidden: boolean;
   verified: boolean;
   expired: boolean;
-  href?: string;
+  payable: boolean;
+  onPay: () => void;
 }) {
   const t = useCheckoutResultText();
   const id = useId();
@@ -228,29 +325,26 @@ function SellerOrder({
       {(status === 'PLACED' || expired) && (
         <ReservationCountdown expired={expired} />
       )}
-      {href ? (
-        <Link className={control} to={href}>
-          {t('pay', { reference: order.orderNo ?? t('unknown') })}
-        </Link>
-      ) : (
-        <>
-          <button
-            type="button"
-            className={control}
-            disabled
-            aria-describedby={`${id}-payment`}
-          >
-            {t('pay', { reference: order.orderNo ?? t('unknown') })}
-          </button>
-          <p id={`${id}-payment`} className="text-sm">
-            {t(
-              verified && status !== 'PLACED'
-                ? 'notPayable'
-                : 'paymentUnavailable',
-            )}
-          </p>
-        </>
+      <button
+        type="button"
+        className={control}
+        disabled={!payable}
+        onClick={onPay}
+        aria-describedby={!payable ? `${id}-payment` : undefined}
+      >
+        {t('pay', { reference: order.orderNo ?? t('unknown') })}
+      </button>
+      {!payable && (
+        <p id={`${id}-payment`} className="text-sm">
+          {t(
+            verified && status !== 'PLACED'
+              ? 'notPayable'
+              : 'paymentUnavailable',
+          )}
+        </p>
       )}
     </article>
   );
 }
+
+export default CheckoutResult;

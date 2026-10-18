@@ -30,5 +30,10 @@
   "reference": "Checkout reference: {{reference}}",
   "groupTotal": "Server-confirmed total: {{total}}",
   "myOrders": "My orders",
-  "viewOrder": "View order details"
+  "viewOrder": "View order details",
+  "paymentProgress": "Payment progress: {{paid}} of {{total}} orders confirmed paid.",
+  "paymentProgressUnknown": "Some statuses are unverified or out of date. Refresh to check; each order is paid separately.",
+  "groupPaid": "All orders have server-confirmed payment.",
+  "groupPartPaid": "This checkout is partly paid. Check the remaining orders separately.",
+  "groupUnpaid": "No orders are confirmed paid. Pay each available order separately."
 }
