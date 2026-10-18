@@ -13,6 +13,7 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "api:generate": "openapi-typescript http://localhost:8080/v3/api-docs -o src/types/api.generated.ts",
+    "api:check": "openapi-typescript http://localhost:8080/v3/api-docs -o src/types/api.generated.tmp.ts && cmp -s src/types/api.generated.ts src/types/api.generated.tmp.ts && rm src/types/api.generated.tmp.ts",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -170,7 +170,7 @@ Update the counts when you finish a task.
 
 | Phase | Area | Done / Total |
 |---|---|---|
-| FP0 | Foundation and audit | 3 / 8 |
+| FP0 | Foundation and audit | 4 / 8 |
 | FP1 | App shell, design system, PWA core | 0 / 10 |
 | FP2 | Authentication and roles | 0 / 9 |
 | FP3 | Public tourism | 0 / 11 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **3 / 134** |
+| | **Total** | **4 / 134** |
 
 ### What can run in parallel
 
@@ -232,11 +232,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: a style sheet page shows all tokens in both themes; Amharic text renders correctly.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/designTokens.test.tsx (4/4 passed), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-004 · Generated API types and client** · T1
+- [x] **F-004 · Generated API types and client** · T1
   Needs: F-002 · Backend: B-004
   Build: `openapi-typescript` to `src/types/api.generated.ts`; typed API helpers; `api:generate` script; CI check for drift.
   Done when: changing an OpenAPI field breaks type check until regenerated.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: npm run api:check (clean, 0 drift), vitest run src/test/apiTypes.test.ts (4/4 passed), typecheck (clean)
 
 - [ ] **F-005 · HTTP layer** · T1
   Needs: F-004 · Backend: B-002, B-003, B-205
@@ -1185,6 +1185,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-001 | Completed | Pre-implementation audit completed, decisions logged in ADR-004 |
 | 2026-10-18 | @claude-agent | F-002 | Completed | Tooling baseline, Vitest, testing-library, strict TS, scripts, openapi-typescript verified |
 | 2026-10-18 | @claude-agent | F-003 | Completed | Design tokens, Tailwind v4 import, Ethiopic/Amharic script support, dark/light themes, touch targets verified |
+| 2026-10-18 | @claude-agent | F-004 | Completed | Generated OpenAPI types, typed schema helpers, api:check drift test verified |
 
 ## 12. Change log (requirements)
 
