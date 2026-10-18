@@ -271,3 +271,13 @@ Loading, empty, error, and offline-with-data states are covered by component
 tests, along with server-total preservation and semantic accessibility. No route
 or existing screen is changed. Browser layout/contrast and 360 px verification
 remain pending because this environment has no browser runner installed.
+
+## Product catalog (F-501)
+
+The existing `/products` route now renders the product feature through a thin
+page. It lists published products from `/api/v1/public/products`, displays server
+unit prices and stock status, and provides combined search/category filters and
+12-item display pagination. The server returns an array; server pagination is
+still a backend gap. See [feature handoff](../frontend/src/features/products/README.md)
+for states, mock-mode dependency, and pending browser checks. No tourism, map,
+shared layout or route files are changed.

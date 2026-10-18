@@ -492,11 +492,14 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
 
 ### FP5: Catalog, cart, checkout
 
-- [ ] **F-501 · Product list** · T1
+- [!] **F-501 · Product list** · T1
   Needs: F-006 · Backend: B-704
   Build: published products with filter, search, stock status, pagination.
   Done when: unpublished products never appear.
-  Owner: —
+  Owner: @codex · Started: 2026-10-18
+  Implemented: Thin product page; generated-type public catalog service; search/category filters, stock labels, display pagination, English/Amharic namespace and four data states. Public route needs no role guard.
+  Tests: Node 22 npm run typecheck, npm run lint, npm run build, npm test → passed (131 tests, 26 files; 11 catalog/service cases).
+  Blocked: Real-browser 360 px, keyboard, contrast and service-worker offline-after-visit verification pending (no browser runner); backend localhost:8080 unavailable for live integration. Source contract checked. Standalone mock mode also requires earlier commit 519b08f.
 
 - [ ] **F-502 · Product detail** · T1
   Needs: F-501, F-507 · Backend: B-704, B-605
@@ -1180,6 +1183,8 @@ Confirm each against the real backend before the affected task. Do not invent en
 
 | 17 | F-401, F-FIX-001 | Generated SessionResponse.startTime uses a LocalTime object. Confirm its actual JSON representation before building time selectors. | Open: session mock omits startTime pending live verification; generated types unchanged. |
 
+| F-501-P1 | F-501 | Public catalog returns an array, with no pagination metadata. | Source verified: display pagination over the returned list; server pagination remains needed for scale. No invented page parameters. |
+
 ## 11. Activity log
 
 Add a row for every claim, completion and blocker. Newest at the bottom.
@@ -1235,3 +1240,5 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 Activity: 2026-10-18 · @codex · F-FIX-001 · Completed · Login/me contracts and canonical roles, public catalog/transport paths, UUID fixtures, session date filtering, detail 404s, browser worker and developer handoff; 128 frontend tests pass.
 
 Activity: 2026-10-18 · @codex · F-507 · Implemented; browser verification pending · PriceBreakdown ready for product, booking and order integration; frontend checks and all 119 tests pass.
+
+Activity: 2026-10-18 · @codex · F-501 · Implemented; browser/live verification pending · Public product catalog, combined filters, display pagination, stock states and public GET cache path; 131 tests pass. F-304 remains with its existing owner.

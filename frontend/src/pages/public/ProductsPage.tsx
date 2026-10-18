@@ -1,3 +1,5 @@
+import { ProductCatalog } from '../../features/products';
+
 export default function ProductsPage() {
-  return <div>ProductsPage</div>;
+  return <ProductCatalog />;
 }

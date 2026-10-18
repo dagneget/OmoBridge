@@ -71,6 +71,7 @@ export default defineConfig({
               request.method === 'GET' &&
               (url.pathname.startsWith('/api/v1/tourism') ||
                 url.pathname.startsWith('/api/v1/products') ||
+                url.pathname.startsWith('/api/v1/public/products') ||
                 url.pathname.startsWith('/locales')),
             handler: 'StaleWhileRevalidate',
             options: {
