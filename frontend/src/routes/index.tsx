@@ -30,6 +30,8 @@ const OfflinePage = lazy(() => import('../pages/public/OfflinePage'));
 const DesignTokensPage = lazy(() => import('../pages/public/DesignTokensPage'));
 const NotFoundPage = lazy(() => import('../pages/public/NotFoundPage'));
 const JoinPage = lazy(() => import('../pages/public/JoinPage'));
+const OrdersPage = lazy(() => import('../pages/account/OrdersPage'));
+const OrderDetailPage = lazy(() => import('../pages/account/OrderDetailPage'));
 const AccountPage = lazy(() => import('../pages/account/AccountPage'));
 const MyBookingsPage = lazy(() => import('../pages/account/MyBookingsPage'));
 
@@ -105,6 +107,8 @@ export default function AppRoutes() {
             <Route path="/booking/confirmation/:id" element={<BookingConfirmationPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/account/orders" element={<OrdersPage />} />
+            <Route path="/account/orders/:id" element={<OrderDetailPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/trace/:token" element={<PublicTracePage />} />
             <Route path="/track/:token" element={<LiveTrackingPage />} />

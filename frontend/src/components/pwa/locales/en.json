@@ -1,0 +1,11 @@
+{
+  "title": "Install OmoBridge",
+  "description": "Add OmoBridge to your home screen for easier access.",
+  "install": "Install app",
+  "installing": "Waiting for your choice…",
+  "dismiss": "Not now",
+  "iosOpen": "Open this page in Safari.",
+  "iosShare": "Open the Share menu.",
+  "iosAdd": "Choose Add to Home Screen. If shown, enable Open as Web App, then tap Add.",
+  "error": "The install prompt could not open. You can use your browser’s install menu instead."
+}

@@ -50,12 +50,26 @@ export default defineConfig({
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/, /^\/v3\/api-docs/, /^\/swagger-ui/],
         runtimeCaching: [
+          // Cart revalidation must reach the network, even after a catalog visit.
+          {
+            urlPattern: ({ url, request }) => request.method === 'GET' &&
+              url.pathname.startsWith('/api/v1/public/products') &&
+              (request.cache === 'no-store' || request.headers.get('Cache-Control')?.includes('no-cache') === true),
+            handler: 'NetworkOnly',
+          },
+          // Checkout mutations always bypass runtime caches.
+          {
+            urlPattern: ({ url }) => url.pathname === '/api/v1/checkout',
+            handler: 'NetworkOnly',
+            method: 'POST',
+          },
           // 1. Private / transactional data is strictly NetworkOnly
           {
             urlPattern: ({ url }) =>
               url.pathname.startsWith('/api/v1/auth') ||
               url.pathname.startsWith('/api/v1/payments') ||
               url.pathname.startsWith('/api/v1/orders') ||
+              url.pathname.startsWith('/api/v1/checkout') ||
               url.pathname.startsWith('/api/v1/bookings') ||
               url.pathname.startsWith('/api/v1/delivery') ||
               url.pathname.startsWith('/api/v1/enterprise') ||
@@ -71,6 +85,7 @@ export default defineConfig({
               request.method === 'GET' &&
               (url.pathname.startsWith('/api/v1/tourism') ||
                 url.pathname.startsWith('/api/v1/products') ||
+                url.pathname.startsWith('/api/v1/public/products') ||
                 url.pathname.startsWith('/locales')),
             handler: 'StaleWhileRevalidate',
             options: {
