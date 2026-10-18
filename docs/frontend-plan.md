@@ -172,7 +172,7 @@ Update the counts when you finish a task.
 |---|---|---|
 | FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 7 / 10 |
-| FP2 | Authentication and roles | 8 / 9 |
+| FP2 | Authentication and roles | 9 / 9 |
 | FP3 | Public tourism | 0 / 11 |
 | FP4 | Bookings | 0 / 5 |
 | FP5 | Catalog, cart, checkout | 0 / 9 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **23 / 134** |
+| | **Total** | **24 / 134** |
 
 ### What can run in parallel
 
@@ -372,11 +372,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: tests show the wrong role is redirected and a backend 403 shows the forbidden page.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/roleGuards.test.tsx (5/5 passed, 101/101 total), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-208 · Account and profile** · T2
+- [x] **F-208 · Account and profile** · T2
   Needs: F-201 · Backend: B-105
   Build: profile view, language preference, logout, linked profile (farmer, enterprise, provider, guide).
   Done when: language change persists.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/accountPage.test.tsx (4/4 passed, 107/107 total), typecheck (clean), lint (clean), build (clean)
 
 - [x] **F-209 · Join page** · T1
   Needs: F-203, F-204, F-205, F-206
@@ -1205,6 +1205,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-206 | Completed | RegisterDeliveryPage (vehicle types, plate, service area) and RegisterGuidePage (languages, rate, bio) with pending screens verified |
 | 2026-10-18 | @claude-agent | F-207 | Completed | RoleGuard for 7 roles, ForbiddenPage 403 handling, post-login return path redirect, and multi-role RoleSwitcher verified |
 | 2026-10-18 | @claude-agent | F-209 | Completed | JoinPage with role registration cards (producer, enterprise, courier, guide, buyer), USSD notice, and 360px viewport responsiveness verified |
+| 2026-10-18 | @claude-agent | F-208 | Completed | AccountPage with profile view, language preference persistence, linked enterprise & farmer profiles verified; FP2 100% completed |
 
 ## 12. Change log (requirements)
 
