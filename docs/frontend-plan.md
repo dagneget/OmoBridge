@@ -179,7 +179,7 @@ Update the counts when you finish a task.
 | FP4 | Bookings | 5 / 5 |
 | FP5 | Catalog, cart, checkout | 6 / 9 |
 | FP6 | Payments and live tracking | 1 / 7 |
-| FP7 | Traceability | 1 / 4 |
+| FP7 | Traceability | 2 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
@@ -190,7 +190,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **63 / 134** |
+| | **Total** | **64 / 134** |
 
 ### What can run in parallel
 
@@ -652,11 +652,17 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: scanning a generated QR opens the right page.
   Owner: —
 
-- [ ] **F-703 · QR display and print** · T1
+- [x] **F-703 · QR display and print** · T1
   Needs: F-701 · Backend: B-607
   Build: show the QR image from the API for a batch or product; print-friendly layout.
   Done when: the printed QR scans to the trace page.
-  Owner: —
+  Done: @opencode · 2026-10-19 · Tests: `npm test` → 57 files / 399 passed (12 new); typecheck, lint, build ✓
+  Notes: exports `TraceQrCode` and `TraceQrLabel` from `features/traceability` — **the agreed
+  surface for F-906**, which should import rather than build a second QR/print UI. The scan
+  criterion is met by *not* redrawing: the client shows the server's PNG, which encodes
+  `app.traceability.base-url + token` → `/trace/:token`. Physical scanning cannot be exercised in
+  jsdom, so the testable claim is that the client requests and displays the server's image
+  unmodified at a size that survives print (224px ≈ 59mm).
 
 - [ ] **F-704 · Trace tests** · T1
   Needs: F-701, F-703
@@ -1339,3 +1345,4 @@ Activity: 2026-10-18 · @claude-agent · F-808 · Completed · Unpaid delivery c
 | 2026-10-18 | @opencode | F-1106 | Done | Added `features/delivery/smsCheckpoint.ts` and `SmsCheckpointFallback.tsx`, a collapsed section of the status-actions card with the ready-made text for each sendable step, prefilled with the provider's own job number. The format was derived from `InboundSmsService` rather than guessed, and the tests hold this app's output against a copy of the backend's job-number regex and keyword matcher, so "matches what the backend accepts" is verified rather than claimed. Two constraints fell out of the parser: it checks DELIVERED, then TRANSIT, then PICKED, so each status gets exactly one unambiguous keyword (a message naming two would be resolved by check order, not intent); and `FAILED`/`CANCELLED` have no keyword at all, so they are filtered out rather than listed — an SMS for either would be recorded and silently ignored, which is the worst outcome for a driver who thinks they have reported a problem. The text sits in a read-only field as well as behind a copy button, because clipboard access needs a secure context and is unreliable on some handsets; a clipboard rejection is not surfaced as an error since manual selection still works. Hidden without a job number and on terminal jobs. Tests 54 files / 352 passed (15 new, incl. axe); typecheck, lint, build clean. FP11 is now 7/8 — F-1107 remains `[!]` pending `@playwright/test`. |
 | 2026-10-18 | @opencode | F-604 | Done | Replaced the stub `LiveTrackingPage` (which printed the token and never called the API, complete with a hard-coded `TRK-OMO-9876` fallback) with a real page on `features/tracking`, wired to `GET /api/v1/delivery/track/{trackingToken}`. The route already existed, so no shared-file handoff was needed. **The SSE half of the spec could not be built**: no SSE endpoint, `SseEmitter` or WebSocket exists in the backend, so a stream would have meant inventing a contract — logged as gap F-604-E1 and implemented as 15 s polling that stops on a terminal status. Three details came from reading the backend: the trail is sorted by `recordedAt` rather than arrival order, because a point queued offline and uploaded an hour later keeps its capture time and must land mid-breadcrumb rather than at the end; "last updated" (`lastRecordedAt`) and the stale warning are different questions, so a fix older than 5 min is flagged even while polling is fresh, and "no fix yet"/"unparseable timestamp" are separate states rather than staleness; and a 404 is never retried, because an expired or mistyped link needs an explanation, not a spinner. `MapComponent`/`LeafletMapInner` gained an optional `trail` polyline — existing callers pass nothing and are unchanged — rather than adding a second map with its own offline fallback to keep in sync. Tests 55 files / 371 passed (19 new, covering live update, lost connection, invalid token, staleness, terminal status, late points and axe); typecheck, lint, build clean. |
 | 2026-10-18 | @opencode | F-701 | Done | Replaced the stub `PublicTracePage` (which printed the token and carried a hard-coded `TRACE-HONEY-001` fallback) with a real page on `features/traceability`. The route already existed, so no shared-file handoff. Two things came from reading `TraceabilityService` rather than assuming. First, **every GET writes a `TraceScan` row** and `scanCount` is the running total, so the query is pinned to a single fetch with no refetch on focus or reconnect — otherwise a buyer tabbing back and forth would inflate a producer's scan count with no human behind it, and that number is read as customer interest. Second, `farmerName` is populated only when **both** `TraceRecord.showFarmerNames` and `Farmer.consentPublicName` are true, so the page renders village and group always, adds a name only when one arrives, and never derives a person from the group or village; when nothing consented it says the growers chose not to be named. Origin heading falls back village → `originLabel` → enterprise name, and an entirely unorigined batch says so instead of showing a hole. Discovered spec drift: the generated types allow `string \| undefined` where the server sends a real JSON `null`, so every client has to cast — logged as F-701-E1 with an explicit test covering the wire shape. Tests 56 files / 387 passed (16 new, covering names present, names absent, invalid token, read-once, empty batch and axe); typecheck, lint, build clean. |
+| 2026-10-19 | @opencode | F-703 | Done | Added `features/traceability/TraceQrCode.tsx` exporting `TraceQrCode` and `TraceQrLabel`, and surfaced the label on the trace page behind `print:hidden` so `window.print()` emits a label rather than a screenshot of the page. The central decision is **not to redraw the code**: the backend encodes `app.traceability.base-url + publicToken` (default `https://omobridge.et/trace/`, which matches the frontend's `/trace/:token`), so the client displays the server's PNG — reproducing it with a client-side library would risk printing a code that resolves somewhere other than where the server intended, and "the printed QR scans to the trace page" is then guaranteed rather than hoped for. Dropped a first implementation that fetched bytes into a Blob with an object URL: it needed an effect to create and revoke the handle, bypassed the server's `Cache-Control: max-age=86400`, and duplicated a cache the browser already has — the plain `<img src>` is simpler and was the only repo warning I had introduced. Print layout uses Tailwind's `print:` variant so no shared stylesheet was touched; the label is 224px ≈ 59mm at 96dpi, above the ~20mm floor below which printed codes stop scanning, and prints black-on-white with the URL in plain text for damaged labels. Tests 57 files / 399 passed (12 new, covering endpoint-not-redraw, size, retry with cache-bust, print classes, scan size, invalid token, axe); typecheck, lint, build clean, zero new lint warnings. Note: a physical scan cannot be exercised in jsdom — the tests pin the parts of the criterion that are testable (server's image, unmodified, at a scannable printed size). |

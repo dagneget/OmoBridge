@@ -7,3 +7,5 @@ export {
   formatOutputQuantity,
   dedupeOrigins,
 } from './traceState';
+export { TraceQrCode, TraceQrLabel } from './TraceQrCode';
+export type { TraceQrCodeProps, TraceQrLabelProps } from './TraceQrCode';

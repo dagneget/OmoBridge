@@ -10,6 +10,7 @@ import { normalizeApiError } from '../../services/apiError';
 import defaultI18n from '../../i18n';
 import { formatDateTime } from '../../utils/formatters';
 import {
+  TraceQrLabel,
   dedupeOrigins,
   formatOutputQuantity,
   hasAnyFarmerName,
@@ -157,7 +158,10 @@ export default function PublicTracePage() {
 
   return (
     <Shell tr={tr}>
-      <div className="space-y-4" data-testid="public-trace-page">
+      <div className="space-y-6" data-testid="public-trace-page">
+        {/* Everything a shopper reads is hidden when printing, so the label is what comes out
+            of the printer rather than a screenshot of the page. */}
+        <div className="space-y-4 print:hidden">
         <div className="space-y-2">
           <h1 className="text-2xl font-bold text-foreground">
             {tr('trace.title', 'Product origin & traceability')}
@@ -306,6 +310,15 @@ export default function PublicTracePage() {
             )}
           </p>
         )}
+        </div>
+
+        {/* F-703: the batch's own code, and a label that can be printed onto packaging. */}
+        <TraceQrLabel
+          publicToken={String(token)}
+          batchCode={trace.batchCode}
+          enterpriseName={trace.enterpriseName}
+          originLabel={originHeading(trace) ?? undefined}
+        />
       </div>
     </Shell>
   );

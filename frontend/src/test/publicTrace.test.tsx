@@ -68,7 +68,9 @@ function installAdapter(responses: Array<'not-found' | 'network' | PublicTraceRe
   };
 }
 
-const traceRequests = () => requests.filter((r) => r.includes('/api/v1/trace/'));
+// The QR endpoint shares this prefix, so exclude it: only the JSON read counts as a scan.
+const traceRequests = () =>
+  requests.filter((r) => r.includes('/api/v1/trace/') && !r.includes('/qr'));
 
 const renderPage = () => {
   const queryClient = new QueryClient({
