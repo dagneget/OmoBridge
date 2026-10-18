@@ -179,7 +179,7 @@ Update the counts when you finish a task.
 | FP4 | Bookings | 5 / 5 |
 | FP5 | Catalog, cart, checkout | 6 / 9 |
 | FP6 | Payments and live tracking | 1 / 7 |
-| FP7 | Traceability | 2 / 4 |
+| FP7 | Traceability | 3 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
@@ -190,7 +190,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **64 / 134** |
+| | **Total** | **65 / 134** |
 
 ### What can run in parallel
 
@@ -664,11 +664,15 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   jsdom, so the testable claim is that the client requests and displays the server's image
   unmodified at a size that survives print (224px ≈ 59mm).
 
-- [ ] **F-704 · Trace tests** · T1
+- [x] **F-704 · Trace tests** · T1
   Needs: F-701, F-703
   Build: tests including consent states.
   Done when: suite passes.
-  Owner: —
+  Done: @opencode · 2026-10-19 · Tests: `npm test` -> 58 files / 406 passed (7 new); typecheck, lint, build OK
+  Notes: `src/test/traceIntegration.test.tsx` adds the cases F-701/F-703 left open - per-grower
+  consent in a mixed batch (three origins, two names), the nobody-consented notice, a batch with
+  no grower records, the QR address resolving into this app's route, and the 'cached for offline
+  after one visit' requirement, which was previously asserted only in prose.
 
 ---
 
@@ -1346,3 +1350,4 @@ Activity: 2026-10-18 · @claude-agent · F-808 · Completed · Unpaid delivery c
 | 2026-10-18 | @opencode | F-604 | Done | Replaced the stub `LiveTrackingPage` (which printed the token and never called the API, complete with a hard-coded `TRK-OMO-9876` fallback) with a real page on `features/tracking`, wired to `GET /api/v1/delivery/track/{trackingToken}`. The route already existed, so no shared-file handoff was needed. **The SSE half of the spec could not be built**: no SSE endpoint, `SseEmitter` or WebSocket exists in the backend, so a stream would have meant inventing a contract — logged as gap F-604-E1 and implemented as 15 s polling that stops on a terminal status. Three details came from reading the backend: the trail is sorted by `recordedAt` rather than arrival order, because a point queued offline and uploaded an hour later keeps its capture time and must land mid-breadcrumb rather than at the end; "last updated" (`lastRecordedAt`) and the stale warning are different questions, so a fix older than 5 min is flagged even while polling is fresh, and "no fix yet"/"unparseable timestamp" are separate states rather than staleness; and a 404 is never retried, because an expired or mistyped link needs an explanation, not a spinner. `MapComponent`/`LeafletMapInner` gained an optional `trail` polyline — existing callers pass nothing and are unchanged — rather than adding a second map with its own offline fallback to keep in sync. Tests 55 files / 371 passed (19 new, covering live update, lost connection, invalid token, staleness, terminal status, late points and axe); typecheck, lint, build clean. |
 | 2026-10-18 | @opencode | F-701 | Done | Replaced the stub `PublicTracePage` (which printed the token and carried a hard-coded `TRACE-HONEY-001` fallback) with a real page on `features/traceability`. The route already existed, so no shared-file handoff. Two things came from reading `TraceabilityService` rather than assuming. First, **every GET writes a `TraceScan` row** and `scanCount` is the running total, so the query is pinned to a single fetch with no refetch on focus or reconnect — otherwise a buyer tabbing back and forth would inflate a producer's scan count with no human behind it, and that number is read as customer interest. Second, `farmerName` is populated only when **both** `TraceRecord.showFarmerNames` and `Farmer.consentPublicName` are true, so the page renders village and group always, adds a name only when one arrives, and never derives a person from the group or village; when nothing consented it says the growers chose not to be named. Origin heading falls back village → `originLabel` → enterprise name, and an entirely unorigined batch says so instead of showing a hole. Discovered spec drift: the generated types allow `string \| undefined` where the server sends a real JSON `null`, so every client has to cast — logged as F-701-E1 with an explicit test covering the wire shape. Tests 56 files / 387 passed (16 new, covering names present, names absent, invalid token, read-once, empty batch and axe); typecheck, lint, build clean. |
 | 2026-10-19 | @opencode | F-703 | Done | Added `features/traceability/TraceQrCode.tsx` exporting `TraceQrCode` and `TraceQrLabel`, and surfaced the label on the trace page behind `print:hidden` so `window.print()` emits a label rather than a screenshot of the page. The central decision is **not to redraw the code**: the backend encodes `app.traceability.base-url + publicToken` (default `https://omobridge.et/trace/`, which matches the frontend's `/trace/:token`), so the client displays the server's PNG — reproducing it with a client-side library would risk printing a code that resolves somewhere other than where the server intended, and "the printed QR scans to the trace page" is then guaranteed rather than hoped for. Dropped a first implementation that fetched bytes into a Blob with an object URL: it needed an effect to create and revoke the handle, bypassed the server's `Cache-Control: max-age=86400`, and duplicated a cache the browser already has — the plain `<img src>` is simpler and was the only repo warning I had introduced. Print layout uses Tailwind's `print:` variant so no shared stylesheet was touched; the label is 224px ≈ 59mm at 96dpi, above the ~20mm floor below which printed codes stop scanning, and prints black-on-white with the URL in plain text for damaged labels. Tests 57 files / 399 passed (12 new, covering endpoint-not-redraw, size, retry with cache-bust, print classes, scan size, invalid token, axe); typecheck, lint, build clean, zero new lint warnings. Note: a physical scan cannot be exercised in jsdom — the tests pin the parts of the criterion that are testable (server's image, unmodified, at a scannable printed size). |
+| 2026-10-19 | @opencode | F-704 | Done | Added `src/test/traceIntegration.test.tsx` covering what F-701 and F-703 left open. The consent matrix is the centre of it: consent is decided **per grower** (`TraceRecord.showFarmerNames && Farmer.consentPublicName`), not per batch, so a mixed batch of three origins renders exactly two names while all three keep their group - a regression that published a name because *some* grower consented would now fail. Also covered: the nobody-consented notice must not appear when at least one person opted in, and a batch with no grower records must not claim anyone opted out. The QR round trip builds the address the way `TraceabilityService` builds it (`https://omobridge.et/trace/` + token), extracts the path, and confirms it resolves through this app's router to `/trace/:token` and fetches that batch - the testable form of the scanning criterion. Added the one requirement F-701 had only asserted in prose: a second visit with the connection down is served from the query cache and shows no error, still counting one read. The read-once rule is re-checked after focus and reconnect. Tests 58 files / 406 passed (7 new); typecheck, lint, build clean. |
