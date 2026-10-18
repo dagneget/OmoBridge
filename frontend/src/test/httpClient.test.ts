@@ -88,6 +88,31 @@ describe('HTTP layer and error normalization (F-005)', () => {
     }
   });
 
+  it.each([[401, 'old-token'], [403, 'old-token'], [401, null]])(
+    'does not clear or redirect a newer session after an old request fails (%s, %s)',
+    async (status, oldToken) => {
+      if (oldToken) localStorage.setItem(TOKEN_STORAGE_KEY, String(oldToken));
+      const handler = vi.fn();
+      window.addEventListener('omobridge:auth-unauthorized', handler);
+      window.addEventListener('omobridge:auth-forbidden', handler);
+      const client = createHttpClient('http://test-server');
+      client.defaults.adapter = async (config) => {
+        localStorage.setItem(TOKEN_STORAGE_KEY, 'new-session-token');
+        throw new axios.AxiosError('Old request failed', String(status), config, null, {
+          status: Number(status), statusText: 'Denied', headers: {}, config, data: {},
+        });
+      };
+      try {
+        await expect(client.get('/api/v1/auth/me')).rejects.toMatchObject({ status });
+        expect(localStorage.getItem(TOKEN_STORAGE_KEY)).toBe('new-session-token');
+        expect(handler).not.toHaveBeenCalled();
+      } finally {
+        window.removeEventListener('omobridge:auth-unauthorized', handler);
+        window.removeEventListener('omobridge:auth-forbidden', handler);
+      }
+    },
+  );
+
   it('normalizes 403 Forbidden with proper message and status', () => {
     const rawError = {
       isAxiosError: true,

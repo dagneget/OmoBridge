@@ -1,8 +1,10 @@
 import './features/cart'
+import { useAuthBootstrap } from './features/auth'
 import AppRoutes from './routes'
 import { InstallCard } from './components/pwa'
 
 export default function App() {
+  useAuthBootstrap()
   return (
     <div className="min-h-screen">
       <AppRoutes />

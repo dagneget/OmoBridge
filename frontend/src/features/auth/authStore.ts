@@ -99,13 +99,14 @@ export const useAuthStore = create<AuthState>((set, get) => {
     bootstrap: async () => {
       const currentToken = getInitialToken();
       if (!currentToken) {
-        set({ isAuthenticated: false, isLoading: false, user: null, activeRole: null });
+        set({ token: null, isAuthenticated: false, isLoading: false, user: null, activeRole: null });
         return;
       }
 
-      set({ isLoading: true });
+      set({ isLoading: true, token: currentToken });
       try {
         const user = await authService.getCurrentUser();
+        if (get().token !== currentToken || getInitialToken() !== currentToken) return;
         if (typeof window !== 'undefined') {
           localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
         }
@@ -117,6 +118,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
           activeRole: primaryRole,
         });
       } catch {
+        if (get().token !== currentToken || getInitialToken() !== currentToken) return;
         // If /me failed, token is invalid or expired
         if (typeof window !== 'undefined') {
           localStorage.removeItem(TOKEN_STORAGE_KEY);

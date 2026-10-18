@@ -67,8 +67,12 @@ export function createHttpClient(baseURL: string = BASE_API_URL): AxiosInstance 
         }
       }
 
+      // Old in-flight requests must not expire or redirect a newer login session.
+      const currentToken = typeof window !== 'undefined' ? localStorage.getItem(TOKEN_STORAGE_KEY) : null;
+      const requestMatchesSession = !currentToken || config?.headers.get('Authorization') === `Bearer ${currentToken}`;
+
       // 2. 401 Unauthorized handling: notify app & clear token
-      if (status === 401) {
+      if (status === 401 && requestMatchesSession) {
         if (typeof window !== 'undefined') {
           localStorage.removeItem(TOKEN_STORAGE_KEY);
           window.dispatchEvent(new CustomEvent('omobridge:auth-unauthorized'));
@@ -76,7 +80,7 @@ export function createHttpClient(baseURL: string = BASE_API_URL): AxiosInstance 
       }
 
       // 3. 403 Forbidden handling: notify app
-      if (status === 403) {
+      if (status === 403 && requestMatchesSession) {
         if (typeof window !== 'undefined') {
           window.dispatchEvent(
             new CustomEvent('omobridge:auth-forbidden', {
