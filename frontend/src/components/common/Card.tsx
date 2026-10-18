@@ -23,7 +23,7 @@ export const Card: React.FC<CardProps> = ({
       {...props}
     >
       {header && <div className="px-6 py-4 border-b border-border font-semibold">{header}</div>}
-      <div className="p-6">{children}</div>
+      <div className={header || footer ? 'p-6' : 'p-0'}>{children}</div>
       {footer && (
         <div className="px-6 py-4 border-t border-border bg-muted/20 rounded-b-xl flex items-center justify-between">
           {footer}
@@ -33,4 +33,29 @@ export const Card: React.FC<CardProps> = ({
   );
 };
 
+export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className = '', children, ...props }) => (
+  <div className={`px-6 py-4 border-b border-border ${className}`} {...props}>
+    {children}
+  </div>
+);
+
+export const CardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({ className = '', children, ...props }) => (
+  <h3 className={`text-base font-bold text-foreground ${className}`} {...props}>
+    {children}
+  </h3>
+);
+
+export const CardContent: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className = '', children, ...props }) => (
+  <div className={`p-6 ${className}`} {...props}>
+    {children}
+  </div>
+);
+
+export const CardFooter: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className = '', children, ...props }) => (
+  <div className={`px-6 py-4 border-t border-border bg-muted/20 rounded-b-xl flex items-center justify-between ${className}`} {...props}>
+    {children}
+  </div>
+);
+
 export default Card;
+

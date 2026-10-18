@@ -30,6 +30,8 @@ export function isValidEthiopianPhone(raw: string): boolean {
   return /^\+251[79]\d{8}$/.test(normalized);
 }
 
+export const validateEthiopianPhone = isValidEthiopianPhone;
+
 /**
  * Formats a phone number for user-friendly display (+251 9XX XXX XXX)
  */

@@ -38,6 +38,7 @@ export type ProductCreateFromOutputRequest = Schemas['ProductCreateFromOutputReq
 export type ProductUpdateRequest = Schemas['ProductUpdateRequest'];
 export type ProductPriceBreakdownResponse = Schemas['ProductPriceBreakdownResponse'];
 export type PriceBreakdownResponse = Schemas['PriceBreakdownResponse'];
+export type PriceBreakdownLine = Schemas['PriceBreakdownLine'];
 export type ProductTypeResponse = Schemas['ProductTypeResponse'];
 export type ProductTypeRequest = Schemas['ProductTypeRequest'];
 export type ProductStockAdjustmentRequest = Schemas['ProductStockAdjustmentRequest'];

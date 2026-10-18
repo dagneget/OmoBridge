@@ -3,6 +3,7 @@ import type {
   SessionResponse,
   BookingCreateRequest,
   BookingResponse,
+  PriceBreakdownResponse,
   StandardApiResponse,
 } from '../../types/api';
 
@@ -15,6 +16,34 @@ export const bookingService = {
       `/api/v1/tourism/packages/${packageId}/sessions`
     );
     return response.data.data || [];
+  },
+
+  /**
+   * Calculate server-provided price breakdown
+   */
+  async calculatePricing(
+    baseAmount: number,
+    enterpriseId?: string,
+    appliesTo: string = 'TOURISM'
+  ): Promise<PriceBreakdownResponse> {
+    const params = new URLSearchParams({
+      baseAmount: baseAmount.toString(),
+      appliesTo,
+    });
+    if (enterpriseId) {
+      params.append('enterpriseId', enterpriseId);
+    }
+    const response = await httpClient.get<StandardApiResponse<PriceBreakdownResponse>>(
+      `/api/v1/pricing/calculate?${params.toString()}`
+    );
+    return (
+      response.data.data || {
+        subtotal: baseAmount,
+        breakdown: [],
+        total: baseAmount,
+        currency: 'ETB',
+      }
+    );
   },
 
   /**

@@ -63,6 +63,8 @@ export function formatETB(
   return showSymbol ? `${sign}${formattedNumber} ${currencyCode}` : `${sign}${formattedNumber}`;
 }
 
+export const formatCurrency = formatETB;
+
 export interface FormatQuantityOptions {
   includeUnit?: boolean;
 }

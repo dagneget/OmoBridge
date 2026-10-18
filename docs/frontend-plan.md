@@ -174,7 +174,7 @@ Update the counts when you finish a task.
 | FP1 | App shell, design system, PWA core | 7 / 10 |
 | FP2 | Authentication and roles | 9 / 9 |
 | FP3 | Public tourism | 5 / 11 |
-| FP4 | Bookings | 1 / 5 |
+| FP4 | Bookings | 2 / 5 |
 | FP5 | Catalog, cart, checkout | 0 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **30 / 134** |
+| | **Total** | **31 / 134** |
 
 ### What can run in parallel
 
@@ -465,11 +465,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: tests cover open, full and closed sessions.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/availabilityPicker.test.tsx (6/6 passed), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-402 · Booking form** · T1
+- [x] **F-402 · Booking form** · T1
   Needs: F-401, F-507 · Backend: B-309, B-205
   Build: party size, contact details, notes, **acknowledgement of cultural rules**, server-provided price breakdown (tax and fee lines), idempotency key; handle over-capacity and closed-session errors.
   Done when: success creates a booking; a repeated submit does not create a second one.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/bookingForm.test.tsx (5/5 passed), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-403 · Booking confirmation and status** · T1
   Needs: F-402 · Backend: B-310
@@ -1215,6 +1215,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @claude-agent | F-305 | Blocked [!] | HotelsPage implemented with search, amenities, rate display, and Map modal; blocked from live backend verification by 500 LazyInitializationException on GET /api/v1/tourism/hotels (logged in Section 10 #17); verified 5/5 against OpenAPI MSW mock |
 | 2026-10-18 | @claude-agent | F-308 | Completed | SafetyGuidelinesPage, ContactPage with validated form & map, and AboutPage with dual-channel inclusion verified |
 | 2026-10-18 | @claude-agent | F-401 | Completed | AvailabilityPicker component with date grouping, LocalTime formatting, full/closed/overcapacity validation, and reactive session radio selection verified |
+| 2026-10-18 | @claude-agent | F-402 | Completed | BookingPage with party size counter, cultural rules acknowledgement, server price breakdown via /api/v1/pricing/calculate, idempotency key, and double-submit protection verified |
 
 ## 12. Change log (requirements)
 
