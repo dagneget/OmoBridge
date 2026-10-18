@@ -161,6 +161,14 @@ frontend/
 - Every conflict is shown to the provider using **the server's message and current state** (`role="alert"`), and the job is re-fetched so the screen adopts whatever the job actually became. A dispatcher or the SMS checkpoint fallback moving the job while the device was offline is the common cause.
 - Both queues share one IndexedDB database (`features/delivery/deliveryDb.ts`). They must: IndexedDB refuses to open a database at a lower version than it is already at, so two modules each owning a version would break as soon as one added a store.
 
+### Public Trace Page
+- `/trace/:token` → `pages/trace/PublicTracePage.tsx`, backed by `features/traceability` (`publicTraceService`, `traceState`). It was a stub that printed the token with a hard-coded `TRACE-HONEY-001` fallback; it is now wired to `GET /api/v1/trace/{publicToken}`.
+- **Farmer names are shown only when the API sends one.** `TraceabilityService` fills `farmerName` in only when both `TraceRecord.showFarmerNames` and `Farmer.consentPublicName` are true, and sends `null` otherwise. The page never derives a person's name from the group or the village — a name shown here is someone who consented. The village and group are always shown, because withholding a name is not withholding the origin; when nothing consented, a short notice says so.
+- **The query is pinned to a single fetch** (`staleTime`/`gcTime: Infinity`, no refetch on focus or reconnect). `getPublicTrace` writes a `TraceScan` row on *every* request and `scanCount` is the running total, so a focus-refetch would inflate a producer's scan count with no human behind it. Caching for the session also satisfies "cached for offline after one visit" on top of the service worker's HTTP cache.
+- A 404 is not retried — an unregistered code will not become registered by asking again.
+- An origin heading falls back village → `originLabel` → enterprise name, because "which village" is the question a shopper has; an entirely unnamed batch says so rather than showing a hole.
+- `features/traceability/traceState.ts` holds the presentation rules (name visibility, group label, output quantity, dedupe) so the consent rule is testable outside React.
+
 ### Live Tracking (Public)
 - `/track/:token` → `pages/tracking/LiveTrackingPage.tsx`, backed by `features/tracking` (`trackingService`, `trackingState`). It was a stub that printed the token and never called the API; it is now wired to `GET /api/v1/delivery/track/{trackingToken}`.
 - **Polling, not SSE.** F-604 asked for an SSE stream with a polling fallback, but the backend has no SSE endpoint, no `SseEmitter` and no WebSocket anywhere, so a stream would have meant inventing a contract. The page polls every **15 s** and stops as soon as the job reaches a terminal status. Gap logged as F-604-E1.

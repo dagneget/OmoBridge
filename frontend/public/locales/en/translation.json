@@ -132,5 +132,27 @@
     "minutes": "{{count}} minutes ago",
     "hours": "{{count}} hours ago",
     "days": "{{count}} days ago"
+  },
+  "trace": {
+    "title": "Product origin & traceability",
+    "subtitle": "Verified batch lineage from South Omo smallholders.",
+    "originLabel": "Origin",
+    "originMissing": "The producer has not recorded an origin for this batch.",
+    "processedOn": "Processed",
+    "batchCode": "Batch",
+    "storyTitle": "The story behind this batch",
+    "farmersTitle": "Who grew this",
+    "namesWithheld": "The growers of this batch have chosen not to publish their names.",
+    "outputsTitle": "What this batch became",
+    "scanCount": "{{count}} verifications",
+    "poweredBy": "Powered by OmoBridge",
+    "invalidTitle": "This trace link is not complete",
+    "invalidBody": "Check the code you scanned. It should end with the product’s trace number.",
+    "notFoundTitle": "We could not verify this product",
+    "notFoundBody": "The code may have been mistyped, or the product may not be registered yet. Check the code on the label.",
+    "backHome": "Back to OmoBridge",
+    "unavailableTitle": "Traceability is unavailable right now",
+    "unavailableBody": "We could not reach the traceability service. Please try again shortly.",
+    "retry": "Try again"
   }
 }

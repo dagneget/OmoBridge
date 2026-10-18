@@ -132,5 +132,27 @@
     "minutes": "ከ{{count}} ደቂቃ በፊት",
     "hours": "ከ{{count}} ሰዓት በፊት",
     "days": "ከ{{count}} ቀን በፊት"
+  },
+  "trace": {
+    "title": "የምርቱ ምንጭ እና ቀላል ማረጋገጫ",
+    "subtitle": "ከደቡብ ኦሞ አነስተኛ አርሶ አደሮች የተረጋገጠ የስሙር ቅርፅ።",
+    "originLabel": "አካባቢ",
+    "originMissing": "ማርጪው ለዚህ ስሙር አካባቢ አልተመዘገበም።",
+    "processedOn": "የተሠራበት",
+    "batchCode": "ስሙር",
+    "storyTitle": "ስለዚህ ስሙር ታሪክ",
+    "farmersTitle": "ማን አረሰው",
+    "namesWithheld": "የዚህ ስሙር አርሶ አደሮች ስማቸውን እንዳይታወስ መርጠዋል።",
+    "outputsTitle": "ዚህ ስሙር ወደ ምን ተቀየረ",
+    "scanCount": "{{count}} ጠቃሚ ማረጋገጫዎች",
+    "poweredBy": "በOmoBridge የተሠራ",
+    "invalidTitle": "ይህ የማረጋገጫ አገናኝ አልተሞላም",
+    "invalidBody": "የቀረበውን ኮድ ያረጋግጡ። የምርቱን የማረጋገጫ ቁጥር መጨረሻ ላይ መሆን አለበት።",
+    "notFoundTitle": "ይህን ምርት ማረጋገጥ አልቻልንም",
+    "notFoundBody": "ኮዱ ሊጠፋ ወይም ምርቱ እስካሁን አልተመዘገበም። በመለያው ላይ ያለውን ኮድ ያረጋግጡ።",
+    "backHome": "ወደ OmoBridge መመለስ",
+    "unavailableTitle": "ቀላል ማረጋገጫ አሁን አይገኝም",
+    "unavailableBody": "የቀላል ማረጋገጫ አገልጋዩን ማስረከብ አልቻልንም። ትንሽ ቆይታ ቆይተው እንደገና ይሞክሩ።",
+    "retry": "እንደገና ይሞክሩ"
   }
 }
