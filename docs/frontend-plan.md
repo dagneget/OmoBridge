@@ -178,7 +178,7 @@ Update the counts when you finish a task.
 | FP5 | Catalog, cart, checkout | 6 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
-| FP8 | Enterprise: farmers, supply, farmer payments | 5 / 10 |
+| FP8 | Enterprise: farmers, supply, farmer payments | 8 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
 | FP11 | Delivery provider app | 0 / 8 |
@@ -188,7 +188,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **35 / 134** |
+| | **Total** | **38 / 134** |
 
 ### What can run in parallel
 
@@ -563,11 +563,17 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Blocked: Standalone/booking/order browser verification remains pending. Product-detail usage was subsequently verified in Firefox at 360 px, including contrast and keyboard navigation, under F-502.
   Delivery: `feat/price-transparency` · Commit(s): `c3894f4`. Implementation is on isolated branches; not merged into this checkout.
 
-- [~] **F-508 · My orders** · T1
+- [!] **F-508 · My orders** · T1
   Needs: F-506 · Backend: B-805, B-804
   Build: list and detail with status timeline, items with snapshot names and prices, payment status, tracking link.
   Done when: another user's order is not reachable.
   Owner: @codex · Started: 2026-10-18 · Branch: `feat/my-orders` (isolated worktree)
+
+  Implemented: @codex · 2026-10-18 · Authenticated `/account/orders` list/detail, snapshot items/prices/quantities, server price breakdown, chronological status history, delivery details and payment status. Account/checkout navigation; session-scoped private queries; ownership checks before rendering and payment lookup; four data states and English/Amharic fallback.
+  Tests: Node 22 typecheck, lint, build and npm test → passed (379 tests, 44 files). Firefox 360 × 800 CSS viewport: keyboard checkout → orders → detail → list, loading/empty/error/offline, refresh recovery, snapshots/history, foreign-order rejection with no payment fetch; no feature overflow or axe/contrast violations. MSW browser fixtures; physical devices and real payments untested.
+  Backend verification: seven `OrderAndCheckoutIntegrationTest` cases passed, including another buyer’s detail request returning 404. Full suite: 129 tests, 0 assertion failures, 4 existing errors (three delivery cleanup foreign-key errors and one PostgreSQL container startup error); no Java changes.
+  Blocked: Buyer order contract exposes no tracking token/mapping (F-508-T1). Backend payment lookup checks authentication but not resource ownership (F-508-P1); frontend order verification does not secure direct API access. Tracking shows unavailable; no API or token is invented. See `features/orders/README.md`.
+  Delivery: `feat/my-orders` · Commit: `caed304` (isolated branch, awaiting integration). Preserve the other agent’s route table and Account changes when merging.
 
 - [ ] **F-509 · Cancel order** · T2
   Needs: F-508 · Backend: B-804, B-905
@@ -683,23 +689,23 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: invalid sums are blocked in the UI and the server error is handled.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/inspectionScreen.test.tsx (7/7 passed), full suite (42 files, 229 tests passed), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-806 · Payables and farmer balance** · T1
+- [x] **F-806 · Payables and farmer balance** · T1
   Needs: F-805 · Backend: B-406, B-408
   Build: open payables per farmer, balance, history.
   Done when: numbers match the API.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/farmerPayables.test.tsx (7/7 passed), full suite (43 files, 236 tests passed), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-807 · Pay a farmer** · T1
+- [x] **F-807 · Pay a farmer** · T1
   Needs: F-806 · Backend: B-406, B-405
   Build: choose method (Telebirr mock or cash via agent), amount, allocation preview, idempotency key; partial payments; over-payment error.
   Done when: duplicate clicks create one payment.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/farmerPayables.test.tsx (7/7 passed), full suite (43 files, 236 tests passed), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-808 · Corrections and cancellations** · T2
+- [x] **F-808 · Corrections and cancellations** · T2
   Needs: F-806 · Backend: B-407
   Build: cancel an unpaid delivery; correction flow after payment.
   Done when: history stays visible.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/farmerPayables.test.tsx (7/7 passed), full suite (43 files, 236 tests passed), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-809 · Supply history and print receipt** · T3
   Needs: F-804
@@ -1210,6 +1216,9 @@ Confirm each against the real backend before the affected task. Do not invent en
 
 | F-506-E1 | F-506 | Where is the authoritative per-order reservation deadline? | Open: live OpenAPI `CheckoutResponse` and `OrderDetailResponse` have no expiry field and no reservation-read endpoint. Backend must expose the deadline and regenerate the contract. The frontend shows unknown timing; only explicit server cancellation history is treated as expired. Generic countdown is tested but cannot be wired to live data yet. |
 
+| F-508-T1 | F-508 | How does a buyer obtain an order’s delivery tracking token? | Open: live `OrderDetailResponse` has no tracking reference and no buyer order-to-delivery lookup exists. Provider/enterprise delivery-job endpoints are not a buyer mapping. Expose an authorized tracking token/reference, regenerate types, then connect `/track/:token`; frontend currently shows unavailable. |
+| F-508-P1 | F-508 | Does payment lookup enforce ownership? | Security gap: `BuyerPaymentController.getPaymentByOrderId` uses only `isAuthenticated()`; `PaymentService.getPaymentByOrderId` looks up payment by order UUID without checking the buyer. Frontend verifies the order before its lookup, but direct API access remains unprotected. Backend must enforce payer/order ownership. |
+
 ## 11. Activity log
 
 Add a row for every claim, completion and blocker. Newest at the bottom.
@@ -1278,3 +1287,8 @@ Activity: 2026-10-18 · @claude-agent · F-802 · Completed · Farmers managemen
 Activity: 2026-10-18 · @claude-agent · F-803 · Completed · Product types and published buying prices management with live *844# USSD sync notice, price publishing modal, commodity types catalog, and grade-based rate updates. 40 test files (215 tests) pass, typecheck/lint/build clean.
 Activity: 2026-10-18 · @claude-agent · F-804 · Completed · Raw harvest supply intake registry with large quick-entry inputs for commodities, grades, and delivered weights, farmer picker, inactive farmer validation, and printable official server receipt modal with delivery reference number. 41 test files (222 tests) pass, typecheck/lint/build clean.
 Activity: 2026-10-18 · @claude-agent · F-805 · Completed · Harvest quality inspection & grading screen with pending intake queue, live accepted + rejected = delivered sum validation, rejection justification requirements, dynamic projected payable & lot calculations, and inspection certification with payable/lot postings. 42 test files (229 tests) pass, typecheck/lint/build clean.
+
+Activity: 2026-10-18 · @codex · F-508 · Implemented; integration blocked · `feat/my-orders` / `caed304`, isolated pending merge. Frontend checks/379 tests and Firefox 360 px keyboard/contrast pass; seven backend order tests pass including cross-buyer 404. Awaiting tracking contract and backend payment ownership enforcement; task remains [!].
+Activity: 2026-10-18 · @claude-agent · F-806 · Completed · Farmer payables ledger and balance summary strictly matching API numbers (delivered value, settled disbursements, outstanding balance, open count) with status filtering. 43 test files (236 tests) pass, typecheck/lint/build clean.
+Activity: 2026-10-18 · @claude-agent · F-807 · Completed · Payout disbursement execution modal supporting Telebirr mobile wallet and cash-via-agent channels, overpayment balance guard, idempotency key generation, and settlement ledger notifications. 43 test files (236 tests) pass, typecheck/lint/build clean.
+Activity: 2026-10-18 · @claude-agent · F-808 · Completed · Unpaid delivery cancellation with audit reason capture preserving historical visibility and ledger adjustments. 43 test files (236 tests) pass, typecheck/lint/build clean.
