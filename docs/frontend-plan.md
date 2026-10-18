@@ -178,7 +178,7 @@ Update the counts when you finish a task.
 | FP3 | Public tourism | 10 / 11 |
 | FP4 | Bookings | 5 / 5 |
 | FP5 | Catalog, cart, checkout | 6 / 9 |
-| FP6 | Payments and live tracking | 2 / 7 |
+| FP6 | Payments and live tracking | 3 / 7 |
 | FP7 | Traceability | 0 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
@@ -190,7 +190,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **58 / 134** |
+| | **Total** | **59 / 134** |
 
 ### What can run in parallel
 
@@ -575,7 +575,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Implemented: @codex · 2026-10-18 · Authenticated `/account/orders` list/detail, snapshot items/prices/quantities, server price breakdown, chronological status history, delivery details and payment status. Account/checkout navigation; session-scoped private queries; ownership checks before rendering and payment lookup; four data states and English/Amharic fallback.
   Tests: Node 22 typecheck, lint, build and npm test → passed (379 tests, 44 files). Firefox 360 × 800 CSS viewport: keyboard checkout → orders → detail → list, loading/empty/error/offline, refresh recovery, snapshots/history, foreign-order rejection with no payment fetch; no feature overflow or axe/contrast violations. MSW browser fixtures; physical devices and real payments untested.
   Backend verification: seven `OrderAndCheckoutIntegrationTest` cases passed, including another buyer’s detail request returning 404. Full suite: 129 tests, 0 assertion failures, 4 existing errors (three delivery cleanup foreign-key errors and one PostgreSQL container startup error); no Java changes.
-  Blocked: Buyer order contract exposes no tracking token/mapping (F-508-T1). Backend payment lookup checks authentication but not resource ownership (F-508-P1); frontend order verification does not secure direct API access. Tracking shows unavailable; no API or token is invented. See `features/orders/README.md`.
+  Blocked: Buyer order contract exposes no tracking token/mapping (F-508-T1). F-508-P1 is resolved on `integration/four-agent-baseline` / `0f8ce5f`: backend order-payment reads require matching payer and order buyer; dependent branches must adopt that commit. Tracking shows unavailable; no API or token is invented. See `features/orders/README.md`.
   Delivery: `feat/my-orders` · Commit: `caed304` (isolated branch, awaiting integration). Preserve the other agent’s route table and Account changes when merging.
 
 - [ ] **F-509 · Cancel order** · T2
@@ -604,11 +604,13 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Delivered: Each verified online PLACED seller order opens the existing F-601 modal with its fresh server amount/currency/reference. Settlement refetches only that order; no optimistic PAID status or group-wide payment update. English/Amharic progress counts use confirmed order statuses and flag partial/unverified results. Account, offline, cancelled, invalid-total and failed-verification states close or disable payment safely.
   Verification: 549 frontend tests pass (38 checkout result/payment tests); typecheck/lint/build pass with existing inspection/bundle warnings. Firefox 360 px keyboard fixture pays two orders independently, verifies 1/2 then 2/2, distinct attempt keys/amounts, no overflow and zero checkout axe violations. Service fixtures only; no real financial transaction. F-506 reservation-expiry and backend ownership/tracking gaps remain open.
 
-- [ ] **F-603 · Payment history** · T2
+- [x] **F-603 · Payment history** · T2
   Needs: F-601 · Backend: B-901
   Build: buyer payment list and receipt view.
   Done when: only the buyer's own payments appear.
-  Owner: —
+  Owner: @codex · Completed: 2026-10-18 · Branch: `integration/four-agent-baseline` · Commit: `0f8ce5f`
+  Delivered: Account links to `/account/payments` and `/account/payments/:id`; paginated own-payment history, order/booking references, settled receipt view and gated printing, with English/Amharic strings. Added authenticated payer-filtered backend list/record endpoints, generated their real OpenAPI types, and fixed order-payment reads to require both payer and order ownership (F-508-P1). Auth changes abort/purge old private queries; offline/error/loading/empty states stay explicit; pending/failed/refunded records never become settled receipts from a URL.
+  Verification: 583 frontend tests, typecheck/lint/build pass; 156 backend suite tests pass, with final 20 payment checks passing including cross-payer HTTP rejection and mixed booking/order mapping within two service SQL statements. Firefox 360 px account → history → receipt keyboard journey, print eligibility/offline recovery, foreign-account 404 and receipt axe checks pass without overflow. Browser data is mocked; no live financial transaction or physical-device claim. Existing inspection/bundle warnings remain.
 
 - [ ] **F-604 · Live tracking page** · T1
   Needs: F-304 · Backend: B-1005
@@ -1224,7 +1226,7 @@ Confirm each against the real backend before the affected task. Do not invent en
 | F-506-E1 | F-506 | Where is the authoritative per-order reservation deadline? | Open: live OpenAPI `CheckoutResponse` and `OrderDetailResponse` have no expiry field and no reservation-read endpoint. Backend must expose the deadline and regenerate the contract. The frontend shows unknown timing; only explicit server cancellation history is treated as expired. Generic countdown is tested but cannot be wired to live data yet. |
 
 | F-508-T1 | F-508 | How does a buyer obtain an order’s delivery tracking token? | Open: live `OrderDetailResponse` has no tracking reference and no buyer order-to-delivery lookup exists. Provider/enterprise delivery-job endpoints are not a buyer mapping. Expose an authorized tracking token/reference, regenerate types, then connect `/track/:token`; frontend currently shows unavailable. |
-| F-508-P1 | F-508 | Does payment lookup enforce ownership? | Security gap: `BuyerPaymentController.getPaymentByOrderId` uses only `isAuthenticated()`; `PaymentService.getPaymentByOrderId` looks up payment by order UUID without checking the buyer. Frontend verifies the order before its lookup, but direct API access remains unprotected. Backend must enforce payer/order ownership. |
+| F-508-P1 | F-508 | Does payment lookup enforce ownership? | Resolved on `integration/four-agent-baseline` / `0f8ce5f`: order-payment reads filter by authenticated payer and order buyer; cross-payer/foreign-order reads return 404. New receipt/history reads are payer-scoped. Backend HTTP and query tests pass. Adopt this commit before claiming the fix on another branch. Payment-attempt authorization/idempotency is a separate remaining review item. |
 
 ## 11. Activity log
 

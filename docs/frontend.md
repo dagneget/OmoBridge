@@ -396,3 +396,8 @@ Delivered in `d0f8ac7`: the existing Telebirr modal now confirms settlement thro
 ### F-602 seller payments in checkout
 
 Delivered in `ed05fa1`: checkout results now open F-601 for each verified seller order using its fresh amount/currency. Only the selected order is refreshed after settlement; group progress counts server-confirmed order statuses and reports incomplete verification. English/Amharic result strings are scoped to the checkout feature. All 549 frontend tests, typecheck/lint/build and the Firefox 360 px two-order keyboard/axe fixture pass. The F-506 deadline and backend authorization/tracking gaps remain open. See [checkout integration handoff](../frontend/src/features/checkout/RESULT_HANDOFF.md).
+
+
+### F-603 private payment history
+
+Delivered in `0f8ce5f`: Account now links to buyer payment history and receipt routes. New authenticated backend endpoints filter by payer; the existing order-payment read additionally checks order ownership. Generated types come from the real OpenAPI contract. Settled receipts support printing; pending/refunded/failed, offline and unverified records cannot enable the print action. Session changes abort and clear private queries. Verification: 583 frontend tests, 156 backend tests, final 20 payment checks and Firefox 360 px keyboard/receipt axe checks pass. See [payment guide](../frontend/src/features/payments/README.md).

@@ -195,3 +195,6 @@ Codex delivery update · 2026-10-18: F-601 is complete on `integration/four-agen
 
 
 Codex delivery update · 2026-10-18: F-602 is complete on `integration/four-agent-baseline` / `ed05fa1`. Per-seller checkout payments use F-601, with independent server-confirmed progress (549 frontend tests; typecheck/lint/build; 360 px keyboard/axe fixture pass). Next: F-603 payment history, subject to an authorized buyer payment-list/receipt contract. F-506 expiry and backend ownership/tracking blockers remain open. Preserve other agents’ claims and source changes.
+
+
+Codex delivery update · 2026-10-18: F-603 is complete on `integration/four-agent-baseline` / `0f8ce5f` (583 frontend tests, 156 backend tests; final 20 payment checks and 360 px keyboard/receipt axe checks pass). Own-payment history and receipts now have real payer-scoped endpoints; F-508-P1 is resolved on this branch. Next Codex task: F-606 refund display. Tracking and reservation-deadline gaps remain open. Adopt the integration branch into saved task worktrees; preserve active source changes.

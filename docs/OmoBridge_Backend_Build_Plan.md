@@ -1024,3 +1024,6 @@ Activity: 2026-10-18 · @codex · B-FIX-001 · Implemented; verification blocked
   Blocked: Full ./mvnw test attempted twice → 138 tests, 0 failures, 1 error each time: ReviewsAndAiIntegrationTest PostgreSQL container startup failed with Docker broken pipe before test execution. Original three delivery cleanup errors are resolved. Migration: none.
 
 Activity: 2026-10-18 · @codex · B-FIX-002 · Delivery cleanup repaired and tested in both class orders; full-suite verification blocked by Docker startup for reviews (which pass in isolation).
+
+
+Payment read follow-up · F-603 · 2026-10-18 · @codex · `0f8ce5f`: added bounded authenticated payer history and receipt reads, and payer/order-owner authorization on existing order-payment lookup. No migrations; existing payer index retained. Read-only DTO mapping fetches only to-one order/booking associations; mixed-target pagination test measures at most two service SQL statements. Full backend suite: 156 passing; final payment service/controller/PostgreSQL checks: 20 passing. Payment-attempt authorization/idempotency remains a separate review item.

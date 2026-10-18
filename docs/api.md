@@ -143,6 +143,9 @@
 ### I. Digital Payments & Gateways (`/api/v1/payments/**`, `/api/v1/integrations/payments/**`)
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
+| `GET` | `/api/v1/payments?page=0&size=20` | Authenticated payer | Own payment history; `ApiResponse<PageResponse<PaymentResponse>>`; default createdAt/id descending; max 100 rows |
+| `GET` | `/api/v1/payments/{paymentId}` | Authenticated payer | Own payment record for receipt display; unavailable/foreign records return 404 |
+| `GET` | `/api/v1/payments/order/{orderId}` | Authenticated payer and order buyer | Matching payer and order-owner payment only; foreign records return 404 |
 | `POST` | `/api/v1/payments/attempt` | `BUYER_VISITOR`, `SYSTEM_ADMIN` | Create idempotent payment attempt (Telebirr/CBE Birr) |
 | `POST` | `/api/v1/integrations/payments/{provider}/webhook` | Public (Signature Auth) | Ingest verified HMAC payment gateway callback |
 | `POST` | `/api/v1/enterprises/{id}/payments/{paymentId}/refund` | `MICRO_ENTERPRISE`, `SYSTEM_ADMIN` | Issue partial or full refund |
