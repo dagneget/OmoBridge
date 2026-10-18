@@ -32,6 +32,7 @@ const RegisterBuyerPage = lazy(() => import('../pages/auth/RegisterBuyerPage'));
 const RegisterProducerPage = lazy(() => import('../pages/auth/RegisterProducerPage'));
 const RegisterEnterprisePage = lazy(() => import('../pages/auth/RegisterEnterprisePage'));
 const RegisterDeliveryPage = lazy(() => import('../pages/auth/RegisterDeliveryPage'));
+const RegisterGuidePage = lazy(() => import('../pages/auth/RegisterGuidePage'));
 
 // Lazy-loaded Trace & Tracking
 const PublicTracePage = lazy(() => import('../pages/trace/PublicTracePage'));
@@ -91,6 +92,8 @@ export default function AppRoutes() {
             <Route path="/auth/register/enterprise" element={<RegisterEnterprisePage />} />
             <Route path="/register/delivery" element={<RegisterDeliveryPage />} />
             <Route path="/auth/register/delivery" element={<RegisterDeliveryPage />} />
+            <Route path="/register/guide" element={<RegisterGuidePage />} />
+            <Route path="/auth/register/guide" element={<RegisterGuidePage />} />
           </Route>
 
           {/* Role-Aware Dashboard Layout */}
