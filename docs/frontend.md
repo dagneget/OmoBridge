@@ -391,3 +391,8 @@ F-508 verification: Node 22 typecheck, lint, build and all 379 Vitest tests (44 
 ### F-601 shared payments
 
 Delivered in `d0f8ac7`: the existing Telebirr modal now confirms settlement through server reads, with same-key retries, polling/manual refresh, timeout handling and stale-response protection. See [payment integration guide](../frontend/src/features/payments/README.md). F-602 owns checkout-group wiring; backend ownership/expiry/tracking gaps remain open.
+
+
+### F-602 seller payments in checkout
+
+Delivered in `ed05fa1`: checkout results now open F-601 for each verified seller order using its fresh amount/currency. Only the selected order is refreshed after settlement; group progress counts server-confirmed order statuses and reports incomplete verification. English/Amharic result strings are scoped to the checkout feature. All 549 frontend tests, typecheck/lint/build and the Firefox 360 px two-order keyboard/axe fixture pass. The F-506 deadline and backend authorization/tracking gaps remain open. See [checkout integration handoff](../frontend/src/features/checkout/RESULT_HANDOFF.md).

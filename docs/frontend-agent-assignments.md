@@ -192,3 +192,6 @@ The allocation above is the original snapshot. At this baseline cutoff, 56/134 f
 
 
 Codex delivery update · 2026-10-18: F-601 is complete on `integration/four-agent-baseline` / `d0f8ac7` (531 frontend tests; typecheck/lint/build and 360 px payment fixture pass). Next: F-602 checkout-group wiring using the shared payment component. Existing backend ownership/expiry/tracking blockers remain open. Preserve all other active claims.
+
+
+Codex delivery update · 2026-10-18: F-602 is complete on `integration/four-agent-baseline` / `ed05fa1`. Per-seller checkout payments use F-601, with independent server-confirmed progress (549 frontend tests; typecheck/lint/build; 360 px keyboard/axe fixture pass). Next: F-603 payment history, subject to an authorized buyer payment-list/receipt contract. F-506 expiry and backend ownership/tracking blockers remain open. Preserve other agents’ claims and source changes.

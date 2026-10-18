@@ -178,7 +178,7 @@ Update the counts when you finish a task.
 | FP3 | Public tourism | 10 / 11 |
 | FP4 | Bookings | 5 / 5 |
 | FP5 | Catalog, cart, checkout | 6 / 9 |
-| FP6 | Payments and live tracking | 1 / 7 |
+| FP6 | Payments and live tracking | 2 / 7 |
 | FP7 | Traceability | 0 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
@@ -190,7 +190,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **57 / 134** |
+| | **Total** | **58 / 134** |
 
 ### What can run in parallel
 
@@ -554,6 +554,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Tests: Node 22 typecheck, lint, build and npm test → passed (336 tests, 42 files). Firefox 360 × 800 CSS viewport: keyboard submit/refresh/new-checkout, loading/error/offline, simulated server expiry, no horizontal overflow or feature axe/contrast violations. MSW fixtures only; physical devices and real payments were not tested.
   Blocked: Live OpenAPI exposes no reservation deadline or reservation-read endpoint; countdown cannot be wired without a contract change. Order-payment destinations are not connected on this isolated branch. Primary already has F-405’s shared Telebirr modal/service (`fc16594`), which should be reused during integration. No invented API field, `createdAt + 30 minutes` deadline, or dead payment link. See gap F-506-E1 and `features/checkout/RESULT_HANDOFF.md`.
   Delivery: `feat/checkout-result` · Commit: `1162266` (isolated branch, awaiting integration). Backend full suite ran: 129 tests, 0 assertion failures, 4 existing errors (three delivery cleanup foreign-key errors and one PostgreSQL container startup error); no backend changes.
+  Integration update: F-602 (`ed05fa1`) now connects each seller order to the shared verified payment modal. The reservation-deadline API gap remains open; F-506 stays [!].
 
 - [x] **F-507 · Price transparency component** · T1
   Needs: F-102, F-104
@@ -595,11 +596,13 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Delivered: Existing F-405 modal now shares an abortable payment flow, buyer/target-scoped session key, same-key retries/reopening, 3-second settlement polling, manual refresh, 25-second timeout and stale-session protection. Gateway attempt SUCCESS alone never marks paid: booking/payment reads must confirm settlement. Order ownership is checked before initiation and status lookup; backend security gaps still require enforcement.
   Verification: 531 frontend tests pass (29 focused payment/booking tests), typecheck/lint/build pass; existing inspection and bundle warnings remain. Firefox 360 px fixture confirms forged URL rejection, pending gateway success, keyboard refresh/focus wrap, one attempt, no horizontal overflow, and zero success-dialog axe violations. No live financial transaction or physical-device claim. See `frontend/src/features/payments/README.md`.
 
-- [ ] **F-602 · Pay each order in a checkout group** · T1
+- [x] **F-602 · Pay each order in a checkout group** · T1
   Needs: F-601, F-506 · Backend: B-902
   Build: sequential or per-order payment UI for a multi-seller checkout; overall group status.
   Done when: paying one order does not mark the others paid.
-  Owner: —
+  Owner: @codex · Completed: 2026-10-18 · Branch: `integration/four-agent-baseline` · Commit: `ed05fa1`
+  Delivered: Each verified online PLACED seller order opens the existing F-601 modal with its fresh server amount/currency/reference. Settlement refetches only that order; no optimistic PAID status or group-wide payment update. English/Amharic progress counts use confirmed order statuses and flag partial/unverified results. Account, offline, cancelled, invalid-total and failed-verification states close or disable payment safely.
+  Verification: 549 frontend tests pass (38 checkout result/payment tests); typecheck/lint/build pass with existing inspection/bundle warnings. Firefox 360 px keyboard fixture pays two orders independently, verifies 1/2 then 2/2, distinct attempt keys/amounts, no overflow and zero checkout axe violations. Service fixtures only; no real financial transaction. F-506 reservation-expiry and backend ownership/tracking gaps remain open.
 
 - [ ] **F-603 · Payment history** · T2
   Needs: F-601 · Backend: B-901
