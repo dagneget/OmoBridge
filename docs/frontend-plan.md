@@ -173,9 +173,9 @@ Update the counts when you finish a task.
 | FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 8 / 10 |
 | FP2 | Authentication and roles | 9 / 9 |
-| FP3 | Public tourism | 9 / 11 |
+| FP3 | Public tourism | 11 / 11 |
 | FP4 | Bookings | 5 / 5 |
-| FP5 | Catalog, cart, checkout | 5 / 9 |
+| FP5 | Catalog, cart, checkout | 6 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 0 / 10 |
@@ -453,11 +453,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: pages render.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/aboutAndFooter.test.tsx (4/4 passed), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-311 · Translated content** · T2
+- [x] **F-311 · Translated content** · T2
   Needs: F-302, F-1601 · Backend: B-203
   Build: send the selected language to the API; show fallback text when a translation is missing.
   Done when: switching language changes content or falls back without errors.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/translatedContent.test.tsx (5/5 passed), typecheck (clean), lint (clean), build (clean)
 
 ---
 
@@ -533,11 +533,14 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Verified: Product-detail add controls; seller groups; fractional quantity/save drafts; remove/clear/focus; price/stock/unavailable warnings; all four states; English/Amharic fallback. Firefox exact 360 px viewport has no cart overflow or axe violations including contrast; keyboard add/edit/remove/clear works; loading, empty, error/recovery and offline states exercised. Live OpenAPI rechecked; populated UI uses contract-based MSW. Public local cart needs no role guard.
   Delivery: `feat/cart-page` · Commit: `731dc57` (isolated branch, awaiting merge). Checkout navigation points to the existing route; order creation remains F-505. No authoritative totals are computed.
 
-- [ ] **F-505 · Checkout** · T1
+- [x] **F-505 · Checkout** · T1
   Needs: F-504, F-207 · Backend: B-802, B-205
   Build: delivery address with a map pin, contact details; submit only product ids and quantities with an idempotency key; show insufficient-stock errors per item; all-or-nothing behavior.
   Done when: tests cover success, insufficient stock, repeated submit, and a tampered cart.
-  Owner: —
+  Done: @codex · 2026-10-18 · Tests: Node 22 typecheck, lint, build and npm test → passed (300 tests, 39 files).
+
+  Verification: Firefox 360 × 800 CSS viewport, keyboard delivery/coordinates/submit/retry, empty/loading/error/offline, stock checks, locked identical retries and confirmed cart cleanup; no horizontal overflow or feature contrast violations. Browser uses MSW; real financial transactions and physical devices were not tested.
+  Delivery: `feat/checkout` · Commit: `484d71a` (isolated branch, awaiting merge). F-506 owns countdown/payment navigation. Backend full suite ran: 129 tests, 0 assertion failures, 4 errors (three known delivery cleanup foreign-key errors and one PostgreSQL container startup error); no backend changes.
 
 - [ ] **F-506 · Checkout result** · T1
   Needs: F-505 · Backend: B-801, B-803
@@ -1197,6 +1200,9 @@ Confirm each against the real backend before the affected task. Do not invent en
 | 16 | F-1103 | PWAs cannot track GPS reliably in the background. Is a native wrapper out of scope, with SMS checkpoints as the fallback? | Resolved: Native wrapper out of MVP scope; foreground geolocation tracking with offline queue + SMS keywords fallback (`ARRIVED`, `LEFT`) |
 | 17 | F-305 | `GET /api/v1/tourism/hotels` throws backend 500 (`LazyInitializationException` on lazy `Hotel.enterprise` during JSON serialization) | Resolved: Frontend built and tested against OpenAPI typed MSW mock and seed hotels; backend gap documented; task marked [!] |
 
+| F-505-I1 | F-505 | Is checkout idempotent replay scoped to the authenticated buyer and original payload? | Open: `CheckoutService.checkout` looks up only `idempotencyKey` and returns the group without checking buyer/payload. Backend must enforce ownership and reject mismatches. Frontend keys are random and session-scoped; no backend code changed. |
+| F-505-S1 | F-505 | Can insufficient-stock failures identify affected product IDs? | Open: the service returns a free-text `BUSINESS_RULE_VIOLATION`, without a structured product ID. Frontend refreshes public product checks for per-item errors and retains a generic rejection if a transient race cannot be reproduced. |
+
 ## 11. Activity log
 
 Add a row for every claim, completion and blocker. Newest at the bottom.
@@ -1255,3 +1261,6 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | Frontend aligned to the completed backend (OpenAPI contract, idempotency keys, verified payments, multi-seller checkout groups, token tracking, consent-aware traceability) | All |
 | 2026-10-18 | USSD is a backend integration; the frontend provides help content and a separate simulator tool only | F-1004, F-1707 |
 | 2026-10-18 | Tourism pages follow the agreed list: packages with prices, hotels and resorts, essential information, transport, guides, booking, payment, testimonials, safety, contact | FP3, FP4 |
+
+Activity: 2026-10-18 · @codex · F-505 · Completed · `feat/checkout` / `484d71a`, isolated pending merge. Typed checkout with map/keyboard coordinates, fresh cart checks, same-key retries and complete server confirmation. Frontend checks and 300 tests pass; Firefox 360 px keyboard/contrast/state checks pass. Backend baseline: 129 tests, 4 errors; details in task entry.
+Activity: 2026-10-18 · @claude-agent · F-311 · Completed · LanguageSwitcher with English/Amharic fallback, persistent preference in localStorage, documentElement lang sync, query cache refresh, and Accept-Language HTTP header injection. All 37 test files (192 tests) pass, typecheck/lint/build clean. Completes FP3 (11/11).

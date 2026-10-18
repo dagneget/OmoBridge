@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { TOKEN_STORAGE_KEY } from '../../services/httpClient';
 import { OfflineBanner } from '../common/OfflineBanner';
+import { LanguageSwitcher } from '../common/LanguageSwitcher';
 
 export default function PublicLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -90,6 +91,9 @@ export default function PublicLayout() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-2">
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
@@ -154,7 +158,11 @@ export default function PublicLayout() {
                 {label}
               </Link>
             ))}
-            <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
+              <div className="flex items-center justify-between px-2 py-1">
+                <span className="text-xs font-semibold text-slate-500">Language / ቋንቋ</span>
+                <LanguageSwitcher />
+              </div>
               <Link
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}

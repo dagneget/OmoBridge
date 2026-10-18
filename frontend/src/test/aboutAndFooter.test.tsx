@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AboutPage from '../pages/public/AboutPage';
 import PublicLayout from '../components/layout/PublicLayout';
 
@@ -53,14 +54,19 @@ describe('About and footer (F-310)', () => {
   });
 
   it('renders persistent footer with all section links and USSD shortcode in PublicLayout', () => {
+    const qc = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
     render(
-      <MemoryRouter initialEntries={['/']}>
-        <Routes>
-          <Route element={<PublicLayout />}>
-            <Route index element={<div>Home Screen</div>} />
-          </Route>
-        </Routes>
-      </MemoryRouter>
+      <QueryClientProvider client={qc}>
+        <MemoryRouter initialEntries={['/']}>
+          <Routes>
+            <Route element={<PublicLayout />}>
+              <Route index element={<div>Home Screen</div>} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>
     );
 
     const footer = screen.getByTestId('public-footer');

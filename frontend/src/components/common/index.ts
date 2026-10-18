@@ -19,3 +19,4 @@ export * from './OfflineBanner';
 export * from './NetworkButton';
 export { default as RoleSwitcher } from './RoleSwitcher';
 export * from './Map';
+export * from './LanguageSwitcher';
