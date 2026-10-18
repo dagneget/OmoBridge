@@ -16,6 +16,7 @@ import {
   FileCheck,
   Scale,
   PlusCircle,
+  ClipboardCheck,
 } from 'lucide-react';
 import { useAuthStore } from '../../../features/auth/authStore';
 import { enterpriseService } from '../../../features/enterprise/enterpriseService';
@@ -381,6 +382,17 @@ export default function SupplyIntakePage() {
                       </td>
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-2">
+                          {isRecorded && (
+                            <Link
+                              to={`/dashboard/enterprise/inspection?deliveryId=${delivery.id}`}
+                              className="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded-lg font-medium text-xs border border-amber-200 dark:border-amber-800"
+                              title="Inspect quality and grade"
+                              data-testid={`inspect-delivery-${delivery.id}`}
+                            >
+                              <ClipboardCheck className="w-3.5 h-3.5" />
+                              <span>Inspect</span>
+                            </Link>
+                          )}
                           <button
                             onClick={() => setActiveReceipt(delivery)}
                             className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-emerald-700 font-medium text-xs"
