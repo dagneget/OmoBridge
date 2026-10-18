@@ -982,7 +982,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Needs: F-404, F-508 · Backend: B-1202
   Build: rating and comment, shown only after a completed booking or delivered order; one review per item.
   Done when: early and duplicate reviews are blocked with clear messages.
-  Owner: —
+  Owner: Codex · in progress · 2026-10-19. Backend now requires COMPLETED bookings, exactly one proof reference, and a matching purchased target; 14 focused backend tests pass. Frontend rating/comment form remains pending; keep unchecked.
 
 - [ ] **F-1402 · My reviews** · T3
   Needs: F-1401

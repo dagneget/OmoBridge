@@ -20,6 +20,7 @@ import com.omobridge.identity.domain.VerificationStatus;
 import com.omobridge.orders.domain.CheckoutGroup;
 import com.omobridge.orders.domain.CheckoutGroupRepository;
 import com.omobridge.orders.domain.Order;
+import com.omobridge.orders.domain.OrderItem;
 import com.omobridge.orders.domain.OrderRepository;
 import com.omobridge.orders.domain.OrderStatus;
 import com.omobridge.products.domain.Product;
@@ -274,6 +275,15 @@ public class ReviewsAndAiIntegrationTest {
         deliveredOrder.setTotalAmount(new BigDecimal("1020.00"));
         deliveredOrder.setDeliveryAddress("Turmi Lodge");
         deliveredOrder.setDeliveryPhone(buyerA.getPhoneNumber());
+        var purchasedItem = new OrderItem();
+        purchasedItem.setOrder(deliveredOrder);
+        purchasedItem.setProduct(product);
+        purchasedItem.setProductNameSnapshot(product.getName());
+        purchasedItem.setProductSkuSnapshot(product.getSku());
+        purchasedItem.setUnitPriceSnapshot(new BigDecimal("400.00"));
+        purchasedItem.setQuantity(new BigDecimal("2.00"));
+        purchasedItem.setLineTotal(new BigDecimal("800.00"));
+        deliveredOrder.getItems().add(purchasedItem);
         deliveredOrder = orderRepository.save(deliveredOrder);
 
         paidOrder = new Order();
@@ -300,6 +310,32 @@ public class ReviewsAndAiIntegrationTest {
         user.setStatus(UserStatus.ACTIVE);
         user.addRole(role);
         return userRepository.save(user);
+    }
+
+    @Test
+    void shouldRejectUnpurchasedProductWhenOrderIsDelivered() throws Exception {
+        var request = new CreateReviewRequest(ReviewTargetType.PRODUCT, UUID.randomUUID(),
+                deliveredOrder.getId(), null, 5, "Unrelated product");
+        mockMvc.perform(post("/api/v1/reviews")
+                        .header("Authorization", "Bearer " + buyerAToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.message", containsString("not part of")));
+        assertThat(reviewRepository.count()).isZero();
+    }
+
+    @Test
+    void shouldRejectAmbiguousProofWhenBothReferencesProvided() throws Exception {
+        var request = new CreateReviewRequest(ReviewTargetType.PRODUCT, product.getId(),
+                deliveredOrder.getId(), UUID.randomUUID(), 5, "Ambiguous proof");
+        mockMvc.perform(post("/api/v1/reviews")
+                        .header("Authorization", "Bearer " + buyerAToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.message", containsString("exactly one")));
+        assertThat(reviewRepository.count()).isZero();
     }
 
     @Test

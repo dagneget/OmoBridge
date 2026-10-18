@@ -204,3 +204,6 @@ Codex delivery update · 2026-10-18: F-606 is complete on `integration/four-agen
 
 
 Codex delivery update · 2026-10-19: F-509 is complete on `integration/four-agent-baseline` / `c45cf04` (638 frontend tests, 15 focused PostgreSQL order tests; typecheck/lint/build and 360 px keyboard/axe checks pass). Buyer cancellation uses the existing endpoint with confirmation, same-account checks, uncertain-response recovery and no refund inference. The existing F-508 order-detail implementation is sufficient for this action; F-508 tracking and F-506 expiry remain blocked. F-607 still depends on OpenCode’s F-605; preserve that ownership when selecting the next ready Codex task.
+
+
+Codex progress update · 2026-10-19: F-1401 claimed in the isolated integration worktree. Verified backend prerequisites now reject early booking reviews, unrelated target items, and ambiguous order/booking proof. Nine eligibility unit cases and five PostgreSQL integration cases pass. F-1401 remains in progress until the frontend form is implemented; F-1402/F-1403 remain unchecked. Other agents’ ownership is unchanged.

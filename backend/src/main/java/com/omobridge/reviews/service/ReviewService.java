@@ -3,6 +3,7 @@ package com.omobridge.reviews.service;
 import com.omobridge.bookings.domain.Booking;
 import com.omobridge.bookings.domain.BookingRepository;
 import com.omobridge.bookings.domain.BookingStatus;
+import com.omobridge.bookings.domain.BookingItemType;
 import com.omobridge.common.audit.AuditService;
 import com.omobridge.common.exception.BusinessRuleException;
 import com.omobridge.common.exception.ConflictException;
@@ -37,8 +38,8 @@ public class ReviewService {
 
     @Transactional
     public ReviewResponse createReview(CreateReviewRequest request, User reviewer) {
-        if (request.orderId() == null && request.bookingId() == null) {
-            throw new BusinessRuleException("Review requires a verified delivered order or completed booking");
+        if ((request.orderId() == null) == (request.bookingId() == null)) {
+            throw new BusinessRuleException("Review requires exactly one delivered order or completed booking");
         }
 
         Order verifiedOrder = null;
@@ -60,9 +61,37 @@ public class ReviewService {
             if (!verifiedBooking.getBuyer().getId().equals(reviewer.getId())) {
                 throw new ForbiddenException("Cannot review a booking placed by another user");
             }
-            if (verifiedBooking.getStatus() != BookingStatus.COMPLETED && verifiedBooking.getStatus() != BookingStatus.CONFIRMED) {
+            if (verifiedBooking.getStatus() != BookingStatus.COMPLETED) {
                 throw new BusinessRuleException("Cannot review experience before booking is completed. Current status: " + verifiedBooking.getStatus());
             }
+        }
+
+        boolean matches = false;
+        if (verifiedOrder != null) {
+            matches = switch (request.targetType()) {
+                case PRODUCT -> verifiedOrder.getItems().stream()
+                        .anyMatch(item -> item.getProduct().getId().equals(request.targetId()));
+                case ENTERPRISE -> verifiedOrder.getEnterprise().getId().equals(request.targetId());
+                default -> false;
+            };
+        } else if (verifiedBooking != null) {
+            matches = switch (request.targetType()) {
+                case EXPERIENCE -> (verifiedBooking.getSession() != null
+                        && verifiedBooking.getSession().getTourPackage().getId().equals(request.targetId()))
+                        || verifiedBooking.getItems().stream().anyMatch(item ->
+                                item.getItemType() == BookingItemType.PACKAGE
+                                        && item.getItemId().equals(request.targetId()));
+                case GUIDE -> (verifiedBooking.getAssignedGuide() != null
+                        && verifiedBooking.getAssignedGuide().getId().equals(request.targetId()))
+                        || verifiedBooking.getItems().stream().anyMatch(item ->
+                                item.getItemType() == BookingItemType.GUIDE
+                                        && item.getItemId().equals(request.targetId()));
+                case ENTERPRISE -> verifiedBooking.getEnterprise().getId().equals(request.targetId());
+                default -> false;
+            };
+        }
+        if (!matches) {
+            throw new BusinessRuleException("Review target is not part of the verified order or booking");
         }
 
         if (reviewRepository.existsByReviewerUserIdAndTargetTypeAndTargetId(reviewer.getId(), request.targetType(), request.targetId())) {
