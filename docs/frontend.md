@@ -425,3 +425,10 @@ Validation: 682 frontend tests (75 files), typecheck/build and lint pass, with o
 On `integration/four-agent-baseline` / `b8035a1`, `/account/reviews` is linked from Account and guarded by session verification. It lists the authenticated user’s own reviews, including non-public reviews, through `GET /api/v1/reviews/my`. The new endpoint enforces reviewer scope, a capped page size and stable ordering; its generated types come from the running backend. Ratings, comments, submission dates and product/experience links are displayed with English/Amharic text and empty/loading/error/offline states. Private queries are scoped to authentication revision and cleared on account changes, with no persistence.
 
 Verification: 714 frontend tests (77 files), 22 focused backend checks and typecheck/lint/build pass; only existing inspection and bundle warnings remain. PostgreSQL history mapping/count uses at most two queries. Firefox at 360 px verifies keyboard account navigation, pagination and refresh, offline handling, another account’s empty list, no overflow and zero review-page axe violations. FP14 is complete. See [review handoff](frontend-reviews-handoff.md).
+
+
+### F-1706 security review
+
+Delivered on `integration/four-agent-baseline` / `f741a09`: production CSP and hosting headers, lazy mock loading that excludes demo credentials from default release bundles, redacted React error callbacks and fallback, explicit disabled source maps, and `npm run security:check`. Verification: 730 frontend tests (79 files), typecheck/lint/build and artifact checks pass; dependency audit reports zero known vulnerabilities. Browser checks verify script/connection CSP enforcement and literal rendering of review HTML payloads. See [security review](frontend-security-review.md) and ADR-005.
+
+The review is complete; release is blocked by SEC-01, confirmed booking details remaining after logout. The handoff stays with OpenCode F-110. LocalStorage bearer-token risk and real-host HTTPS/CORS/header verification remain explicit in the review. No active source files in other agents’ worktrees were changed.

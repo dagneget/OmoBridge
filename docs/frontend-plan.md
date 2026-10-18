@@ -189,8 +189,8 @@ Update the counts when you finish a task.
 | FP14 | Reviews | 3 / 3 |
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
-| FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **64 / 134** |
+| FP17 | Quality, tools and release | 1 / 9 |
+| | **Total** | **65 / 134** |
 
 ### What can run in parallel
 
@@ -1110,11 +1110,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: budgets and results are recorded; initial route loads quickly on a throttled connection.
   Owner: —
 
-- [ ] **F-1706 · Security review** · T1
+- [x] **F-1706 · Security review** · T1
   Needs: F-201
   Build: CSP, XSS review, token handling check, dependency audit, no secrets in the build, no tokens or personal data in logs, source map policy.
   Done when: checklist completed in `docs/decisions.md`.
-  Owner: —
+  Done: @codex · 2026-10-19 · Source: `f741a09`. Review checklist in ADR-005 and [security report](frontend-security-review.md). Build CSP/hosting headers, mock-credential removal, redacted React errors, source-map policy and artifact gate verified. Tests: 730 frontend (79 files), typecheck/lint/build/security:check pass; dependency audit: zero known vulnerabilities; Firefox verifies CSP and escaped review markup. Review completed, not release approval: SEC-01 booking details remain after logout and are handed to OpenCode F-110; localStorage and deployment gates are documented.
 
 - [ ] **F-1707 · USSD simulator tool** · T1
   Needs: F-001 · Backend: B-1105, B-1106
@@ -1283,6 +1283,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @codex | F-504 | Completed on isolated branch | 731dc57: cart/add controls, English/Amharic and 21 UI tests; 267 total tests, typecheck/lint/build and Firefox 360 px keyboard/contrast/all-state checks pass. Awaiting merge. |
 | 2026-10-19 | @codex | F-1401, F-1403 | Completed | Verified purchase review forms and eligibility/duplicate coverage; source `354d0db`, backend `b431e6b`; 682 frontend tests, 14 focused backend tests, build/lint and 360 px keyboard/axe checks pass |
 | 2026-10-19 | @codex | F-1402 | Completed | `b8035a1`: authenticated paginated My reviews, including non-public records; 714 frontend tests, 22 focused backend tests, build/lint and 360 px keyboard/axe checks pass; FP14 complete |
+| 2026-10-19 | @codex | F-1706 | Review completed; release blocker recorded | `f741a09`: CSP, artifact gate, mock removal, safe error logging; 730 frontend tests and browser checks pass; SEC-01 booking logout privacy assigned to OpenCode F-110 |
 
 ## 12. Change log (requirements)
 

@@ -112,7 +112,7 @@ Existing statuses below are a snapshot, not new claims. The `Needs` column is pr
 | F-1701 | Not started | T1 | Critical-flow component tests | T1 feature tasks |
 | F-1702 | Not started | T2 | Contract tests | F-007 |
 | F-1703 | Not started | T1 | End-to-end golden path | T1 feature tasks |
-| F-1706 | Not started | T1 | Security review | F-201 |
+| F-1706 | Done | T1 | Security review | F-201 |
 | F-1708 | Not started | T1 | Demo script and demo checklist | F-1703 |
 | F-1709 | Not started | T2 | Final report and deployment notes | F-1701 to F-1708 |
 
@@ -213,3 +213,6 @@ Codex delivery update · 2026-10-19: F-1401 and F-1403 are complete on `integrat
 
 
 Codex delivery update · 2026-10-19: F-1402 is complete on `integration/four-agent-baseline` / `b8035a1`, completing FP14. The Account review list uses a real principal-scoped paginated endpoint and regenerated OpenAPI types, including non-public reviews. Validation: 714 frontend tests, 22 focused backend checks, typecheck/lint/build, two-query page budget and 360 px keyboard/privacy/axe checks pass. F-607 remains dependent on OpenCode’s F-605; F-506 expiry and F-508 tracking remain blocked. Next Codex work should focus on available FP17 checks while preserving other agents’ ownership.
+
+
+Codex security update · 2026-10-19: F-1706 review is complete on `integration/four-agent-baseline` / `f741a09`. CSP, safe render-error logging, removal of mock credentials from the default production bundle, explicit source-map policy and a production artifact gate are verified. All 730 frontend tests and build/typecheck/lint/security checks pass; npm audit reports zero known vulnerabilities. **Release blocker SEC-01:** loaded booking details remain visible after logout, confirmed in Firefox with demo data. OpenCode should address this under its allocated F-110 cache/privacy cleanup, adding account-scoped booking queries, immediate hiding and old-session cleanup. Other ownership remains unchanged. This review does not approve production release.
