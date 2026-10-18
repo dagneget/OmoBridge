@@ -19,11 +19,9 @@ import {
   mockDeliveries,
   mockEnterpriseOrders,
   mockInventoryLots,
-  mockInventoryLocations,
-  mockInventoryMovements,
-  mockReconciliationReports,
   mockFarmerPayables,
   mockFarmerPayments,
+  mockProductionBatches,
 } from './fixtures/enterprise';
 
 export const handlers = [
@@ -358,184 +356,10 @@ export const handlers = [
     });
   }),
 
-  http.get('*/api/v1/enterprises/:enterpriseId/inventory/lots', ({ request }) => {
-    const url = new URL(request.url);
-    const status = url.searchParams.get('status');
-    const filtered = status
-      ? mockInventoryLots.filter((lot) => lot.status === status)
-      : mockInventoryLots;
+  http.get('*/api/v1/enterprises/:enterpriseId/inventory/lots', () => {
     return HttpResponse.json({
       success: true,
-      data: filtered,
-    });
-  }),
-
-  http.get('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId', ({ params }) => {
-    const { lotId } = params;
-    const lot = mockInventoryLots.find((l) => l.id === lotId);
-    if (!lot) {
-      return HttpResponse.json({ success: false, message: 'Lot not found' }, { status: 404 });
-    }
-    return HttpResponse.json({
-      success: true,
-      data: lot,
-    });
-  }),
-
-  http.get('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/movements', ({ params }) => {
-    const { lotId } = params;
-    const movements = (lotId && mockInventoryMovements[lotId as string]) || [];
-    return HttpResponse.json({
-      success: true,
-      data: movements,
-    });
-  }),
-
-  http.get('*/api/v1/enterprises/:enterpriseId/inventory/locations', () => {
-    return HttpResponse.json({
-      success: true,
-      data: mockInventoryLocations,
-    });
-  }),
-
-  http.post('*/api/v1/enterprises/:enterpriseId/inventory/locations', async ({ params, request }) => {
-    const { enterpriseId } = params;
-    const body = (await request.json().catch(() => ({}))) as any;
-    const newLocation = {
-      id: `loc-${Date.now()}`,
-      enterpriseId: enterpriseId as string,
-      name: body.name || 'New Warehouse Bay',
-      locationType: body.locationType || 'WAREHOUSE',
-      description: body.description || '',
-      createdAt: new Date().toISOString(),
-    };
-    return HttpResponse.json(
-      {
-        success: true,
-        data: newLocation,
-      },
-      { status: 201 }
-    );
-  }),
-
-  http.post('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/adjustments', async ({ params, request }) => {
-    const { lotId } = params;
-    const body = (await request.json().catch(() => ({}))) as any;
-    const lot = mockInventoryLots.find((l) => l.id === lotId);
-    if (!lot) {
-      return HttpResponse.json({ success: false, message: 'Lot not found' }, { status: 404 });
-    }
-    const currentBalance = Number(lot.balanceQty) || 0;
-    const adjQty = Number(body.quantity) || 0;
-    const newBalance = currentBalance + adjQty;
-    if (newBalance < 0) {
-      return HttpResponse.json(
-        { success: false, message: `Adjustment would result in negative balance (${newBalance} ${lot.unit})` },
-        { status: 400 }
-      );
-    }
-    lot.balanceQty = newBalance;
-    const movement = {
-      id: `mov-${Date.now()}`,
-      lotId: lot.id,
-      movementType: 'ADJUSTMENT',
-      quantity: adjQty,
-      balanceAfter: newBalance,
-      reason: body.reason || 'Manual quantity adjustment',
-      referenceType: 'MANUAL_ADJUSTMENT',
-      referenceId: `adj-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-    };
-    return HttpResponse.json({ success: true, data: movement });
-  }),
-
-  http.post('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/transfers', async ({ params, request }) => {
-    const { lotId } = params;
-    const body = (await request.json().catch(() => ({}))) as any;
-    const lot = mockInventoryLots.find((l) => l.id === lotId);
-    if (!lot) {
-      return HttpResponse.json({ success: false, message: 'Lot not found' }, { status: 404 });
-    }
-    const currentBalance = Number(lot.balanceQty) || 0;
-    const transferQty = Number(body.quantity) || 0;
-    if (transferQty <= 0) {
-      return HttpResponse.json({ success: false, message: 'Transfer quantity must be greater than zero' }, { status: 400 });
-    }
-    if (transferQty > currentBalance) {
-      return HttpResponse.json(
-        { success: false, message: `Transfer quantity exceeds available balance of ${currentBalance} ${lot.unit}` },
-        { status: 400 }
-      );
-    }
-    const newBalance = currentBalance - transferQty;
-    lot.balanceQty = newBalance;
-    const movement = {
-      id: `mov-${Date.now()}`,
-      lotId: lot.id,
-      movementType: 'TRANSFER_OUT',
-      quantity: -transferQty,
-      balanceAfter: newBalance,
-      reason: body.reason || 'Inter-facility transfer',
-      referenceType: 'LOCATION_TRANSFER',
-      referenceId: body.targetLocationId,
-      createdAt: new Date().toISOString(),
-    };
-    return HttpResponse.json({ success: true, data: movement });
-  }),
-
-  http.post('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/disposals', async ({ params, request }) => {
-    const { lotId } = params;
-    const body = (await request.json().catch(() => ({}))) as any;
-    const lot = mockInventoryLots.find((l) => l.id === lotId);
-    if (!lot) {
-      return HttpResponse.json({ success: false, message: 'Lot not found' }, { status: 404 });
-    }
-    const currentBalance = Number(lot.balanceQty) || 0;
-    const disposeQty = Number(body.quantity) || 0;
-    if (disposeQty <= 0) {
-      return HttpResponse.json({ success: false, message: 'Disposal quantity must be greater than zero' }, { status: 400 });
-    }
-    if (disposeQty > currentBalance) {
-      return HttpResponse.json(
-        { success: false, message: `Disposal quantity exceeds available balance of ${currentBalance} ${lot.unit}` },
-        { status: 400 }
-      );
-    }
-    const newBalance = currentBalance - disposeQty;
-    lot.balanceQty = newBalance;
-    if (newBalance === 0) {
-      lot.status = 'DISPOSED';
-    }
-    const movement = {
-      id: `mov-${Date.now()}`,
-      lotId: lot.id,
-      movementType: 'DISPOSAL',
-      quantity: -disposeQty,
-      balanceAfter: newBalance,
-      reason: body.reason || 'Damaged/expired goods disposal',
-      referenceType: 'SCRAP_DISPOSAL',
-      referenceId: `disp-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-    };
-    return HttpResponse.json({ success: true, data: movement });
-  }),
-
-  http.get('*/api/v1/enterprises/:enterpriseId/inventory/reconciliation', () => {
-    return HttpResponse.json({
-      success: true,
-      data: mockReconciliationReports,
-    });
-  }),
-
-  http.get('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/reconciliation', ({ params }) => {
-    const { lotId } = params;
-    const report = mockReconciliationReports.find((r) => r.lotId === lotId);
-    if (!report) {
-      return HttpResponse.json({ success: false, message: 'Reconciliation report not found' }, { status: 404 });
-    }
-    return HttpResponse.json({
-      success: true,
-      data: report,
+      data: mockInventoryLots,
     });
   }),
 
@@ -551,22 +375,6 @@ export const handlers = [
     return HttpResponse.json({
       success: true,
       data: mockFarmerBalanceSummary,
-    });
-  }),
-
-  // Farmer Self-Service: deliveries (own crop delivery history)
-  http.get('*/api/v1/farmers/:farmerId/deliveries', () => {
-    return HttpResponse.json({
-      success: true,
-      data: mockDeliveries,
-    });
-  }),
-
-  // Farmer Self-Service: payments received
-  http.get('*/api/v1/farmers/:farmerId/payments', () => {
-    return HttpResponse.json({
-      success: true,
-      data: mockFarmerPayments,
     });
   }),
 
@@ -594,6 +402,157 @@ export const handlers = [
       success: true,
       message: 'Farmer payment recorded',
       data: newPmt,
+    });
+  }),
+
+  // Enterprise Production Batches & Processing Traceability
+  http.get('*/api/v1/enterprises/:enterpriseId/production/batches', () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockProductionBatches,
+    });
+  }),
+
+  http.get('*/api/v1/enterprises/:enterpriseId/production/batches/:batchId', ({ params }) => {
+    const { batchId } = params;
+    const batch = mockProductionBatches.find((b) => b.id === batchId);
+    if (!batch) {
+      return HttpResponse.json({ success: false, message: 'Production batch not found' }, { status: 404 });
+    }
+    return HttpResponse.json({
+      success: true,
+      data: batch,
+    });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/production/batches', async ({ params, request }) => {
+    const { enterpriseId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+
+    if (!body?.inputs || body.inputs.length === 0) {
+      return HttpResponse.json(
+        { success: false, message: 'A production batch must contain at least one input lot' },
+        { status: 400 }
+      );
+    }
+    if (!body?.outputs || body.outputs.length === 0) {
+      return HttpResponse.json(
+        { success: false, message: 'A production batch must contain at least one output product' },
+        { status: 400 }
+      );
+    }
+
+    // Conservation of mass validation in compatible units
+    const baseUnit = body.inputs[0].unit;
+    const allInputsSame = body.inputs.every((i: any) => i.unit?.toLowerCase() === baseUnit?.toLowerCase());
+    const allOutputsSame = body.outputs.every((o: any) => o.unit?.toLowerCase() === baseUnit?.toLowerCase());
+    const allLossesSame = !body.losses || body.losses.every((l: any) => l.unit?.toLowerCase() === baseUnit?.toLowerCase());
+
+    if (allInputsSame && allOutputsSame && allLossesSame) {
+      const totalIn = body.inputs.reduce((acc: number, i: any) => acc + Number(i.quantity || 0), 0);
+      const totalOut = body.outputs.reduce((acc: number, o: any) => acc + Number(o.quantity || 0), 0);
+      const totalLoss = (body.losses || []).reduce((acc: number, l: any) => acc + Number(l.quantity || 0), 0);
+      const discrepancy = Math.round((totalIn - (totalOut + totalLoss)) * 1000) / 1000;
+
+      if (discrepancy !== 0) {
+        return HttpResponse.json(
+          {
+            success: false,
+            message: `BATCH_IMBALANCE: Total inputs (${totalIn} ${baseUnit}) must equal outputs (${totalOut}) + losses (${totalLoss}). Discrepancy: ${discrepancy} ${baseUnit}`,
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    const batchId = `batch-${Date.now()}`;
+    const batchCode = `BATCH-2026-${Math.floor(100 + Math.random() * 900)}`;
+    const newBatch = {
+      id: batchId,
+      batchCode,
+      enterpriseId: String(enterpriseId),
+      status: body.completeImmediately ? 'COMPLETED' : 'DRAFT',
+      processedAt: body.completeImmediately ? new Date().toISOString() : undefined,
+      laborCost: Number(body.laborCost || 0),
+      processingCost: Number(body.processingCost || 0),
+      packagingCost: Number(body.packagingCost || 0),
+      notes: body.notes || '',
+      inputs: body.inputs.map((inReq: any, idx: number) => {
+        const lot = mockInventoryLots.find((l) => l.id === inReq.lotId);
+        return {
+          id: `in-${idx}-${Date.now()}`,
+          lotId: inReq.lotId,
+          lotCode: lot?.lotCode || inReq.lotId,
+          quantity: Number(inReq.quantity),
+          unit: inReq.unit,
+        };
+      }),
+      outputs: body.outputs.map((outReq: any, idx: number) => {
+        const pt = mockProductTypes.find((p) => p.id === outReq.productTypeId);
+        return {
+          id: `out-${idx}-${Date.now()}`,
+          productTypeId: outReq.productTypeId,
+          productTypeName: pt?.name || 'Processed Product',
+          quantity: Number(outReq.quantity),
+          unit: outReq.unit,
+          grade: outReq.grade,
+          resultingLotId: outReq.createInventoryLot ? `lot-out-${Date.now()}` : undefined,
+        };
+      }),
+      losses: (body.losses || []).map((lossReq: any, idx: number) => ({
+        id: `loss-${idx}-${Date.now()}`,
+        quantity: Number(lossReq.quantity),
+        unit: lossReq.unit,
+        reason: lossReq.reason,
+      })),
+      traceToken: `token-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    };
+
+    mockProductionBatches.unshift(newBatch);
+
+    return HttpResponse.json(
+      {
+        success: true,
+        message: 'Production batch created successfully',
+        data: newBatch,
+      },
+      { status: 201 }
+    );
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/production/batches/:batchId/complete', ({ params }) => {
+    const { batchId } = params;
+    const batch = mockProductionBatches.find((b) => b.id === batchId);
+    if (!batch) {
+      return HttpResponse.json({ success: false, message: 'Production batch not found' }, { status: 404 });
+    }
+    batch.status = 'COMPLETED';
+    batch.processedAt = new Date().toISOString();
+    return HttpResponse.json({ success: true, data: batch });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/production/batches/:batchId/cancel', ({ params }) => {
+    const { batchId } = params;
+    const batch = mockProductionBatches.find((b) => b.id === batchId);
+    if (!batch) {
+      return HttpResponse.json({ success: false, message: 'Production batch not found' }, { status: 404 });
+    }
+    batch.status = 'CANCELLED';
+    return HttpResponse.json({ success: true, data: batch });
+  }),
+
+  http.get('*/api/v1/enterprises/:enterpriseId/production/batches/:batchId/validation', ({ params }) => {
+    const { batchId } = params;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        batchId,
+        chainValid: true,
+        inputDeliveriesCount: 3,
+        farmerOriginsCount: 3,
+        steps: ['Supply Delivery Intake', 'Quality Grading & Acceptance', 'Storage Lot Storage', 'Processing & Batch Milling'],
+      },
     });
   }),
 ];

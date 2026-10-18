@@ -23,6 +23,10 @@ import type {
   InventoryTransferRequest,
   InventoryDisposalRequest,
   ReconciliationReportResponse,
+  ProductionBatchCreateRequest,
+  ProductionBatchResponse,
+  TraceValidationResponse,
+  TraceRecordUpdateRequest,
 } from '../../types/api';
 
 export const enterpriseService = {
@@ -270,5 +274,78 @@ export const enterpriseService = {
       `/api/v1/enterprises/${enterpriseId}/inventory/lots/${lotId}/reconciliation`
     );
     return res.data?.data || (res.data as unknown as ReconciliationReportResponse);
+  },
+
+  // Production Batches & Processing Traceability
+  getProductionBatches: async (enterpriseId: string): Promise<ProductionBatchResponse[]> => {
+    const res = await httpClient.get<StandardApiResponse<ProductionBatchResponse[]>>(
+      `/api/v1/enterprises/${enterpriseId}/production/batches`
+    );
+    return res.data?.data || (res.data as unknown as ProductionBatchResponse[]) || [];
+  },
+
+  getProductionBatchById: async (
+    enterpriseId: string,
+    batchId: string
+  ): Promise<ProductionBatchResponse> => {
+    const res = await httpClient.get<StandardApiResponse<ProductionBatchResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/production/batches/${batchId}`
+    );
+    return res.data?.data || (res.data as unknown as ProductionBatchResponse);
+  },
+
+  createProductionBatch: async (
+    enterpriseId: string,
+    data: ProductionBatchCreateRequest
+  ): Promise<ProductionBatchResponse> => {
+    const res = await httpClient.post<StandardApiResponse<ProductionBatchResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/production/batches`,
+      data
+    );
+    return res.data?.data || (res.data as unknown as ProductionBatchResponse);
+  },
+
+  completeProductionBatch: async (
+    enterpriseId: string,
+    batchId: string
+  ): Promise<ProductionBatchResponse> => {
+    const res = await httpClient.post<StandardApiResponse<ProductionBatchResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/production/batches/${batchId}/complete`
+    );
+    return res.data?.data || (res.data as unknown as ProductionBatchResponse);
+  },
+
+  cancelProductionBatch: async (
+    enterpriseId: string,
+    batchId: string,
+    reason?: string
+  ): Promise<ProductionBatchResponse> => {
+    const query = reason ? `?reason=${encodeURIComponent(reason)}` : '';
+    const res = await httpClient.post<StandardApiResponse<ProductionBatchResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/production/batches/${batchId}/cancel${query}`
+    );
+    return res.data?.data || (res.data as unknown as ProductionBatchResponse);
+  },
+
+  validateTrace: async (
+    enterpriseId: string,
+    batchId: string
+  ): Promise<TraceValidationResponse> => {
+    const res = await httpClient.get<StandardApiResponse<TraceValidationResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/production/batches/${batchId}/validation`
+    );
+    return res.data?.data || (res.data as unknown as TraceValidationResponse);
+  },
+
+  updateTraceRecord: async (
+    enterpriseId: string,
+    batchId: string,
+    data: TraceRecordUpdateRequest
+  ): Promise<{ batchId: string; publicToken: string; showFarmerNames: boolean; publicStory: string }> => {
+    const res = await httpClient.patch<StandardApiResponse<{ batchId: string; publicToken: string; showFarmerNames: boolean; publicStory: string }>>(
+      `/api/v1/enterprises/${enterpriseId}/production/batches/${batchId}/trace`,
+      data
+    );
+    return res.data?.data || (res.data as unknown as { batchId: string; publicToken: string; showFarmerNames: boolean; publicStory: string });
   },
 };

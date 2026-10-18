@@ -746,11 +746,12 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Owner: @antigravity · Completed: 2026-10-18
   Test: `pnpm test src/test/inventoryReconciliation.test.tsx` (8/8 passed)
 
-- [ ] **F-904 · Production batch wizard** · T1
+- [x] **F-904 · Production batch wizard** · T1
   Needs: F-901 · Backend: B-602
   Build: select lots and quantities, enter outputs and losses, unit and conversion note, live input = outputs + losses check, costs.
   Done when: imbalance is blocked and server errors are shown.
-  Owner: —
+  Owner: @antigravity · Completed: 2026-10-18
+  Test: `vitest run src/test/productionBatchWizard.test.tsx` (10/10 passed)
 
 - [ ] **F-905 · Batch detail and lifecycle** · T1
   Needs: F-904 · Backend: B-603, B-606

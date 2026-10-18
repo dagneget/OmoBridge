@@ -12,6 +12,7 @@ import type {
   ReconciliationReportResponse,
   FarmerPayableResponse,
   FarmerPaymentResponse,
+  ProductionBatchResponse,
 } from '../../types/api';
 
 export const mockImpactMetrics: EnterpriseImpactMetricsResponse = {
@@ -451,3 +452,108 @@ export const mockFarmerPayments: FarmerPaymentResponse[] = [
     paidAt: '2026-10-15T12:00:00Z',
   },
 ];
+
+export const mockProductionBatches: ProductionBatchResponse[] = [
+  {
+    id: 'batch-001',
+    batchCode: 'BATCH-2026-001',
+    enterpriseId: '33333333-3333-3333-3333-333333333333',
+    enterpriseName: 'South Omo Community Heritage Cooperative',
+    status: 'COMPLETED',
+    startedAt: '2026-10-18T08:00:00Z',
+    completedAt: '2026-10-18T10:30:00Z',
+    notes: 'Premium Grade Wild White Honey Extraction and Fine Filtration',
+    laborCost: 450.0,
+    processingCost: 300.0,
+    packagingCost: 250.0,
+    totalCost: 1000.0,
+    traceToken: 'TRC-OMO-2026-001',
+    qrCodeUrl: '/qr/batch-001',
+    inputs: [
+      {
+        id: 'in-001',
+        batchId: 'batch-001',
+        lotId: 'lot-001',
+        lotCode: 'LOT-2026-040',
+        productTypeId: 'pt-raw-honey-01',
+        productTypeName: 'South Omo White Forest Honey',
+        quantity: 30,
+        unit: 'KG',
+      },
+    ],
+    outputs: [
+      {
+        id: 'out-001',
+        batchId: 'batch-001',
+        outputLotId: 'lot-005',
+        outputLotCode: 'LOT-2026-041',
+        productTypeId: 'pt-honey-jar-01',
+        productTypeName: 'Bottled Wild White Honey (500g Jar)',
+        grade: 'Grade A',
+        quantity: 28.5,
+        unit: 'KG',
+        packagedUnits: 57,
+      },
+    ],
+    losses: [
+      {
+        id: 'loss-001',
+        batchId: 'batch-001',
+        quantity: 1.5,
+        unit: 'KG',
+        reason: 'Centrifugal filtration wax residue and moisture loss',
+      },
+    ],
+    createdAt: '2026-10-18T08:00:00Z',
+  },
+  {
+    id: 'batch-002',
+    batchCode: 'BATCH-2026-002',
+    enterpriseId: '33333333-3333-3333-3333-333333333333',
+    enterpriseName: 'South Omo Community Heritage Cooperative',
+    status: 'DRAFT',
+    startedAt: '2026-10-18T11:00:00Z',
+    notes: 'Beeswax Candle Molding Batch',
+    laborCost: 150.0,
+    processingCost: 100.0,
+    packagingCost: 80.0,
+    totalCost: 330.0,
+    inputs: [
+      {
+        id: 'in-002',
+        batchId: 'batch-002',
+        lotId: 'lot-004',
+        lotCode: 'LOT-2026-038',
+        productTypeId: 'pt-wax-001',
+        productTypeName: 'Natural Beeswax Blocks',
+        quantity: 5,
+        unit: 'KG',
+      },
+    ],
+    outputs: [
+      {
+        id: 'out-002',
+        batchId: 'batch-002',
+        outputLotId: 'lot-006',
+        outputLotCode: 'LOT-2026-042',
+        productTypeId: 'pt-candle-01',
+        productTypeName: 'Hand-dipped Beeswax Candles (Box of 4)',
+        grade: 'Standard',
+        quantity: 4.8,
+        unit: 'KG',
+        packagedUnits: 12,
+      },
+    ],
+    losses: [
+      {
+        id: 'loss-002',
+        batchId: 'batch-002',
+        quantity: 0.2,
+        unit: 'KG',
+        reason: 'Mold trimming spillage',
+      },
+    ],
+    createdAt: '2026-10-18T11:00:00Z',
+  },
+];
+

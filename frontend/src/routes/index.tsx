@@ -54,6 +54,7 @@ const SupplyIntakePage = lazy(() => import('../pages/dashboard/enterprise/Supply
 const InspectionPage = lazy(() => import('../pages/dashboard/enterprise/InspectionPage'));
 const FarmerPayablesPage = lazy(() => import('../pages/dashboard/enterprise/FarmerPayablesPage'));
 const InventoryManagementPage = lazy(() => import('../pages/dashboard/enterprise/InventoryManagementPage'));
+const ProductionBatchWizardPage = lazy(() => import('../pages/dashboard/enterprise/ProductionBatchWizardPage'));
 const FarmerDashboardPage = lazy(() => import('../pages/dashboard/FarmerDashboardPage'));
 const DeliveryDashboardPage = lazy(() => import('../pages/dashboard/DeliveryDashboardPage'));
 const GuideDashboardPage = lazy(() => import('../pages/dashboard/GuideDashboardPage'));
@@ -213,6 +214,22 @@ export default function AppRoutes() {
                 element={
                   <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
                     <InventoryManagementPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/production"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <ProductionBatchWizardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/production/new"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <ProductionBatchWizardPage />
                   </RoleGuard>
                 }
               />

@@ -73,13 +73,6 @@ export const queryKeys = {
     payables: (filters?: Record<string, unknown>) => [...queryKeys.supply.all, 'payables', filters || {}] as const,
     balance: (farmerId: string) => [...queryKeys.supply.all, 'balance', farmerId] as const,
   },
-  farmer: {
-    all: ['farmer'] as const,
-    balance: (farmerId: string) => [...queryKeys.farmer.all, 'balance', farmerId] as const,
-    deliveries: (farmerId: string) => [...queryKeys.farmer.all, 'deliveries', farmerId] as const,
-    payments: (farmerId: string) => [...queryKeys.farmer.all, 'payments', farmerId] as const,
-    buyingPrices: (enterpriseId: string) => [...queryKeys.farmer.all, 'buyingPrices', enterpriseId] as const,
-  },
   traceability: {
     all: ['traceability'] as const,
     batches: (filters?: Record<string, unknown>) => [...queryKeys.traceability.all, 'batches', filters || {}] as const,
@@ -108,5 +101,15 @@ export const queryKeys = {
     payments: (enterpriseId: string) => [...queryKeys.enterprise.all, 'payments', enterpriseId] as const,
     reconciliation: (enterpriseId: string) => [...queryKeys.enterprise.all, 'reconciliation', enterpriseId] as const,
     lotReconciliation: (enterpriseId: string, lotId: string) => [...queryKeys.enterprise.all, 'lotReconciliation', enterpriseId, lotId] as const,
+    batches: (enterpriseId: string) => [...queryKeys.enterprise.all, 'batches', enterpriseId] as const,
+    batch: (enterpriseId: string, batchId: string) => [...queryKeys.enterprise.all, 'batch', enterpriseId, batchId] as const,
+    traceValidation: (enterpriseId: string, batchId: string) => [...queryKeys.enterprise.all, 'traceValidation', enterpriseId, batchId] as const,
+  },
+  farmer: {
+    all: ['farmer'] as const,
+    balance: (farmerId: string) => [...queryKeys.farmer.all, 'balance', farmerId] as const,
+    deliveries: (farmerId: string) => [...queryKeys.farmer.all, 'deliveries', farmerId] as const,
+    payments: (farmerId: string) => [...queryKeys.farmer.all, 'payments', farmerId] as const,
+    buyingPrices: (enterpriseId: string) => [...queryKeys.farmer.all, 'buyingPrices', enterpriseId] as const,
   },
 };
