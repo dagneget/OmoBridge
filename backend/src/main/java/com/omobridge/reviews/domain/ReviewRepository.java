@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,6 +19,9 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
 
     @EntityGraph(attributePaths = {"reviewerUser"})
     List<Review> findByIsPublicTrueOrderByCreatedAtDesc();
+
+    @EntityGraph(attributePaths = {"reviewerUser"})
+    Page<Review> findByReviewerUserId(UUID reviewerUserId, Pageable pageable);
 
     boolean existsByReviewerUserIdAndTargetTypeAndTargetId(UUID reviewerUserId, ReviewTargetType targetType, UUID targetId);
 

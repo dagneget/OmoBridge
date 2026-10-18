@@ -74,7 +74,53 @@ const booking: BookingResponse = {
   ],
 };
 const reviews = new Map<string, ReviewResponse>();
+const history: ReviewResponse[] = Array.from({ length: 21 }, (_, index) => ({
+  id: `abcd0000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+  reviewerUserId: buyer.id,
+  reviewerName: buyer.fullName,
+  targetType: index % 2 ? 'EXPERIENCE' : 'PRODUCT',
+  targetId: `eeee0000-0000-4000-8000-${String(index + 101).padStart(12, '0')}`,
+  rating: (index % 5) + 1,
+  comment: `Recorded review ${index + 1}`,
+  createdAt: new Date(
+    Date.parse('2026-10-18T10:00:00Z') - index * 60000,
+  ).toISOString(),
+}));
 export const reviewHandlers = [
+  http.get('*/api/v1/reviews/my', ({ request }) => {
+    const actor = Object.values(mockUsers).find(
+      (user) =>
+        request.headers.get('Authorization') ===
+        `Bearer ${createMockAuthResponse(user).accessToken}`,
+    );
+    if (!actor) return error(401, 'Sign in to view reviews');
+    const url = new URL(request.url);
+    const page = Number(url.searchParams.get('page') || 0);
+    const size = Number(url.searchParams.get('size') || 20);
+    if (
+      !Number.isInteger(page) ||
+      page < 0 ||
+      !Number.isInteger(size) ||
+      size < 1 ||
+      size > 100
+    )
+      return error(400, 'Invalid review page');
+    const all = [...reviews.values(), ...history].filter(
+      (review) => review.reviewerUserId === actor.id,
+    );
+    return HttpResponse.json({
+      success: true,
+      data: {
+        content: all.slice(page * size, (page + 1) * size),
+        pageNumber: page,
+        pageSize: size,
+        totalElements: all.length,
+        totalPages: Math.ceil(all.length / size),
+        isFirst: page === 0,
+        isLast: (page + 1) * size >= all.length,
+      },
+    });
+  }),
   http.get(`*/api/v1/orders/${orderId}`, ({ request }) =>
     authenticated(request)
       ? HttpResponse.json({ success: true, data: order })

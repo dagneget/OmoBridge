@@ -2,6 +2,12 @@ package com.omobridge.reviews.api;
 
 import com.omobridge.common.exception.UnauthorizedException;
 import com.omobridge.common.response.ApiResponse;
+import com.omobridge.common.response.PageResponse;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springdoc.core.annotations.ParameterObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import com.omobridge.common.security.UserPrincipal;
 import com.omobridge.identity.domain.User;
 import com.omobridge.identity.domain.UserRepository;
@@ -54,6 +60,26 @@ public class ReviewController {
         User reviewer = getActorUser(principal);
         ReviewResponse response = reviewService.createReview(request, reviewer);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(response));
+    }
+
+    @GetMapping("/my")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "List the signed-in user's own reviews, including non-public reviews")
+    @ApiResponses({
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Own review page"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid sort"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Sign in required")
+    })
+    public ResponseEntity<ApiResponse<PageResponse<ReviewResponse>>> getMyReviews(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @ParameterObject @PageableDefault(size = 20, sort = {"createdAt", "id"}, direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        if (principal == null) {
+            throw new UnauthorizedException("Authentication required");
+        }
+        return ResponseEntity.ok(ApiResponse.ok(PageResponse.from(
+                reviewService.getMyReviews(principal.getId(), pageable))));
     }
 
     @GetMapping("/public/target")

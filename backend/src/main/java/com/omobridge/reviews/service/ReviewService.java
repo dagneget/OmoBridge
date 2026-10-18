@@ -24,6 +24,10 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
@@ -113,6 +117,21 @@ public class ReviewService {
                 "Review rating=" + saved.getRating() + " target=" + saved.getTargetType() + " " + saved.getTargetId());
 
         return mapToResponse(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ReviewResponse> getMyReviews(UUID reviewerId, Pageable pageable) {
+        if (pageable.isUnpaged() || pageable.getSort().stream()
+                .anyMatch(order -> !List.of("createdAt", "id").contains(order.getProperty()))) {
+            throw new IllegalArgumentException("Review history supports pagination sorted by createdAt or id only");
+        }
+        var sort = pageable.getSort().isUnsorted() ? Sort.by(Sort.Direction.DESC, "createdAt", "id")
+                : pageable.getSort();
+        if (sort.getOrderFor("id") == null) {
+            sort = sort.and(Sort.by(Sort.Direction.DESC, "id"));
+        }
+        var bounded = PageRequest.of(pageable.getPageNumber(), Math.min(pageable.getPageSize(), 100), sort);
+        return reviewRepository.findByReviewerUserId(reviewerId, bounded).map(this::mapToResponse);
     }
 
     @Transactional(readOnly = true)

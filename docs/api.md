@@ -173,8 +173,12 @@
 ### L. Customer Reviews (`/api/v1/reviews/**`)
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| `POST` | `/api/v1/reviews` | `BUYER_VISITOR` | Submit verified review (requires DELIVERED order or COMPLETED booking) |
-| `GET` | `/api/v1/reviews/target` | Public | List reviews and average ratings for product or experience |
+| `POST` | `/api/v1/reviews` | Authenticated | Submit a review for a matching item in exactly one owned DELIVERED order or COMPLETED booking; one review per reviewer/target |
+| `GET` | `/api/v1/reviews/my` | Authenticated | Current reviewer's paginated history, including non-public reviews; ignores caller-supplied reviewer filters |
+| `GET` | `/api/v1/reviews/public/target` | Public | Public reviews and average rating for a target (`targetType`, `targetId`) |
+| `GET` | `/api/v1/reviews/public/testimonials` | Public | Recent public testimonials |
+
+Own review history returns `ApiResponse<PageResponse<ReviewResponse>>`. `page` is zero-based; `size` defaults to 20 and is capped at 100. The default sort is `createdAt,desc` then `id,desc`. Only `createdAt` and `id` sorts are supported, with an ID tie-breaker added when omitted. Unsupported sorts return 400; anonymous requests return 401. No user ID parameter can expand the authenticated reviewer's scope.
 
 ### M. AI & Smallholder Impact Reporting (`/api/v1/enterprise/reports/**`)
 | Method | Endpoint | Access | Description |

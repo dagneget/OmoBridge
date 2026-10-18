@@ -84,6 +84,7 @@ public class ReviewsAndAiIntegrationTest {
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.jpa.properties.hibernate.generate_statistics", () -> "true");
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
@@ -92,6 +93,8 @@ public class ReviewsAndAiIntegrationTest {
         registry.add("spring.flyway.password", postgres::getPassword);
     }
 
+    @Autowired private jakarta.persistence.EntityManagerFactory entityManagerFactory;
+    @Autowired private com.omobridge.reviews.service.ReviewService reviewService;
     @Autowired private MockMvc mockMvc;
     @Autowired private ObjectMapper objectMapper;
     @Autowired private PasswordEncoder passwordEncoder;
@@ -310,6 +313,62 @@ public class ReviewsAndAiIntegrationTest {
         user.setStatus(UserStatus.ACTIVE);
         user.addRole(role);
         return userRepository.save(user);
+    }
+
+    private Review seedReview(User reviewer, boolean visible) {
+        var review = new Review();
+        review.setReviewerUser(reviewer);
+        review.setTargetType(ReviewTargetType.PRODUCT);
+        review.setTargetId(UUID.randomUUID());
+        review.setRating(4);
+        review.setComment(visible ? "Public review" : "Private review");
+        review.setPublic(visible);
+        return reviewRepository.saveAndFlush(review);
+    }
+
+    @Test
+    void shouldReturnOnlyOwnReviewsIncludingNonPublicWithBoundedQueries() throws Exception {
+        seedReview(buyerA, true);
+        seedReview(buyerA, false);
+        seedReview(buyerB, true);
+        var stats = entityManagerFactory.unwrap(org.hibernate.SessionFactory.class).getStatistics();
+        stats.clear();
+        var page = reviewService.getMyReviews(buyerA.getId(),
+                org.springframework.data.domain.PageRequest.of(0, 1));
+        assertThat(page.getTotalElements()).isEqualTo(2);
+        assertThat(page.getContent()).allMatch(review -> review.reviewerUserId().equals(buyerA.getId()));
+        assertThat(stats.getPrepareStatementCount()).isLessThanOrEqualTo(2);
+        mockMvc.perform(get("/api/v1/reviews/my").header("Authorization", "Bearer " + buyerAToken)
+                        .param("reviewerId", buyerB.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content", hasSize(2)))
+                .andExpect(jsonPath("$.data.content[0].reviewerUserId", is(buyerA.getId().toString())))
+                .andExpect(jsonPath("$.data.content[1].reviewerUserId", is(buyerA.getId().toString())));
+    }
+
+    @Test
+    void shouldReturnEmptyPageWhenBuyerHasNoReviews() throws Exception {
+        seedReview(buyerB, true);
+        mockMvc.perform(get("/api/v1/reviews/my").header("Authorization", "Bearer " + buyerAToken))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.content", hasSize(0)))
+                .andExpect(jsonPath("$.data.totalElements", is(0)));
+    }
+
+    @Test
+    void shouldReturnStableDistinctPagesAndRejectUnsupportedSort() throws Exception {
+        var first = seedReview(buyerA, true);
+        var second = seedReview(buyerA, false);
+        var timestamp = java.sql.Timestamp.from(Instant.parse("2026-10-18T10:00:00Z"));
+        jdbcTemplate.update("UPDATE reviews SET created_at = ?", timestamp);
+        var page0 = reviewService.getMyReviews(buyerA.getId(), org.springframework.data.domain.PageRequest.of(0, 1));
+        var page1 = reviewService.getMyReviews(buyerA.getId(), org.springframework.data.domain.PageRequest.of(1, 1));
+        assertThat(List.of(page0.getContent().getFirst().id(), page1.getContent().getFirst().id()))
+                .containsExactlyInAnyOrder(first.getId(), second.getId());
+        assertThat(page0.getContent().getFirst().id()).isNotEqualTo(page1.getContent().getFirst().id());
+        mockMvc.perform(get("/api/v1/reviews/my").header("Authorization", "Bearer " + buyerAToken)
+                        .param("sort", "reviewerUser.passwordHash,asc"))
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/v1/reviews/my")).andExpect(status().isUnauthorized());
     }
 
     @Test
