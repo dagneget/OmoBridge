@@ -161,6 +161,13 @@ frontend/
 - Every conflict is shown to the provider using **the server's message and current state** (`role="alert"`), and the job is re-fetched so the screen adopts whatever the job actually became. A dispatcher or the SMS checkpoint fallback moving the job while the device was offline is the common cause.
 - Both queues share one IndexedDB database (`features/delivery/deliveryDb.ts`). They must: IndexedDB refuses to open a database at a lower version than it is already at, so two modules each owning a version would break as soon as one added a store.
 
+### Background Tracking Limit
+- `features/delivery/TrackingLimitNotice.tsx` states the platform limit plainly on the location card of an **active** job: a browser reads geolocation only while the page is open, in the foreground, and the screen is on. Locking, switching apps, or closing the browser records nothing further. This is not a bug we can work around, so the provider is told before the gap shows up in the breadcrumb rather than after.
+- The notice points at the **SMS checkpoint**, which is real: `InboundSmsService` reads a `DEL-…` job number plus a checkpoint word from an inbound message and applies the transition, if it is legal and the sender is the assigned provider's phone. The example is prefilled with the provider's own job number.
+- **The checkpoint keywords are not translation keys.** The backend matches them with `body.contains("DELIVERED")`, so translating them would silently break the checkpoint for every Amharic reader. Only the sentence around them is localised.
+- The notice deliberately does not name a destination number: none is configured in the backend and no endpoint exposes one (gap F-1108-E1).
+- It is hidden once the job is terminal, where it would only cause confusion — the location card is already gated on the job being active.
+
 ### Offline & Queue Scopes
 - Service worker precaches app shell and fonts.
 - Public GET endpoints use network-first with stale-while-revalidate.

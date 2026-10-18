@@ -29,6 +29,7 @@ import {
   syncJobLocations,
   createIdbStatusQueue,
   syncJobStatuses,
+  TrackingLimitNotice,
   type LocationQueue,
   type StatusQueue,
   type StatusReplayOutcome,
@@ -537,6 +538,9 @@ export default function ProviderJobDetailPage() {
                 'Records a point about every 30 seconds while the job is in progress, using the device clock.'
               )}
             </p>
+
+            {/* F-1108: a PWA cannot track in the background, so say so before the gap appears. */}
+            {job.jobNo && <TrackingLimitNotice jobNo={job.jobNo} />}
 
             {syncNote && (
               <p

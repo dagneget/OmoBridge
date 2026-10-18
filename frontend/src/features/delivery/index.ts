@@ -63,3 +63,6 @@ export type {
   StatusReplayOutcome,
   StatusChangeApplier,
 } from './statusSync';
+
+export { TrackingLimitNotice } from './TrackingLimitNotice';
+export type { TrackingLimitNoticeProps } from './TrackingLimitNotice';

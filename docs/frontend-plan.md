@@ -183,14 +183,14 @@ Update the counts when you finish a task.
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
-| FP11 | Delivery provider app | 5 / 8 |
+| FP11 | Delivery provider app | 6 / 8 |
 | FP12 | Guide dashboard | 0 / 4 |
 | FP13 | Admin and authority | 0 / 5 |
 | FP14 | Reviews | 0 / 3 |
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **59 / 134** |
+| | **Total** | **60 / 134** |
 
 ### What can run in parallel
 
@@ -900,11 +900,16 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Blocked: `@playwright/test` is not installed in this repository and is not in any agent's allocation; there is no playwright config or e2e directory. The spec and config are delivered in `frontend/e2e/provider-offline.spec.ts` and `frontend/playwright.config.ts` but **have never been executed**, so this task is not done. The same scenario is covered today by `src/test/providerOfflineSync.test.tsx` (6 passing tests) driving the real component, queue and service through the `httpClient.defaults.adapter` stub the repo already uses; that suite cannot cover a genuine `context.setOffline`, real IndexedDB, or service-worker behaviour. Needed from Codex: `@playwright/test` + `fake-indexeddb` devDependencies, a browser install, and tsconfig inclusion — see `docs/handoffs/F-1107.md`.
   Owner: @opencode · Started: 2026-10-18
 
-- [ ] **F-1108 · Background tracking limitation notice** · T2
+- [x] **F-1108 · Background tracking limitation notice** · T2
   Needs: F-1103
   Build: clear notice that a PWA can track only while the app is open and the screen stays on; point to the SMS fallback.
   Done when: the notice appears on the active job screen.
-  Owner: —
+  Done: @opencode · 2026-10-18 · Tests: `npm test` → 53 files / 337 passed (5 new, incl. axe); typecheck, lint, build ✓
+  Notes: `features/delivery/TrackingLimitNotice.tsx`, rendered on the location card of an active
+  job and hidden once it is terminal. The SMS example is prefilled with the provider's real job
+  number. The checkpoint keywords are **not** translated — the backend matches them literally, so
+  an Amharic driver sending a translated word would be silently ignored. Gap F-1108-E1: the
+  frontend cannot learn the destination number.
 
 ---
 
@@ -1226,6 +1231,7 @@ Confirm each against the real backend before the affected task. Do not invent en
 | F-508-T1 | F-508 | How does a buyer obtain an order’s delivery tracking token? | Open: live `OrderDetailResponse` has no tracking reference and no buyer order-to-delivery lookup exists. Provider/enterprise delivery-job endpoints are not a buyer mapping. Expose an authorized tracking token/reference, regenerate types, then connect `/track/:token`; frontend currently shows unavailable. |
 | F-508-P1 | F-508 | Does payment lookup enforce ownership? | Security gap: `BuyerPaymentController.getPaymentByOrderId` uses only `isAuthenticated()`; `PaymentService.getPaymentByOrderId` looks up payment by order UUID without checking the buyer. Frontend verifies the order before its lookup, but direct API access remains unprotected. Backend must enforce payer/order ownership. |
 
+| F-1108-E1 | F-1108 | Where should a provider send the SMS checkpoint, and how does the client learn that number? | Open: `InboundSmsService` accepts any inbound message through a webhook and matches a `DEL-…` job number plus a checkpoint word, verifying only that the sender is the assigned provider's phone. No SMS short code or destination number is configured anywhere in `application.yml`, and no endpoint exposes one to the client. The notice therefore teaches the exact message format and the sender requirement, but cannot name a destination — it tells the provider to use the line they already have rather than inventing a number. Backend/ops should publish the inbound SMS number and ideally surface it on the provider profile so the client can show it. |
 | F-1101-E1 | F-1101 | How does a logged-in delivery provider discover their own `providerId`, which `GET /api/v1/delivery/providers/{providerId}/jobs` requires? | Open: `/api/v1/auth/me` returns `UserProfileResponse`, which carries `enterpriseId` and `farmerCode` but **no** `deliveryProviderId`, and there is no `GET /api/v1/delivery/providers/me` equivalent (`GET /api/v1/tourism/guides/me` exists for guides). `providerId` is the `DeliveryProvider.id`, not the `User.id`, so the profile id must not be substituted — it would 404. Frontend reads an optional `deliveryProviderId` from the profile and shows an explicit configuration error when it is absent; no endpoint or contract was invented. Backend should add the field (or a `/providers/me` route), then types are regenerated. |
 
 ## 11. Activity log
@@ -1315,3 +1321,4 @@ Activity: 2026-10-18 · @claude-agent · F-808 · Completed · Unpaid delivery c
 | 2026-10-18 | @opencode | F-1104 | Done | Added `features/delivery/locationQueue.ts` (queue interface, IndexedDB + in-memory adapters) and `locationSync.ts`, plus `deliveryService.ingestLocations`. Design was taken from reading the backend rather than assumed: `ingestLocations` never dedupes and returns the stored count, and returns 0 with HTTP 200 for a DELIVERED/CANCELLED job — so a non-empty batch yielding 0 can only mean the job is terminal server-side. Those points are dropped and the job is marked finished, which is what stops the queue retrying forever when a dispatcher or the SMS fallback closes a job while the device is offline. Batches are capped at 50 on the client because the server has no size cap and no rate limiter. Failed requests keep their points; a mid-sync failure keeps only the un-sent batches. Capture now feeds the queue through an `onPoint` sink instead of accumulating in memory. Tests 50 files / 316 passed (15 new). Not covered: the IndexedDB adapter, since jsdom has no IndexedDB and `fake-indexeddb` requires a package change — requested from Codex. |
 | 2026-10-18 | @opencode | F-1107 | Blocked | Wrote `e2e/provider-offline.spec.ts` and `playwright.config.ts` for the browser-level offline scenario, but `@playwright/test` is not installed and is in no agent's allocation, so the spec has never run. Marked `[!]` rather than done. Delivered a runnable equivalent, `src/test/providerOfflineSync.test.tsx` (6 tests, 51 files / 322 total passing), which drives the real component, queue and service and asserts the real axios request bodies: out-of-order offline points upload in `recordedAt` order, a 120-point backlog splits 50/50/20 and arrives chronological, a 5xx keeps the point queued for replay, and the server's `stored: 0` discards without retrying. Fixed a data-loss bug found on the way: `ingestLocations` coerced a missing response field to `0`, which the sync layer reads as "job finished", so any malformed 200 would have deleted a provider's queued history — it now throws. Excluded the e2e files from tsconfig so the build stays green until the dependency exists. |
 | 2026-10-18 | @opencode | F-1105 | Done | Added `features/delivery/statusQueue.ts` + `statusSync.ts` and extracted `deliveryDb.ts` so both queues share one IndexedDB database — they must, because IndexedDB refuses to open a database at a lower version than it is already at. The rule that shapes this feature: **a rejection is dropped, a transport failure is kept.** A 4xx means the server understood and refused, and a refused transition can never become valid later (the job only moves forward), so keeping it would block every change queued behind it; a network error means the server never had an opinion, so it survives and replay stops there. Changes replay oldest-first by `queuedAt` because the backend only accepts a transition legal from the job's current state. Every conflict is shown with the server's own message and the job is re-fetched, so a dispatcher moving the job while the device was offline is visible rather than silent. Deliberate behaviour change: status buttons are now **enabled offline** and queue locally — a driver who has just dropped the goods is the most likely person to have no signal — so F-1102's test asserting they were disabled was updated to assert queuing instead. Tests 52 files / 332 passed (10 new); typecheck, lint, build clean. |
+| 2026-10-18 | @opencode | F-1108 | Done | Added `features/delivery/TrackingLimitNotice.tsx`, rendered on the location card of an active job and hidden once the job is terminal (the card itself is gated on activity, so the notice never appears where it would only confuse). The notice names the three states that stop collection — locking, switching apps, closing the browser — rather than gesturing at "background limitations", and points at the SMS checkpoint with the provider's **own job number** prefilled. Two things came from reading `InboundSmsService` rather than assuming: the checkpoint keywords (`PICKED`/`COLLECTED`, `LEFT`/`TRANSIT`, `ARRIVED`/`DELIVERED`) are matched with `body.contains(...)`, so they are deliberately **not** translation keys — translating them would silently break the checkpoint for every Amharic reader, so only the sentence around them is localised; and no destination number exists anywhere in the backend, so gap F-1108-E1 was logged and the notice tells the provider to use the line they already have instead of inventing one. Tests 53 files / 337 passed (5 new, including an axe audit on the component); typecheck, lint, build clean. |
