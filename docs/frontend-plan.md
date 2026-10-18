@@ -178,7 +178,7 @@ Update the counts when you finish a task.
 | FP3 | Public tourism | 10 / 11 |
 | FP4 | Bookings | 5 / 5 |
 | FP5 | Catalog, cart, checkout | 6 / 9 |
-| FP6 | Payments and live tracking | 3 / 7 |
+| FP6 | Payments and live tracking | 4 / 7 |
 | FP7 | Traceability | 0 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
@@ -190,7 +190,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **59 / 134** |
+| | **Total** | **60 / 134** |
 
 ### What can run in parallel
 
@@ -624,11 +624,13 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: the link appears only for orders with a delivery job.
   Owner: —
 
-- [ ] **F-606 · Refund display** · T2
+- [x] **F-606 · Refund display** · T2
   Needs: F-508 · Backend: B-905
   Build: refund status and amounts on orders and bookings.
   Done when: partial and full refunds render.
-  Owner: —
+  Owner: @codex · Completed: 2026-10-18 · Branch: `integration/four-agent-baseline` · Commit: `f687759`
+  Delivered: Shared English/Amharic refund display on owned order details and booking confirmation: original amount, completed refunds, amount not refunded, NONE/PARTIAL/FULL coverage, and paginated references/statuses/reasons/dates. Added payer-scoped refund-summary reads and booking-payment lookup requiring matching booking buyer. Totals and coverage are calculated on the server; pending/failed records never count as completed, missing/error reads remain unknown, and UI never changes payment/order/booking status or issues refunds.
+  Verification: 614 frontend tests (71 files), typecheck/lint/build and 170 backend tests pass. Focused order/payment/refund regression: 73 tests. Real PostgreSQL tests cover partial/full, foreign reads, mixed refund statuses and a four-service-query budget. Firefox 360 px checks partial order/full booking displays, keyboard refresh, offline/reconnect, no overflow and zero order-refund-section axe violations. Browser fixtures only; no live financial transaction or physical-device claim. Existing inspection/bundle warnings remain.
 
 - [ ] **F-607 · Payment and tracking tests** · T1
   Needs: F-602, F-605

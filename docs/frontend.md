@@ -401,3 +401,8 @@ Delivered in `ed05fa1`: checkout results now open F-601 for each verified seller
 ### F-603 private payment history
 
 Delivered in `0f8ce5f`: Account now links to buyer payment history and receipt routes. New authenticated backend endpoints filter by payer; the existing order-payment read additionally checks order ownership. Generated types come from the real OpenAPI contract. Settled receipts support printing; pending/refunded/failed, offline and unverified records cannot enable the print action. Session changes abort and clear private queries. Verification: 583 frontend tests, 156 backend tests, final 20 payment checks and Firefox 360 px keyboard/receipt axe checks pass. See [payment guide](../frontend/src/features/payments/README.md).
+
+
+### F-606 refunds on orders and bookings
+
+Delivered in `f687759`: owned order and booking details share a refund section showing server-calculated partial/full coverage, amounts and paginated status/reference/reason/date records. Authorized booking-payment and refund-summary APIs enforce payer ownership; pending/failed refunds do not contribute to completed totals. Error and missing reads stay unknown, while offline details are labelled as last-confirmed. Verification: 614 frontend tests, 170 backend tests, typecheck/lint/build and Firefox 360 px partial-order/full-booking keyboard checks pass. See [payment/refund guide](../frontend/src/features/payments/README.md).

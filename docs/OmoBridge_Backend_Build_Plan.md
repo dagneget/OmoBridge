@@ -1027,3 +1027,6 @@ Activity: 2026-10-18 · @codex · B-FIX-002 · Delivery cleanup repaired and tes
 
 
 Payment read follow-up · F-603 · 2026-10-18 · @codex · `0f8ce5f`: added bounded authenticated payer history and receipt reads, and payer/order-owner authorization on existing order-payment lookup. No migrations; existing payer index retained. Read-only DTO mapping fetches only to-one order/booking associations; mixed-target pagination test measures at most two service SQL statements. Full backend suite: 156 passing; final payment service/controller/PostgreSQL checks: 20 passing. Payment-attempt authorization/idempotency remains a separate review item.
+
+
+Refund read follow-up · F-606 · 2026-10-18 · @codex · `f687759`: added own-payment refund summary/history and authorized booking-payment lookup. Completed-only aggregate and coverage use BigDecimal on the server; refund pages are bounded and sorted by createdAt/id descending. The refund endpoint uses a read-only repeatable-read transaction on PostgreSQL to keep summary and page reads consistent. DTO mapping fetches only to-one payment relations; measured service query budget is four including payment authorization, completed sum, page and count. No migrations or refund-write behavior changed. Backend suite: 170 passing.

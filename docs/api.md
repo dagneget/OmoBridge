@@ -145,6 +145,8 @@
 |---|---|---|---|
 | `GET` | `/api/v1/payments?page=0&size=20` | Authenticated payer | Own payment history; `ApiResponse<PageResponse<PaymentResponse>>`; default createdAt/id descending; max 100 rows |
 | `GET` | `/api/v1/payments/{paymentId}` | Authenticated payer | Own payment record for receipt display; unavailable/foreign records return 404 |
+| `GET` | `/api/v1/payments/booking/{bookingId}` | Authenticated payer and booking buyer | Matching payer/booking-owner payment; foreign or missing records return 404 |
+| `GET` | `/api/v1/payments/{paymentId}/refunds?page=0&size=20` | Authenticated payer | `PaymentRefundSummaryResponse`: original amount/currency, completed refunds, amount not refunded, coverage, and paginated refund records; size capped at 100 |
 | `GET` | `/api/v1/payments/order/{orderId}` | Authenticated payer and order buyer | Matching payer and order-owner payment only; foreign records return 404 |
 | `POST` | `/api/v1/payments/attempt` | `BUYER_VISITOR`, `SYSTEM_ADMIN` | Create idempotent payment attempt (Telebirr/CBE Birr) |
 | `POST` | `/api/v1/integrations/payments/{provider}/webhook` | Public (Signature Auth) | Ingest verified HMAC payment gateway callback |

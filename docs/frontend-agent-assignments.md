@@ -198,3 +198,6 @@ Codex delivery update · 2026-10-18: F-602 is complete on `integration/four-agen
 
 
 Codex delivery update · 2026-10-18: F-603 is complete on `integration/four-agent-baseline` / `0f8ce5f` (583 frontend tests, 156 backend tests; final 20 payment checks and 360 px keyboard/receipt axe checks pass). Own-payment history and receipts now have real payer-scoped endpoints; F-508-P1 is resolved on this branch. Next Codex task: F-606 refund display. Tracking and reservation-deadline gaps remain open. Adopt the integration branch into saved task worktrees; preserve active source changes.
+
+
+Codex delivery update · 2026-10-18: F-606 is complete on `integration/four-agent-baseline` / `f687759` (614 frontend tests, 170 backend tests; typecheck/lint/build and 360 px partial-order/full-booking refund checks pass). Refund totals and coverage are server-calculated and payer-scoped. No refund issuance UI or other agent source was changed. F-607 remains dependent on OpenCode’s F-605 tracking integration; preserve that ownership. F-506 expiry and F-508 tracking remain blocked.
