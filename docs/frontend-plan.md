@@ -8,6 +8,8 @@
 
 This file is the shared task board for the frontend. Several agents may work in parallel. Everyone reads it first, claims a task, builds it, proves it works, and marks it done here. It follows the same protocol as the backend plan.
 
+**Four-agent delivery allocation:** [frontend-agent-assignments.md](frontend-agent-assignments.md). Planned allocation does not replace individual task claims.
+
 ---
 
 ## 0. How agents use this file
@@ -178,7 +180,7 @@ Update the counts when you finish a task.
 | FP5 | Catalog, cart, checkout | 6 / 9 |
 | FP6 | Payments and live tracking | 0 / 7 |
 | FP7 | Traceability | 0 / 4 |
-| FP8 | Enterprise: farmers, supply, farmer payments | 8 / 10 |
+| FP8 | Enterprise: farmers, supply, farmer payments | 9 / 10 |
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
 | FP11 | Delivery provider app | 0 / 8 |
@@ -188,7 +190,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **38 / 134** |
+| | **Total** | **54 / 134** |
 
 ### What can run in parallel
 
@@ -707,11 +709,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: history stays visible.
   Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/farmerPayables.test.tsx (7/7 passed), full suite (43 files, 236 tests passed), typecheck (clean), lint (clean), build (clean)
 
-- [ ] **F-809 · Supply history and print receipt** · T3
+- [x] **F-809 · Supply history and print receipt** · T3
   Needs: F-804
   Build: searchable history; printable receipt.
   Done when: print layout works.
-  Owner: —
+  Done: @claude-agent · 2026-10-18 · Tests: vitest run src/test/supplyHistoryPrint.test.tsx (5/5 passed), full suite (44 files, 241 tests passed), typecheck (clean), lint (clean), build (clean)
 
 - [ ] **F-810 · Supply tests** · T1
   Needs: F-807
