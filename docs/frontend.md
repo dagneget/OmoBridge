@@ -411,3 +411,10 @@ Delivered in `f687759`: owned order and booking details share a refund section s
 ### F-509 cancel an owned order
 
 Delivered in `c45cf04`: order detail now offers explicit confirmation for server-supported cancellable states, with offline/ownership guards, duplicate-submit protection and uncertain-result recovery. A validated server cancellation updates only that order after stopping stale detail reads; refund/payment states stay separate. English/Amharic text and keyboard focus support are feature-scoped. Verification: 638 frontend tests, 15 focused PostgreSQL order tests, typecheck/lint/build and Firefox 360 px keyboard/axe checks pass. See [order guide](../frontend/src/features/orders/README.md).
+
+
+### F-1401 and F-1403 buyer reviews
+
+Delivered order details and completed booking confirmations now offer a rating/comment form for each distinct purchased product, package or guide. Submission uses the existing authenticated review endpoint, checks the server confirmation, handles duplicate/ineligible/account errors, and supports explicit retry after uncertain responses. English/Amharic text, native keyboard controls, confirmation focus, account/target-scoped drafts, abort/timeout handling and online-only submission are included. Backend eligibility fixes are in `b431e6b`; frontend implementation and tests are in `354d0db`.
+
+Validation: 682 frontend tests (75 files), typecheck/build and lint pass, with only existing inspection and bundle warnings. The 44 new frontend cases and 14 focused backend cases cover eligibility, duplicates and contract/session boundaries. Firefox 360 px checks both routes, keyboard submission, offline blocking, confirmation focus, duplicate rejection, no overflow and zero review-form axe violations. See [review handoff](frontend-reviews-handoff.md). F-1402 remains pending its authenticated reviewer-list contract; F-508 tracking remains independently blocked.

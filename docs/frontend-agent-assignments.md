@@ -106,9 +106,9 @@ Existing statuses below are a snapshot, not new claims. The `Needs` column is pr
 | F-603 | Not started | T2 | Payment history | F-601 |
 | F-606 | Not started | T2 | Refund display | F-508 |
 | F-607 | Not started | T1 | Payment and tracking tests | F-602, F-605 |
-| F-1401 | Not started | T2 | Leave a review | F-404, F-508 |
+| F-1401 | Done | T2 | Leave a review | F-404, F-508 |
 | F-1402 | Not started | T3 | My reviews | F-1401 |
-| F-1403 | Not started | T2 | Review tests | F-1401 |
+| F-1403 | Done | T2 | Review tests | F-1401 |
 | F-1701 | Not started | T1 | Critical-flow component tests | T1 feature tasks |
 | F-1702 | Not started | T2 | Contract tests | F-007 |
 | F-1703 | Not started | T1 | End-to-end golden path | T1 feature tasks |
@@ -207,3 +207,6 @@ Codex delivery update · 2026-10-19: F-509 is complete on `integration/four-agen
 
 
 Codex progress update · 2026-10-19: F-1401 claimed in the isolated integration worktree. Verified backend prerequisites now reject early booking reviews, unrelated target items, and ambiguous order/booking proof. Nine eligibility unit cases and five PostgreSQL integration cases pass. F-1401 remains in progress until the frontend form is implemented; F-1402/F-1403 remain unchecked. Other agents’ ownership is unchanged.
+
+
+Codex delivery update · 2026-10-19: F-1401 and F-1403 are complete on `integration/four-agent-baseline` / `354d0db` with backend prerequisite `b431e6b`. All 682 frontend tests, 14 focused backend tests, typecheck/lint/build and 360 px keyboard/axe review checks pass. Next: F-1402 My reviews, which needs an authenticated reviewer-scoped list contract. Preserve OpenCode’s F-605/F-607 dependency and all other active ownership.

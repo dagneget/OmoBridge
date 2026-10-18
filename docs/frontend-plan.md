@@ -186,11 +186,11 @@ Update the counts when you finish a task.
 | FP11 | Delivery provider app | 0 / 8 |
 | FP12 | Guide dashboard | 0 / 4 |
 | FP13 | Admin and authority | 0 / 5 |
-| FP14 | Reviews | 0 / 3 |
+| FP14 | Reviews | 2 / 3 |
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **61 / 134** |
+| | **Total** | **63 / 134** |
 
 ### What can run in parallel
 
@@ -978,11 +978,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
 
 ### FP14: Reviews
 
-- [ ] **F-1401 · Leave a review** · T2
+- [x] **F-1401 · Leave a review** · T2
   Needs: F-404, F-508 · Backend: B-1202
   Build: rating and comment, shown only after a completed booking or delivered order; one review per item.
   Done when: early and duplicate reviews are blocked with clear messages.
-  Owner: Codex · in progress · 2026-10-19. Backend now requires COMPLETED bookings, exactly one proof reference, and a matching purchased target; 14 focused backend tests pass. Frontend rating/comment form remains pending; keep unchecked.
+  Done: @codex · 2026-10-19 · Source: `354d0db` (backend prerequisite `b431e6b`). Delivered-order and freshly verified completed-booking review forms; English/Amharic, online-only, one review per item, clear duplicate/ineligibility messages. Typecheck/lint/build, 682 frontend tests and 360 px keyboard/axe checks pass. Existing F-508 detail supports reviews; tracking stays blocked separately.
 
 - [ ] **F-1402 · My reviews** · T3
   Needs: F-1401
@@ -990,11 +990,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: renders.
   Owner: —
 
-- [ ] **F-1403 · Review tests** · T2
+- [x] **F-1403 · Review tests** · T2
   Needs: F-1401
   Build: tests for eligibility and duplicates.
   Done when: suite passes.
-  Owner: —
+  Done: @codex · 2026-10-19 · Source: `354d0db` / `b431e6b`. 44 frontend review cases plus 14 focused backend cases cover eligibility, duplicate rejection, matching purchase targets, response validation, account/target changes, explicit retry and timeout. Complete frontend suite: 682 tests pass (75 files). Browser review-form axe checks: zero violations. See [handoff](frontend-reviews-handoff.md).
 
 ---
 
@@ -1281,6 +1281,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @codex | F-107, F-501, F-507 | Marked [x] at user request | Implementation complete on referenced branches; outstanding verification and merge notes remain applicable. |
 
 | 2026-10-18 | @codex | F-504 | Completed on isolated branch | 731dc57: cart/add controls, English/Amharic and 21 UI tests; 267 total tests, typecheck/lint/build and Firefox 360 px keyboard/contrast/all-state checks pass. Awaiting merge. |
+| 2026-10-19 | @codex | F-1401, F-1403 | Completed | Verified purchase review forms and eligibility/duplicate coverage; source `354d0db`, backend `b431e6b`; 682 frontend tests, 14 focused backend tests, build/lint and 360 px keyboard/axe checks pass |
 
 ## 12. Change log (requirements)
 
