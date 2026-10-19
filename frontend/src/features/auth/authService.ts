@@ -74,7 +74,7 @@ export const authService = {
       data
     );
     if (!response.data.data) {
-      throw new Error(response.data.message || 'Enterprise registration failed');
+      throw new Error(response.data.message || 'Community Hub registration failed');
     }
     return response.data.data;
   },

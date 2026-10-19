@@ -20,7 +20,7 @@ import { authService, useAuthStore } from '../../features/auth';
 import type { NormalizedApiError } from '../../services/apiError';
 
 const enterpriseRegisterSchema = z.object({
-  enterpriseName: z.string().min(2, 'Enterprise or cooperative name is required'),
+  enterpriseName: z.string().min(2, 'Community Hub name is required'),
   fullName: z.string().min(2, 'Please enter representative full name'),
   phoneNumber: ethiopianPhoneSchema,
   password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -116,7 +116,7 @@ export default function RegisterEnterprisePage() {
           <Building2 className="w-3.5 h-3.5" aria-hidden="true" />
           <span>Cooperative / Processing Enterprise</span>
         </div>
-        <h1 className="text-2xl font-bold text-foreground">Enterprise Registration</h1>
+        <h1 className="text-2xl font-bold text-foreground">Community Hub Registration</h1>
         <p className="text-sm text-muted-foreground">
           Register your cooperative to aggregate farmer crops, manage inventory, and sell to buyers
         </p>
@@ -136,7 +136,7 @@ export default function RegisterEnterprisePage() {
         {/* Enterprise Name */}
         <FormField
           id="enterprise-name"
-          label="Enterprise / Cooperative Name"
+          label="Community Hub Name"
           error={errors.enterpriseName?.message}
           hint="e.g. Omo Valley Honey Processing Union"
           required
@@ -284,7 +284,7 @@ export default function RegisterEnterprisePage() {
           size="lg"
           isLoading={isSubmitting}
         >
-          Register Enterprise & Open Dashboard
+          Register Community Hub & Open Dashboard
         </Button>
       </form>
 

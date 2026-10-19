@@ -44,7 +44,7 @@ const ROLE_OPTIONS: RoleOption[] = [
     icon: Layers,
     link: '/register/enterprise',
     badge: 'Coop & Processing',
-    buttonLabel: 'Register Enterprise',
+    buttonLabel: 'Register Community Hub',
     variant: 'primary',
   },
   {

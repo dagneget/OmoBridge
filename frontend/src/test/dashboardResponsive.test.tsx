@@ -116,7 +116,7 @@ describe('responsive dashboard navigation', () => {
     wide = true;
     show('/dashboard/enterprise/farmers');
     expect(
-      screen.getByRole('link', { name: 'Enterprise Hub' }),
+      screen.getByRole('link', { name: 'Community Hub' }),
     ).not.toHaveAttribute('aria-current');
     expect(
       screen.getByRole('link', { name: 'Registered Farmers' }),

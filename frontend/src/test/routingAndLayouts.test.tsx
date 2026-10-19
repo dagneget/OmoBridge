@@ -74,7 +74,7 @@ describe('Routing, layouts, and ErrorBoundary (F-101)', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('Enterprise Hub')).toBeInTheDocument();
+    expect(screen.getByText('Community Hub')).toBeInTheDocument();
     expect(screen.getByText('Registered Farmers')).toBeInTheDocument();
     expect(screen.getByText('Sign Out')).toBeInTheDocument();
     expect(screen.getByTestId('dash-content')).toHaveTextContent(

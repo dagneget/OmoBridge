@@ -534,7 +534,7 @@ export default function InventoryManagementPage() {
       <div>
         <nav className="flex items-center gap-1.5 text-xs text-slate-500 mb-2" aria-label="Breadcrumb">
           <Link to="/dashboard/enterprise" className="hover:text-emerald-700 dark:hover:text-emerald-400">
-            Enterprise Dashboard
+            Community Hub Dashboard
           </Link>
           <ChevronRight className="w-3 h-3" />
           <span className="text-slate-800 dark:text-slate-200 font-medium">Inventory & Storage Lots</span>

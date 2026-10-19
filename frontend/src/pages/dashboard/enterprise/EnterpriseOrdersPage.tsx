@@ -191,7 +191,7 @@ export default function EnterpriseOrdersPage() {
         <div>
           <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
             <Link to="/dashboard/enterprise" className="hover:text-slate-800 dark:hover:text-slate-200">
-              Enterprise Dashboard
+              Community Hub Dashboard
             </Link>
             <ChevronRight className="w-3.5 h-3.5" />
             <span className="text-slate-700 dark:text-slate-300 font-medium">Orders & Fulfillment</span>
@@ -621,7 +621,7 @@ export default function EnterpriseOrdersPage() {
                               </span>
                             </div>
                             <div className="text-slate-600 dark:text-slate-400 mt-0.5">
-                              {hist.reason || 'Status updated'} · By {hist.changedBy || 'Enterprise Officer'}
+                              {hist.reason || 'Status updated'} · By {hist.changedBy || 'Community Hub Officer'}
                             </div>
                           </div>
                         </div>

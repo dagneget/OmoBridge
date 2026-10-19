@@ -29,7 +29,7 @@ describe('Join OmoBridge Page (F-209)', () => {
     expect(
       screen.getByText(/process harvest lots, manage inventory, publish products to buyers/i)
     ).toBeInTheDocument();
-    const enterpriseLink = screen.getByRole('link', { name: /register enterprise/i });
+    const enterpriseLink = screen.getByRole('link', { name: /register community hub/i });
     expect(enterpriseLink).toHaveAttribute('href', '/register/enterprise');
 
     // 3. Delivery Courier

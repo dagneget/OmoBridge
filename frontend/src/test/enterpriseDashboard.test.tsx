@@ -68,7 +68,7 @@ describe('Enterprise Dashboard Shell and Home (F-801)', () => {
   it('renders all enterprise module navigation tabs', async () => {
     renderDashboard();
 
-    const nav = await screen.findByRole('navigation', { name: /Enterprise Modules/i });
+    const nav = await screen.findByRole('navigation', { name: /Community Hub Modules/i });
     expect(within(nav).getByText(/Overview & Key Metrics/i)).toBeInTheDocument();
     expect(within(nav).getByText(/^Farmers$/i)).toBeInTheDocument();
     expect(within(nav).getByText(/Buying Prices/i)).toBeInTheDocument();

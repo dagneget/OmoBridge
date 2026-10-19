@@ -238,7 +238,7 @@ export default function InspectionPage() {
           <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
             <Link to="/dashboard/enterprise" className="hover:text-emerald-700 flex items-center gap-1 font-medium">
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Enterprise Hub</span>
+              <span>Community Hub</span>
             </Link>
             <span>/</span>
             <Link to="/dashboard/enterprise/supply" className="hover:text-emerald-700 font-medium">

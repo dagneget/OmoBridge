@@ -147,7 +147,7 @@ export default function FarmersManagementPage() {
           <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
             <Link to="/dashboard/enterprise" className="hover:text-emerald-700 flex items-center gap-1 font-medium">
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Enterprise Hub</span>
+              <span>Community Hub</span>
             </Link>
             <span>/</span>
             <span className="text-slate-800 dark:text-slate-200 font-semibold">Farmers Management</span>

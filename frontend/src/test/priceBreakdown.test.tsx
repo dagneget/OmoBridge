@@ -97,7 +97,7 @@ describe('Price transparency (F-507)', () => {
         data={{ enterpriseMargin: -12.34, totalPrice: 1234.56 }}
       />
     );
-    expect(valueFor('Enterprise margin')).toHaveTextContent('-12.34 ETB');
+    expect(valueFor('Community Hub margin')).toHaveTextContent('-12.34 ETB');
     expect(valueFor('Total')).toHaveTextContent('1,234.56 ETB');
   });
 

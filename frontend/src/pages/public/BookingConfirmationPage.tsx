@@ -290,7 +290,7 @@ export default function BookingConfirmationPage() {
         <CardContent className="pt-4 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div className="space-y-1">
-              <div className="text-xs text-muted-foreground">Community Host Enterprise</div>
+              <div className="text-xs text-muted-foreground">Community Hub</div>
               <div className="font-bold text-foreground">
                 {booking.enterpriseName || 'Regional Community Cooperative'}
               </div>

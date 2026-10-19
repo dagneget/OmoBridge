@@ -177,7 +177,7 @@ export default function DashboardLayout() {
         return [
           {
             to: '/dashboard/enterprise',
-            label: 'Enterprise Hub',
+            label: 'Community Hub',
             icon: Layers,
           },
           {

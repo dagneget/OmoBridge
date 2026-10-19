@@ -153,7 +153,7 @@ export default function EnterpriseReportsPage() {
         <div>
           <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
             <Link to="/dashboard/enterprise" className="hover:text-slate-800 dark:hover:text-slate-200">
-              Enterprise Dashboard
+              Community Hub Dashboard
             </Link>
             <ChevronRight className="w-3.5 h-3.5" />
             <span className="text-slate-700 dark:text-slate-300 font-medium">Impact & AI Reports</span>

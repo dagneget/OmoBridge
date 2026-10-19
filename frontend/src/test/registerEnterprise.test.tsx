@@ -51,7 +51,7 @@ describe('Enterprise Registration (F-205)', () => {
       </MemoryRouter>
     );
 
-    fireEvent.change(screen.getByLabelText(/enterprise \/ cooperative name/i), {
+    fireEvent.change(screen.getByLabelText(/community hub name/i), {
       target: { value: 'Omo Valley Honey Union' },
     });
     fireEvent.change(screen.getByLabelText(/authorized representative name/i), {
@@ -67,7 +67,7 @@ describe('Enterprise Registration (F-205)', () => {
       target: { value: 'Turmi' },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: /register enterprise & open dashboard/i }));
+    fireEvent.click(screen.getByRole('button', { name: /register community hub & open dashboard/i }));
 
     await waitFor(() => {
       expect(authService.registerEnterprise).toHaveBeenCalledWith(
@@ -101,7 +101,7 @@ describe('Enterprise Registration (F-205)', () => {
       </MemoryRouter>
     );
 
-    fireEvent.change(screen.getByLabelText(/enterprise \/ cooperative name/i), {
+    fireEvent.change(screen.getByLabelText(/community hub name/i), {
       target: { value: 'Omo Valley Honey Union' },
     });
     fireEvent.change(screen.getByLabelText(/authorized representative name/i), {
@@ -117,7 +117,7 @@ describe('Enterprise Registration (F-205)', () => {
       target: { value: 'Turmi' },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: /register enterprise & open dashboard/i }));
+    fireEvent.click(screen.getByRole('button', { name: /register community hub & open dashboard/i }));
 
     await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent(

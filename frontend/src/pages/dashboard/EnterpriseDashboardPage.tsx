@@ -199,7 +199,7 @@ export default function EnterpriseDashboardPage() {
 
       {/* Module Navigation Tabs */}
       <div className="border-b border-slate-200 dark:border-slate-800">
-        <nav className="flex space-x-2 sm:space-x-4 overflow-x-auto pb-2 scrollbar-none" aria-label="Enterprise Modules">
+        <nav className="flex space-x-2 sm:space-x-4 overflow-x-auto pb-2 scrollbar-none" aria-label="Community Hub Modules">
           <button
             onClick={() => setActiveTab('overview')}
             className={`px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${

@@ -112,7 +112,7 @@ describe('Route Guards, Role Navigation & 403 Forbidden (F-207)', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Enterprise Hub')).toBeInTheDocument();
+      expect(screen.getByText('Community Hub')).toBeInTheDocument();
     });
 
     // Check RoleSwitcher presence and switch to Tour Guide

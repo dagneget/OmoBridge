@@ -77,7 +77,7 @@ describe('Farmers Management & Enterprise Isolation (F-802)', () => {
 
     expect(await screen.findByText(/Affiliated Farmers/i)).toBeInTheDocument();
     expect(screen.getByText(/South Omo Community Heritage Cooperative/i)).toBeInTheDocument();
-    expect(screen.getByText(/Enterprise Hub/i)).toBeInTheDocument();
+    expect(screen.getByText(/Community Hub/i)).toBeInTheDocument();
   });
 
   it('renders farmer roster with member codes, locations, and verification status', async () => {

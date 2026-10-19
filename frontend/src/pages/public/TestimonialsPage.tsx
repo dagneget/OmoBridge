@@ -29,7 +29,7 @@ const TARGET_TYPES = [
   { key: 'EXPERIENCE', label: 'Cultural Tours', icon: Compass },
   { key: 'GUIDE', label: 'Guides', icon: Sparkles },
   { key: 'PRODUCT', label: 'Artisan Goods', icon: ShoppingBag },
-  { key: 'ENTERPRISE', label: 'Enterprises', icon: Building },
+  { key: 'ENTERPRISE', label: 'Community Hubs', icon: Building },
 ] as const;
 
 export default function TestimonialsPage() {
