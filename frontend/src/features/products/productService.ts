@@ -3,10 +3,22 @@ import type { ProductResponse, StandardApiResponse } from '../../types/api';
 
 export const productService = {
   async getProduct(id: string, signal?: AbortSignal, options?: { fresh?: boolean }): Promise<ProductResponse> {
-    const response = await httpClient.get<StandardApiResponse<ProductResponse>>(
-      `/api/v1/public/products/${encodeURIComponent(id)}`,
-      { signal, ...(options?.fresh ? { headers: { 'Cache-Control': 'no-cache' } } : {}) }
-    );
+    let response;
+    try {
+      response = await httpClient.get<StandardApiResponse<ProductResponse>>(
+        `/api/v1/public/products/${encodeURIComponent(id)}`,
+        { signal, ...(options?.fresh ? { headers: { 'Cache-Control': 'no-cache' } } : {}) }
+      );
+    } catch (err) {
+      if (options?.fresh && !signal?.aborted) {
+        response = await httpClient.get<StandardApiResponse<ProductResponse>>(
+          `/api/v1/public/products/${encodeURIComponent(id)}`,
+          { signal }
+        );
+      } else {
+        throw err;
+      }
+    }
     const product = response.data.data;
     if (response.data.success === false || !product || typeof product !== 'object' || Array.isArray(product)) {
       throw new Error('Invalid product detail response');
