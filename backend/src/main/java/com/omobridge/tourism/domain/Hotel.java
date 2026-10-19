@@ -27,6 +27,8 @@ public class Hotel extends BaseEntity {
     @JoinColumn(name = "enterprise_id", nullable = false)
     private Enterprise enterprise;
 
+    @jakarta.persistence.Transient
+    @com.fasterxml.jackson.annotation.JsonProperty("enterpriseId")
     public UUID getEnterpriseId() {
         return enterprise != null ? enterprise.getId() : null;
     }

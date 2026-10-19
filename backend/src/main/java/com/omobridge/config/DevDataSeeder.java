@@ -412,17 +412,20 @@ public class DevDataSeeder implements ApplicationRunner {
                     output.setGrade("PREMIUM");
                     b.addOutput(output);
 
+                    ProductionBatch savedBatch = batchRepository.save(b);
+
                     TraceRecord trace = new TraceRecord();
-                    trace.setBatch(b);
+                    trace.setBatch(savedBatch);
                     trace.setPublicToken("trc-omo-white-honey-001");
                     trace.setOriginVillage("Keske Village, Turmi");
                     trace.setOriginLabel("South Omo Beekeepers Cooperative");
                     trace.setProcessingDate(Instant.now().minusSeconds(86400));
                     trace.setPublicStory("Harvested by traditional pastoral beekeepers from tree-hung bark hives in protected riverine forests along the Keske river basin.");
                     trace.setShowFarmerNames(true);
-                    b.setTraceRecord(trace);
+                    traceRecordRepository.save(trace);
 
-                    return batchRepository.save(b);
+                    savedBatch.setTraceRecord(trace);
+                    return batchRepository.save(savedBatch);
                 });
 
         return batch.getOutputs().isEmpty() ? null : batch.getOutputs().iterator().next();
