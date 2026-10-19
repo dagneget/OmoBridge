@@ -331,7 +331,7 @@ export default function ExperienceDetailsPage() {
               Community Approval & Fair Compensation
             </h3>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              This experience is fully sanctioned by community elders and registered under OmoBridge's ethical tourism covenant. Every ticket contributes directly to local village development funds and certified guide livelihoods.
+              This experience is fully sanctioned by community elders and registered under Kinka's ethical tourism covenant. Every ticket contributes directly to local village development funds and certified guide livelihoods.
             </p>
             <div className="pt-2 flex flex-wrap items-center gap-4 text-xs font-mono text-muted-foreground">
               {pkg.communityApprovalRef && (

@@ -1,5 +1,5 @@
 /**
- * Role definitions and helper utilities for OmoBridge RBAC.
+ * Role definitions and helper utilities for Kinka RBAC.
  */
 
 export const Roles = {

@@ -62,7 +62,7 @@ export default function PublicLayout() {
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-lg tracking-tight leading-none text-emerald-950 dark:text-emerald-300">
-                OmoBridge
+                Kinka
               </span>
               <span className="text-[10px] text-amber-700 dark:text-amber-400 font-ethiopic font-semibold tracking-wider">
                 ኦሞብሪጅ
@@ -195,10 +195,10 @@ export default function PublicLayout() {
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-emerald-700 flex items-center justify-center text-white font-bold text-sm">
-                  O
+                  K
                 </div>
                 <span className="font-bold text-lg text-emerald-950 dark:text-emerald-300">
-                  OmoBridge
+                  Kinka
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-ethiopic">
@@ -240,7 +240,7 @@ export default function PublicLayout() {
               </h3>
               <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
                 <li><Link to="/safety-guidelines" className="hover:text-emerald-700">Cultural Etiquette & Photos</Link></li>
-                <li><Link to="/about" className="hover:text-emerald-700">About OmoBridge</Link></li>
+                <li><Link to="/about" className="hover:text-emerald-700">About Kinka</Link></li>
                 <li><Link to="/contact" className="hover:text-emerald-700">Contact & Support Desks</Link></li>
                 <li><Link to="/design-tokens" className="hover:text-emerald-700">Design System & Amharic</Link></li>
               </ul>
@@ -248,7 +248,7 @@ export default function PublicLayout() {
           </div>
 
           <div className="border-t border-slate-200 dark:border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-4">
-            <p>© 2026 OmoBridge Platform. Built for South Omo Zone, Ethiopia.</p>
+            <p>© 2026 Kinka Platform. Built for South Omo Zone, Ethiopia.</p>
             <div className="flex gap-4">
               <span>English / አማርኛ</span>
               <span>USSD: *844#</span>

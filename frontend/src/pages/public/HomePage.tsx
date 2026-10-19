@@ -132,7 +132,7 @@ export default function HomePage() {
               <Link to="/join" className="w-full sm:w-auto">
                 <Button variant="secondary" size="lg" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200">
                   <Sparkles className="w-4 h-4 text-amber-600" aria-hidden="true" />
-                  <span>Join OmoBridge</span>
+                  <span>Join Kinka</span>
                 </Button>
               </Link>
             </div>
@@ -395,7 +395,7 @@ export default function HomePage() {
               Pure White Honey, Forest Coffee & Beeswax
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              Every jar on OmoBridge is harvested by agro-pastoralist beekeepers in the pristine forests of Turmi and Dimeka. With transparent pricing, you see the exact breakdown of producer earnings, cooperative margins, and local conservation dividends.
+              Every jar on Kinka is harvested by agro-pastoralist beekeepers in the pristine forests of Turmi and Dimeka. With transparent pricing, you see the exact breakdown of producer earnings, cooperative margins, and local conservation dividends.
             </p>
 
             <div className="flex flex-wrap gap-4 pt-2">
@@ -421,14 +421,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. Join OmoBridge Platform Roles */}
+      {/* 5. Join Kinka Platform Roles */}
       <section className="space-y-6 pt-2">
         <div className="text-center max-w-xl mx-auto space-y-2">
           <div className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
             Participation & Roles
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">
-            Get Started on OmoBridge
+            Get Started on Kinka
           </h2>
           <p className="text-sm text-slate-500">
             Join thousands of smallholder producers, cooperative enterprises, dispatch couriers, and travelers.

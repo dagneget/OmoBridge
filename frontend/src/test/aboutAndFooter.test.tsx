@@ -14,7 +14,7 @@ describe('About and footer (F-310)', () => {
     );
 
     expect(screen.getByTestId('about-page')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /About OmoBridge/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /About Kinka/i })).toBeInTheDocument();
     expect(screen.getByText(/Dual-Channel Inclusion/i)).toBeInTheDocument();
     expect(screen.getByText(/USSD & Feature Phones \(\*844#\)/i)).toBeInTheDocument();
     expect(screen.getByText(/Modern PWA Web Experience/i)).toBeInTheDocument();
@@ -88,7 +88,7 @@ describe('About and footer (F-310)', () => {
       'href',
       '/safety-guidelines'
     );
-    expect(screen.getByRole('link', { name: /About OmoBridge/i })).toHaveAttribute('href', '/about');
+    expect(screen.getByRole('link', { name: /About Kinka/i })).toHaveAttribute('href', '/about');
 
     // Check Amharic text and USSD
     expect(screen.getByText(/የደቡብ ኦሞ አርሶ አደሮች፣ የቱሪዝም ድርጅቶች እና የሸማቾች ዲጂታል ድልድይ።/i)).toBeInTheDocument();

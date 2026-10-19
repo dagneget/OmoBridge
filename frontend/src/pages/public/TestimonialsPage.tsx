@@ -106,7 +106,7 @@ export default function TestimonialsPage() {
           Visitor Experiences & Stories
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-          Authentic feedback and verified ratings from travelers who booked community ceremonies, cultural treks, and local goods directly through OmoBridge.
+          Authentic feedback and verified ratings from travelers who booked community ceremonies, cultural treks, and local goods directly through Kinka.
         </p>
       </div>
 

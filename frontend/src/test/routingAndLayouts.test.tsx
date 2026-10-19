@@ -29,7 +29,7 @@ describe('Routing, layouts, and ErrorBoundary (F-101)', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getAllByText('OmoBridge').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Kinka').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Tourism')).toBeInTheDocument();
     expect(screen.getByText('Products')).toBeInTheDocument();
     expect(screen.getByTestId('public-content')).toHaveTextContent(

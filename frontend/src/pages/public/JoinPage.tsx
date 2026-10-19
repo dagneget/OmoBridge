@@ -92,7 +92,7 @@ export default function JoinPage() {
           <span>Community-First Digital Platform</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
-          Join OmoBridge
+          Join Kinka
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
           Select your role to connect with rural producers, processing cooperatives, local couriers, and travelers across South Omo, Ethiopia.
@@ -157,7 +157,7 @@ export default function JoinPage() {
       {/* Existing User Banner */}
       <div className="p-6 rounded-2xl border border-border bg-muted/40 text-center max-w-xl mx-auto space-y-2">
         <p className="text-sm text-foreground font-medium">
-          Already registered on OmoBridge?
+          Already registered on Kinka?
         </p>
         <p className="text-xs text-muted-foreground">
           Sign in to access your producer, enterprise, courier, guide, or visitor dashboard.

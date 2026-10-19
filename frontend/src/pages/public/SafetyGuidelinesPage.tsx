@@ -48,7 +48,7 @@ const DEFAULT_GUIDELINES: SafetyGuideline[] = [
     title: 'Emergency Medical & Police Helpline',
     category: 'EMERGENCY',
     content:
-      'In the event of an accident, medical emergency, or security concern, contact local emergency dispatch immediately or notify your licensed OmoBridge guide. Tourist police stations are situated in Jinka, Dimeka, and Turmi.',
+      'In the event of an accident, medical emergency, or security concern, contact local emergency dispatch immediately or notify your licensed Kinka guide. Tourist police stations are situated in Jinka, Dimeka, and Turmi.',
     emergencyContacts: 'South Omo Tourist Police: +251 911 000001 | National Ambulance: 907',
     displayOrder: 4,
     active: true,

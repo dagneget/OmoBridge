@@ -12,8 +12,8 @@ describe('PWA Manifest & Caching Rules (F-105 & F-106)', () => {
     const content = fs.readFileSync(manifestPath, 'utf-8');
     const manifest = JSON.parse(content);
 
-    expect(manifest.name).toBe('OmoBridge - South Omo Digital Platform');
-    expect(manifest.short_name).toBe('OmoBridge');
+    expect(manifest.name).toBe('Kinka - South Omo Digital Platform');
+    expect(manifest.short_name).toBe('Kinka');
     expect(manifest.display).toBe('standalone');
     expect(manifest.theme_color).toBe('#047857');
     expect(manifest.background_color).toBe('#f8fafc');

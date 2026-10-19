@@ -637,7 +637,7 @@ export default function ProductionBatchDetailPage() {
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 print:border-none print:shadow-none">
             <div className="text-center space-y-1">
               <span className="text-[10px] font-bold tracking-widest text-emerald-700 uppercase">
-                OmoBridge Verified Heritage
+                Kinka Verified Heritage
               </span>
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 {batch.batchCode}

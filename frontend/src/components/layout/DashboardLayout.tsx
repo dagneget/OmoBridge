@@ -247,11 +247,11 @@ export default function DashboardLayout() {
         <div className="min-h-16 shrink-0 flex items-center justify-between gap-2 px-4 border-b border-slate-200 dark:border-slate-800">
           <Link to="/" className="flex min-w-0 items-center gap-2">
             <div className="w-8 h-8 shrink-0 rounded-lg bg-emerald-700 flex items-center justify-center text-white font-bold">
-              O
+              K
             </div>
             <div>
               <span className="font-bold text-base text-emerald-950 dark:text-emerald-300 block leading-tight">
-                OmoBridge
+                Kinka
               </span>
               <span className="text-[10px] text-slate-500 uppercase tracking-wider block">
                 {currentRole.replace(/_/g, ' ')}

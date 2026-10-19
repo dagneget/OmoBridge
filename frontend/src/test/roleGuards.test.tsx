@@ -27,7 +27,7 @@ describe('Route Guards, Role Navigation & 403 Forbidden (F-207)', () => {
 
     // Redirected to login page
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/sign in to omobridge/i);
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/sign in to kinka/i);
     }, { timeout: 4000 });
 
     // Check redirect preserved in sessionStorage

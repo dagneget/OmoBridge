@@ -96,7 +96,7 @@ describe('Safety Guidelines, Essential Info & Contact (F-308)', () => {
         </QueryClientProvider>
       );
 
-      expect(screen.getByText('Contact OmoBridge Support')).toBeInTheDocument();
+      expect(screen.getByText('Contact Kinka Support')).toBeInTheDocument();
       expect(screen.getByText('+251 911 000001')).toBeInTheDocument();
       expect(screen.getByText('support@omobridge.et')).toBeInTheDocument();
       expect(screen.getByText(/\*844#/)).toBeInTheDocument();
@@ -143,7 +143,7 @@ describe('Safety Guidelines, Essential Info & Contact (F-308)', () => {
         </MemoryRouter>
       );
 
-      expect(screen.getByText('About OmoBridge')).toBeInTheDocument();
+      expect(screen.getByText('About Kinka')).toBeInTheDocument();
       expect(screen.getByText('Dual-Channel Inclusion')).toBeInTheDocument();
       expect(screen.getByText(/ussd & feature phones \(\*844#\)/i)).toBeInTheDocument();
       expect(screen.getByText('Modern PWA Web Experience')).toBeInTheDocument();

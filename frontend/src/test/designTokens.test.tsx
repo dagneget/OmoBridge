@@ -6,7 +6,7 @@ describe('Design Tokens and Styling (F-003)', () => {
   it('renders the design tokens showcase page', () => {
     render(<DesignTokensPage />);
     expect(screen.getByTestId('design-tokens-page')).toBeInTheDocument();
-    expect(screen.getByText('OmoBridge Design Tokens')).toBeInTheDocument();
+    expect(screen.getByText('Kinka Design Tokens')).toBeInTheDocument();
   });
 
   it('renders Amharic text with Ethiopic script correctly', () => {

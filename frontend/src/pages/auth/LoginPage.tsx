@@ -142,7 +142,7 @@ export default function LoginPage() {
   return (
     <div className="w-full space-y-6">
       <div className="text-center space-y-1">
-        <h1 className="text-2xl font-bold text-foreground">Sign In to OmoBridge</h1>
+        <h1 className="text-2xl font-bold text-foreground">Sign In to Kinka</h1>
         <p className="text-sm text-muted-foreground">
           Enter your registered Ethiopian mobile number to access your account
         </p>
@@ -229,7 +229,7 @@ export default function LoginPage() {
       {/* Registration alternatives */}
       <div className="pt-4 border-t border-border space-y-3">
         <p className="text-xs text-center text-muted-foreground font-medium uppercase tracking-wider">
-          New to OmoBridge?
+          New to Kinka?
         </p>
         <div className="grid grid-cols-2 gap-2 text-xs">
           <Link

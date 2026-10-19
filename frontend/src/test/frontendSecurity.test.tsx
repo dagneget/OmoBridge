@@ -26,7 +26,7 @@ describe('F-1706 frontend security hardening', () => {
       screen.queryByText(/private-token|251911123456|password=/),
     ).not.toBeInTheDocument();
     expect(log).toHaveBeenCalledExactlyOnceWith(
-      'OmoBridge page rendering failed.',
+      'Kinka page rendering failed.',
     );
   });
   it('preserves a custom fallback without exposing the exception', () => {
@@ -39,7 +39,7 @@ describe('F-1706 frontend security hardening', () => {
     );
     expect(screen.getByText('Custom recovery')).toBeInTheDocument();
     expect(log).toHaveBeenCalledExactlyOnceWith(
-      'OmoBridge page rendering failed.',
+      'Kinka page rendering failed.',
     );
   });
   it('translates the safe recovery screen to Amharic', async () => {

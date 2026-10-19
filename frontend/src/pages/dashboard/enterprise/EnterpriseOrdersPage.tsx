@@ -675,7 +675,7 @@ export default function EnterpriseOrdersPage() {
               <div className="flex items-start justify-between border-b pb-4">
                 <div>
                   <div className="text-sm font-bold tracking-tight uppercase text-emerald-800">
-                    OmoBridge Fair-Trade Network
+                    Kinka Fair-Trade Network
                   </div>
                   <div className="text-xs font-semibold text-slate-700">{enterpriseName}</div>
                   <div className="text-[11px] text-slate-500">Turmi / Jinka Cooperative Hub, South Omo, Ethiopia</div>

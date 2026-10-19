@@ -90,7 +90,7 @@ describe('Account & Profile (F-208)', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/sign in to omobridge/i);
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/sign in to kinka/i);
     });
     expect(sessionStorage.getItem('omobridge_redirect')).toBe('/account');
   });

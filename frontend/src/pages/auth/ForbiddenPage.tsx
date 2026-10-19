@@ -37,7 +37,7 @@ export default function ForbiddenPage() {
           </span>
           <h1 className="text-2xl font-bold text-foreground">Access Restricted</h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            You do not have the required role or permissions to view this section of OmoBridge.
+            You do not have the required role or permissions to view this section of Kinka.
           </p>
         </div>
 
@@ -94,7 +94,7 @@ export default function ForbiddenPage() {
           ) : (
             <Link to="/login" className="block w-full">
               <Button variant="primary" className="w-full">
-                Sign In to OmoBridge
+                Sign In to Kinka
               </Button>
             </Link>
           )}

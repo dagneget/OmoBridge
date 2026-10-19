@@ -20,7 +20,7 @@ export default function DesignTokensPage() {
     <div className="p-6 max-w-4xl mx-auto space-y-8" data-testid="design-tokens-page">
       <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">OmoBridge Design Tokens</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Kinka Design Tokens</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Foundation styling tokens for mobile-first PWA, dark/light themes, and Ethiopic script.
           </p>

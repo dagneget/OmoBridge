@@ -1054,7 +1054,7 @@ export default function SupplyIntakePage() {
               {/* Traceability and Audit Footer */}
               <div className="pt-3 border-t border-slate-200 text-center text-[10px] text-slate-400">
                 <p>
-                  Certified via OmoBridge Fair Trade & Traceability Platform · Preserves origin integrity for South Omo farmers.
+                  Certified via Kinka Fair Trade & Traceability Platform · Preserves origin integrity for South Omo farmers.
                 </p>
                 <p className="mt-0.5 font-mono">
                   Receipt Token: {activeReceipt.id} · Verification: ACTIVE

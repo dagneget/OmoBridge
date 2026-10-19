@@ -118,7 +118,7 @@ describe('PWA install card F-107', () => {
       'Mozilla iPhone Version/18.0 Mobile Safari/604.1'
     );
     render(<InstallCard />);
-    expect(screen.getByRole('heading', { name: 'Install OmoBridge' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Install Kinka' })).toBeInTheDocument();
     expect(screen.getAllByRole('listitem')).toHaveLength(3);
     expect(screen.getByText(/Choose Add to Home Screen/)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Install app' })).not.toBeInTheDocument();
@@ -184,7 +184,7 @@ describe('PWA install card F-107', () => {
       </main>
     );
     offerInstall();
-    expect(screen.getByRole('heading', { name: 'OmoBridgeን ይጫኑ' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Kinkaን ይጫኑ' })).toBeInTheDocument();
     const results = await axe.run(container, { rules: { 'color-contrast': { enabled: false } } });
     expect(results.violations).toEqual([]);
   });

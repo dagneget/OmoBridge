@@ -102,7 +102,7 @@ describe('Home Page (F-301)', () => {
     );
 
     // Role links
-    expect(screen.getByRole('link', { name: /join omobridge/i })).toHaveAttribute('href', '/join');
+    expect(screen.getByRole('link', { name: /join kinka/i })).toHaveAttribute('href', '/join');
     expect(screen.getByText('Producers & Farmers')).toBeInTheDocument();
     expect(screen.getByText('Community Hubs')).toBeInTheDocument();
     expect(screen.getByText('Delivery Couriers')).toBeInTheDocument();

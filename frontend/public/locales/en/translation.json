@@ -1,5 +1,5 @@
 {
-  "appName": "OmoBridge",
+  "appName": "Kinka",
   "tagline": "Connecting rural producers and tourism in South Omo",
   "nav": {
     "home": "Home",
@@ -10,7 +10,7 @@
     "cart": "Cart"
   },
   "common": {
-    "welcome": "Welcome to OmoBridge",
+    "welcome": "Welcome to Kinka",
     "viewMore": "View More",
     "search": "Search",
     "loading": "Loading…",

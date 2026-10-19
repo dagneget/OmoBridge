@@ -16,8 +16,8 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['favicon.svg', 'pwa-192x192.png', 'pwa-512x512.png', 'apple-touch-icon.png'],
       manifest: {
-        name: 'OmoBridge - South Omo Digital Platform',
-        short_name: 'OmoBridge',
+        name: 'Kinka - South Omo Digital Platform',
+        short_name: 'Kinka',
         description: 'Connecting rural producers and tourism services in South Omo, Ethiopia',
         theme_color: '#047857',
         background_color: '#f8fafc',

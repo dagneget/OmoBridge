@@ -18,10 +18,10 @@ export default function AuthLayout() {
         </Link>
         <Link to="/" className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-emerald-700 flex items-center justify-center text-white font-bold text-sm">
-            O
+            K
           </div>
           <span className="font-bold text-base text-emerald-950 dark:text-emerald-300">
-            OmoBridge
+            Kinka
           </span>
         </Link>
       </header>
@@ -43,7 +43,7 @@ export default function AuthLayout() {
 
       {/* Footer */}
       <footer className="p-4 text-center text-xs text-slate-500 dark:text-slate-400">
-        © 2026 OmoBridge. Secure authentication with Ethiopian identity standards.
+        © 2026 Kinka. Secure authentication with Ethiopian identity standards.
       </footer>
     </div>
   );

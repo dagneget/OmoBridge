@@ -20,10 +20,10 @@ export default function AboutPage() {
           <span>Bridging Communities in South Omo</span>
         </div>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-tight leading-tight">
-          About OmoBridge
+          About Kinka
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-          OmoBridge is the unified digital platform connecting rural producers, community hubs, certified tour guides, and ethical travelers across the South Omo Zone of Ethiopia.
+          Kinka is the unified digital platform connecting rural producers, community hubs, certified tour guides, and ethical travelers across the South Omo Zone of Ethiopia.
         </p>
       </div>
 

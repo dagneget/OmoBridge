@@ -79,7 +79,7 @@ describe('responsive dashboard navigation', () => {
       within(drawer).getByRole('button', { name: 'Close sidebar' }),
     ).toHaveFocus();
     expect(document.body.style.overflow).toBe('hidden');
-    const first = within(drawer).getByRole('link', { name: /OmoBridge/ });
+    const first = within(drawer).getByRole('link', { name: /Kinka/ });
     first.focus();
     fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
     expect(

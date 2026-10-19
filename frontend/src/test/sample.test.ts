@@ -7,8 +7,8 @@ describe('Tooling baseline (F-002)', () => {
 
   it('supports DOM environment via jsdom', () => {
     const el = document.createElement('div')
-    el.textContent = 'OmoBridge PWA'
-    expect(el).toHaveTextContent('OmoBridge PWA')
+    el.textContent = 'Kinka PWA'
+    expect(el).toHaveTextContent('Kinka PWA')
   })
 
   it('loads environment variables or default fallback', () => {

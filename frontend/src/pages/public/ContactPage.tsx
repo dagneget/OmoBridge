@@ -58,7 +58,7 @@ export default function ContactPage() {
           <span>Community & Visitor Support</span>
         </div>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-tight">
-          Contact OmoBridge Support
+          Contact Kinka Support
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
           Need assistance with tour reservations, agricultural orders, certified local guides, or USSD access? Our regional coordinators in Jinka, Dimeka, and Turmi are available to assist you.
@@ -160,7 +160,7 @@ export default function ContactPage() {
             <MapComponent
               latitude={5.7833}
               longitude={36.5667}
-              title="OmoBridge Regional Office"
+              title="Kinka Regional Office"
               address="South Omo Administration Complex, Jinka Town"
               className="h-64 w-full"
             />

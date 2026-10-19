@@ -388,7 +388,7 @@ describe('EnterpriseOrdersPage Component (F-909)', () => {
       expect(screen.getByTestId('printable-slip-content')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('OmoBridge Fair-Trade Network')).toBeInTheDocument();
+    expect(screen.getByText('Kinka Fair-Trade Network')).toBeInTheDocument();
     expect(screen.getByText('TRACE-QR')).toBeInTheDocument();
     expect(screen.getByTestId('btn-print-slip')).toBeInTheDocument();
   });

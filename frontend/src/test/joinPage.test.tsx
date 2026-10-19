@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import JoinPage from '../pages/public/JoinPage';
 
-describe('Join OmoBridge Page (F-209)', () => {
+describe('Join Kinka Page (F-209)', () => {
   it('renders all role registration options with descriptions and accurate route links', () => {
     render(
       <MemoryRouter initialEntries={['/join']}>
@@ -12,7 +12,7 @@ describe('Join OmoBridge Page (F-209)', () => {
     );
 
     // Header
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/join omobridge/i);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/join kinka/i);
     expect(screen.getByText(/community-first digital platform/i)).toBeInTheDocument();
 
     // 1. Producer / Farmer

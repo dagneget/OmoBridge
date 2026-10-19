@@ -74,7 +74,7 @@ export default function AccountPage() {
           Account & Profile
         </h1>
         <p className="text-sm text-muted-foreground">
-          Manage your personal details, language preference, and linked OmoBridge memberships.
+          Manage your personal details, language preference, and linked Kinka memberships.
         </p>
       </div>
 
@@ -89,7 +89,7 @@ export default function AccountPage() {
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-foreground">
-                    {user?.fullName || 'OmoBridge Member'}
+                    {user?.fullName || 'Kinka Member'}
                   </h2>
                   <div className="flex items-center gap-2 mt-0.5">
                     <StatusChip
