@@ -1,4 +1,6 @@
-import { useState, Suspense } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
+import './dashboard.css';
+import { useDashboardText } from './useDashboardText';
 import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom';
 import {
   Menu,
@@ -23,8 +25,70 @@ import { useAuthStore } from '../../features/auth/authStore';
 import { normalizeRole, Roles } from '../../features/auth/roleHelpers';
 
 export default function DashboardLayout() {
+  const t = useDashboardText();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const toggle = useRef<HTMLButtonElement>(null);
+  const sidebar = useRef<HTMLElement>(null);
+  const [desktop, setDesktop] = useState(() =>
+    typeof window.matchMedia === 'function'
+      ? window.matchMedia('(min-width: 1024px)').matches
+      : window.innerWidth >= 1024,
+  );
+  const mobileOpen = sidebarOpen && !desktop;
+  useEffect(() => {
+    const media = window.matchMedia?.('(min-width: 1024px)');
+    const onChange = () => {
+      setDesktop(media?.matches ?? window.innerWidth >= 1024);
+      setSidebarOpen(false);
+    };
+    media?.addEventListener('change', onChange);
+    return () => media?.removeEventListener('change', onChange);
+  }, []);
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const panel = sidebar.current;
+    const toggleButton = toggle.current;
+    panel?.querySelector<HTMLButtonElement>('[data-sidebar-close]')?.focus();
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setSidebarOpen(false);
+      }
+      if (event.key !== 'Tab' || !panel) return;
+      const controls = Array.from(
+        panel.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), select:not([disabled]), [tabindex="0"]',
+        ),
+      );
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (!first || !last) return;
+      if (
+        event.shiftKey &&
+        (document.activeElement === first ||
+          !panel.contains(document.activeElement))
+      ) {
+        event.preventDefault();
+        last.focus();
+      } else if (
+        !event.shiftKey &&
+        (document.activeElement === last ||
+          !panel.contains(document.activeElement))
+      ) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKey);
+      toggleButton?.focus();
+    };
+  }, [mobileOpen]);
   const { user, activeRole, logout } = useAuthStore();
 
   const userRoles = (
@@ -32,7 +96,9 @@ export default function DashboardLayout() {
   ).map(normalizeRole);
   const currentRole = activeRole
     ? normalizeRole(activeRole)
-    : userRoles[0] || normalizeRole((user as any)?.role || '') || Roles.MICRO_ENTERPRISE;
+    : userRoles[0] ||
+      normalizeRole((user as any)?.role || '') ||
+      Roles.MICRO_ENTERPRISE;
 
   const handleLogout = () => {
     logout();
@@ -46,41 +112,109 @@ export default function DashboardLayout() {
       case 'PRODUCER':
         return [
           { to: '/dashboard/farmer', label: 'Farmer Overview', icon: Sprout },
-          { to: '/dashboard/farmer/deliveries', label: 'My Crop Deliveries', icon: Package },
-          { to: '/dashboard/farmer/payables', label: 'Earnings & Balances', icon: DollarSign },
-          { to: '/dashboard/farmer/ussd', label: 'USSD Fast Access (*844#)', icon: FileText },
+          {
+            to: '/dashboard/farmer/deliveries',
+            label: 'My Crop Deliveries',
+            icon: Package,
+          },
+          {
+            to: '/dashboard/farmer/payables',
+            label: 'Earnings & Balances',
+            icon: DollarSign,
+          },
+          {
+            to: '/dashboard/farmer/ussd',
+            label: 'USSD Fast Access (*844#)',
+            icon: FileText,
+          },
         ];
       case Roles.DELIVERY_PROVIDER:
         return [
           { to: '/dashboard/delivery', label: 'Delivery Jobs', icon: Truck },
-          { to: '/dashboard/delivery/active', label: 'Active Route & GPS', icon: Compass },
-          { to: '/dashboard/delivery/sync', label: 'Offline Sync Queue', icon: CheckCircle },
+          {
+            to: '/dashboard/delivery/active',
+            label: 'Active Route & GPS',
+            icon: Compass,
+          },
+          {
+            to: '/dashboard/delivery/sync',
+            label: 'Offline Sync Queue',
+            icon: CheckCircle,
+          },
         ];
       case Roles.TOUR_GUIDE:
         return [
           { to: '/dashboard/guide', label: 'Assigned Tours', icon: Compass },
-          { to: '/dashboard/guide/sessions', label: 'Availability Calendar', icon: Calendar },
+          {
+            to: '/dashboard/guide/sessions',
+            label: 'Availability Calendar',
+            icon: Calendar,
+          },
         ];
       case Roles.SYSTEM_ADMIN:
       case Roles.TOURISM_AUTHORITY:
       case 'ADMIN':
         return [
-          { to: '/dashboard/admin', label: 'Admin Oversight', icon: ShieldAlert },
-          { to: '/dashboard/admin/approvals', label: 'Provider Approvals', icon: CheckCircle },
-          { to: '/dashboard/admin/users', label: 'User Directory', icon: Users },
+          {
+            to: '/dashboard/admin',
+            label: 'Admin Oversight',
+            icon: ShieldAlert,
+          },
+          {
+            to: '/dashboard/admin/approvals',
+            label: 'Provider Approvals',
+            icon: CheckCircle,
+          },
+          {
+            to: '/dashboard/admin/users',
+            label: 'User Directory',
+            icon: Users,
+          },
         ];
       case Roles.MICRO_ENTERPRISE:
       case 'ENTERPRISE':
       default:
         return [
-          { to: '/dashboard/enterprise', label: 'Enterprise Hub', icon: Layers },
-          { to: '/dashboard/enterprise/farmers', label: 'Registered Farmers', icon: Users },
-          { to: '/dashboard/enterprise/supply', label: 'Supply Intake', icon: Package },
-          { to: '/dashboard/enterprise/inventory', label: 'Inventory Lots', icon: Home },
-          { to: '/dashboard/enterprise/production', label: 'Production Batches', icon: Layers },
-          { to: '/dashboard/enterprise/products', label: 'Catalog Products', icon: Package },
-          { to: '/dashboard/enterprise/payments', label: 'Farmer Disbursements', icon: DollarSign },
-          { to: '/dashboard/enterprise/reports', label: 'AI Impact Reports', icon: FileText },
+          {
+            to: '/dashboard/enterprise',
+            label: 'Enterprise Hub',
+            icon: Layers,
+          },
+          {
+            to: '/dashboard/enterprise/farmers',
+            label: 'Registered Farmers',
+            icon: Users,
+          },
+          {
+            to: '/dashboard/enterprise/supply',
+            label: 'Supply Intake',
+            icon: Package,
+          },
+          {
+            to: '/dashboard/enterprise/inventory',
+            label: 'Inventory Lots',
+            icon: Home,
+          },
+          {
+            to: '/dashboard/enterprise/production',
+            label: 'Production Batches',
+            icon: Layers,
+          },
+          {
+            to: '/dashboard/enterprise/products',
+            label: 'Catalog Products',
+            icon: Package,
+          },
+          {
+            to: '/dashboard/enterprise/payments',
+            label: 'Farmer Disbursements',
+            icon: DollarSign,
+          },
+          {
+            to: '/dashboard/enterprise/reports',
+            label: 'AI Impact Reports',
+            icon: FileText,
+          },
         ];
     }
   };
@@ -88,25 +222,31 @@ export default function DashboardLayout() {
   const navItems = getNavItems();
 
   return (
-    <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans">
+    <div className="dashboard-shell min-h-dvh flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans">
       {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
+      {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col transition-transform duration-200 ease-in-out md:translate-x-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        id="dashboard-navigation"
+        ref={sidebar}
+        inert={!desktop && !mobileOpen}
+        role={mobileOpen ? 'dialog' : undefined}
+        aria-modal={mobileOpen || undefined}
+        aria-label={t('navigation')}
+        className={`dashboard-sidebar fixed lg:sticky lg:top-0 inset-y-0 left-0 z-50 lg:h-dvh lg:shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col transition-transform duration-200 ease-in-out lg:translate-x-0 ${
+          mobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Brand Header */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center text-white font-bold">
+        <div className="min-h-16 shrink-0 flex items-center justify-between gap-2 px-4 border-b border-slate-200 dark:border-slate-800">
+          <Link to="/" className="flex min-w-0 items-center gap-2">
+            <div className="w-8 h-8 shrink-0 rounded-lg bg-emerald-700 flex items-center justify-center text-white font-bold">
               O
             </div>
             <div>
@@ -122,7 +262,8 @@ export default function DashboardLayout() {
             type="button"
             onClick={() => setSidebarOpen(false)}
             aria-label="Close sidebar"
-            className="md:hidden touch-target p-1 text-slate-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            data-sidebar-close
+            className="lg:hidden touch-target p-1 text-slate-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <X className="w-5 h-5" />
           </button>
@@ -134,7 +275,7 @@ export default function DashboardLayout() {
             <NavLink
               key={to}
               to={to}
-              end={to === `/dashboard/${currentRole.toLowerCase()}` || to === '/dashboard/enterprise'}
+              end={to === navItems[0].to}
               onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
                 `touch-target flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
@@ -151,7 +292,7 @@ export default function DashboardLayout() {
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
+        <div className="shrink-0 p-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
           {user && (
             <div className="px-3 py-2 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-xs space-y-1">
               <span className="text-slate-400 block">Signed in as:</span>
@@ -172,25 +313,31 @@ export default function DashboardLayout() {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div
+        className="flex-1 flex flex-col min-w-0 max-w-full"
+        inert={mobileOpen}
+      >
         <OfflineBanner />
         {/* Top Navbar */}
-        <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <header className="dashboard-topbar bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
+              ref={toggle}
               aria-label="Open sidebar menu"
-              className="md:hidden touch-target p-2 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              aria-expanded={mobileOpen}
+              aria-controls="dashboard-navigation"
+              className="lg:hidden shrink-0 touch-target p-2 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               <Menu className="w-6 h-6" />
             </button>
-            <h1 className="text-lg font-semibold capitalize text-slate-800 dark:text-slate-100">
+            <h1 className="min-w-0 text-base sm:text-lg font-semibold capitalize text-slate-800 dark:text-slate-100">
               {currentRole.replace(/_/g, ' ').toLowerCase()} Dashboard
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="dashboard-header-actions flex min-w-0 flex-wrap items-center gap-2">
             <RoleSwitcher />
             <Link
               to="/"
@@ -202,7 +349,7 @@ export default function DashboardLayout() {
         </header>
 
         {/* Dashboard Body */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        <main className="dashboard-content flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
           <Suspense
             fallback={
               <div className="flex items-center justify-center min-h-[40vh]">

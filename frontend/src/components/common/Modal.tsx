@@ -54,7 +54,7 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
@@ -66,11 +66,11 @@ export const Modal: React.FC<ModalProps> = ({
       }}
     >
       <div
-        className={`w-full ${sizeClasses[size]} bg-card text-card-foreground rounded-2xl shadow-2xl border border-border overflow-hidden flex flex-col max-h-[90vh] ${panelClassName}`}
+        className={`w-full ${sizeClasses[size]} bg-card text-card-foreground rounded-2xl shadow-2xl border border-border overflow-hidden flex flex-col max-h-[calc(100dvh-1rem)] sm:max-h-[90dvh] ${panelClassName}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <div className="flex flex-col">
+        <div className="shrink-0 flex items-start justify-between gap-2 px-4 sm:px-6 py-4 border-b border-border">
+          <div className="min-w-0 flex flex-col break-words">
             {title && (
               <h2 id={titleId} className="text-lg font-semibold text-foreground">
                 {title}
@@ -92,10 +92,10 @@ export const Modal: React.FC<ModalProps> = ({
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto flex-1">{children}</div>
+        <div className="min-h-0 min-w-0 p-4 sm:p-6 overflow-y-auto flex-1">{children}</div>
 
         {footer && (
-          <div className="px-6 py-4 border-t border-border bg-muted/40 flex items-center justify-end gap-3">
+          <div className="shrink-0 px-4 sm:px-6 py-4 border-t border-border bg-muted/40 flex flex-wrap items-center justify-end gap-3">
             {footer}
           </div>
         )}
