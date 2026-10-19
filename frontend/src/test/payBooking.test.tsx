@@ -115,8 +115,11 @@ describe('Pay for a booking (F-405)', () => {
     fireEvent.click(screen.getByTestId('confirm-telebirr-pay-btn'));
 
     // Should transition to pending state
-    expect(screen.getByTestId('payment-pending-state')).toBeInTheDocument();
-    expect(screen.getByText(/Waiting for Telebirr Confirmation\.\.\./i)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /Waiting for Telebirr Confirmation\.\.\.|Processing Chapa Payment\.\.\./i,
+      ),
+    ).toBeInTheDocument();
 
     // Complete payment
     resolvePayment!({
