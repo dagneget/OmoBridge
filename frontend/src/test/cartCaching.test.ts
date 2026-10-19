@@ -14,7 +14,7 @@ describe('Built service worker cart revalidation routing', () => {
     });
     const define = (_deps: string[], factory: (api: object) => void) => factory(workbox);
     const code = fs.readFileSync(path.resolve(__dirname, '../../dist/sw.js'), 'utf8');
-    vm.runInNewContext(code, { define, self: { define, addEventListener() {} } });
+    vm.runInNewContext(code, { define, self: { define, addEventListener() {}, skipWaiting() {}, clients: { claim() {} } } });
     function strategyFor(pathname: string, cache: RequestCache, cacheControl?: string, method = 'GET') {
       const input = { url: new URL(`http://localhost:8080${pathname}`), request: { method, cache, headers: new Headers(cacheControl ? { 'Cache-Control': cacheControl } : {}) } };
       return routes.find(({ match, method: routeMethod }) => (routeMethod ?? 'GET') === method && typeof match === 'function' && match(input))?.strategy?.kind;
