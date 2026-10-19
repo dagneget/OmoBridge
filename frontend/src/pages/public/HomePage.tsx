@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { normalizeLanguage } from '../../i18n/languages';
+import useShellText from '../../i18n/useShellText';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -13,7 +15,6 @@ import {
   MapPin,
   Clock,
   Sparkles,
-  Globe2,
   CheckCircle2,
   Award,
   TrendingUp,
@@ -23,40 +24,23 @@ import { Button, Card, Skeleton, EmptyState } from '../../components/common';
 import { tourismService } from '../../features/tourism';
 import { queryKeys } from '../../services/queryKeys';
 import { formatETB } from '../../utils/formatters';
-import { LANGUAGE_STORAGE_KEY } from '../account/AccountPage';
-import { useAuthStore } from '../../features/auth/authStore';
+import { LanguageSwitcher } from '../../components/common/LanguageSwitcher';
 import southOmoHeroImg from '../../assets/south_omo_hero.jpg';
 import culturalTourismImg from '../../assets/cultural_tourism.jpg';
 import honeyCoffeeImg from '../../assets/honey_coffee_product.jpg';
 
 export default function HomePage() {
-  const { user, setUser } = useAuthStore();
-  const [currentLang, setCurrentLang] = useState<string>(() => {
-    return (
-      (typeof window !== 'undefined' && localStorage.getItem(LANGUAGE_STORAGE_KEY)) ||
-      user?.preferredLanguage ||
-      'en'
-    );
-  });
-
-  const handleLanguageToggle = (lang: string) => {
-    setCurrentLang(lang);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
-    }
-    if (user) {
-      setUser({ ...user, preferredLanguage: lang });
-    }
-  };
-
+  const { i18n } = useTranslation();
+  const language = normalizeLanguage(i18n.language);
+  const shellText = useShellText();
   const {
     data: packages = [],
     isLoading,
     isError,
     refetch,
   } = useQuery({
-    queryKey: queryKeys.tourism.packages.list(),
-    queryFn: () => tourismService.getPackages(),
+    queryKey: queryKeys.tourism.packages.list(undefined, language),
+    queryFn: () => tourismService.getPackages(language),
   });
 
   const featuredPackages = packages.slice(0, 3);
@@ -72,40 +56,16 @@ export default function HomePage() {
             <div className="flex flex-wrap items-center gap-3">
               <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
                 <ShieldCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
-                <span>Digital Platform for South Omo, Ethiopia</span>
+                <span>{shellText("Digital Platform for South Omo, Ethiopia")}</span>
               </div>
 
-              <div className="inline-flex items-center gap-1 bg-white/80 dark:bg-slate-800/80 p-0.5 rounded-full border border-slate-200 dark:border-slate-700 text-xs shadow-xs">
-                <Globe2 className="w-3.5 h-3.5 ml-2 text-slate-500" aria-hidden="true" />
-                <button
-                  type="button"
-                  onClick={() => handleLanguageToggle('en')}
-                  className={`px-2.5 py-0.5 rounded-full font-medium transition-colors ${
-                    currentLang === 'en'
-                      ? 'bg-emerald-700 text-white font-semibold shadow-xs'
-                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
-                  }`}
-                >
-                  EN
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleLanguageToggle('am')}
-                  className={`px-2.5 py-0.5 rounded-full font-medium font-ethiopic transition-colors ${
-                    currentLang === 'am'
-                      ? 'bg-emerald-700 text-white font-semibold shadow-xs'
-                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
-                  }`}
-                >
-                  አማርኛ
-                </button>
-              </div>
+              <LanguageSwitcher />
             </div>
 
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
               Connecting Rural Producers & Ethical Travelers in{' '}
               <span className="text-emerald-700 dark:text-emerald-400 underline decoration-amber-500/50 decoration-wavy">
-                South Omo
+                {shellText("South Omo")}
               </span>
             </h1>
 
@@ -118,21 +78,21 @@ export default function HomePage() {
               <Link to="/tourism" className="w-full sm:w-auto">
                 <Button size="lg" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white shadow-md">
                   <Compass className="w-4 h-4" aria-hidden="true" />
-                  <span>Explore Tourism Experiences</span>
+                  <span>{shellText("Explore Tourism Experiences")}</span>
                 </Button>
               </Link>
 
               <Link to="/products" className="w-full sm:w-auto">
                 <Button variant="outline" size="lg" className="w-full sm:w-auto flex items-center justify-center gap-2 border-slate-300 dark:border-slate-700 hover:border-amber-600 hover:text-amber-700 dark:hover:text-amber-400">
                   <ShoppingBag className="w-4 h-4" aria-hidden="true" />
-                  <span>Shop Agricultural Goods</span>
+                  <span>{shellText("Shop Agricultural Goods")}</span>
                 </Button>
               </Link>
 
               <Link to="/join" className="w-full sm:w-auto">
                 <Button variant="secondary" size="lg" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200">
                   <Sparkles className="w-4 h-4 text-amber-600" aria-hidden="true" />
-                  <span>Join Kinka</span>
+                  <span>{shellText("Join Kinka")}</span>
                 </Button>
               </Link>
             </div>
@@ -442,7 +402,7 @@ export default function HomePage() {
                 <Sprout className="w-6 h-6" aria-hidden="true" />
               </div>
               <h3 className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
-                Producers & Farmers
+                {shellText("Producers & Farmers")}
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed">
                 Register crops, record harvest deliveries, check balances, and receive Telebirr payments.
@@ -456,7 +416,7 @@ export default function HomePage() {
                 <Layers className="w-6 h-6" aria-hidden="true" />
               </div>
               <h3 className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
-                Community Hubs
+                {shellText("Community Hubs")}
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed">
                 Manage lot intake, track production batches, catalog SKUs, and manage tour offerings.
@@ -470,7 +430,7 @@ export default function HomePage() {
                 <Truck className="w-6 h-6" aria-hidden="true" />
               </div>
               <h3 className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
-                Delivery Couriers
+                {shellText("Delivery Couriers")}
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed">
                 Accept delivery jobs, log route GPS checkpoints offline, and receive mobile payouts.
@@ -484,7 +444,7 @@ export default function HomePage() {
                 <Compass className="w-6 h-6" aria-hidden="true" />
               </div>
               <h3 className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">
-                Certified Tour Guides
+                {shellText("Certified Tour Guides")}
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed">
                 Manage tourist calendar sessions, set daily fees, and host authorized cultural tours.

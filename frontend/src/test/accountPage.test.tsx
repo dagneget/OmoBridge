@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import i18n from '../i18n';
+import { LanguageSwitcher } from '../components/common/LanguageSwitcher';
 import AccountPage, { LANGUAGE_STORAGE_KEY } from '../pages/account/AccountPage';
 import AppRoutes from '../routes';
 import { useAuthStore } from '../features/auth/authStore';
@@ -72,6 +74,17 @@ describe('Account & Profile (F-208)', () => {
     await waitFor(() => {
       expect(screen.getByText(/language preference saved/i)).toBeInTheDocument();
     });
+  });
+
+  it.each([['Hamer', 'amf'], ['Karo', 'kxh']])('keeps %s selection synchronized with the header and API preference', async (name, code) => {
+    render(<MemoryRouter><AccountPage /><LanguageSwitcher /></MemoryRouter>);
+    fireEvent.click(screen.getByRole('radio', { name: new RegExp(name) }));
+    await waitFor(() => expect(screen.getByTestId(`lang-btn-${code}`)).toHaveAttribute('aria-pressed', 'true'));
+    expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe(code);
+    expect(useAuthStore.getState().user?.preferredLanguage).toBe(code);
+    expect(i18n.language).toBe(code);
+    fireEvent.click(screen.getByTestId('lang-btn-en'));
+    await waitFor(() => expect(screen.getByRole('radio', { name: /English/ })).toHaveAttribute('aria-checked', 'true'));
   });
 
   it('redirects unauthenticated user accessing /account to /login', async () => {

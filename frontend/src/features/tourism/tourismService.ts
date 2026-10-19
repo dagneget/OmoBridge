@@ -1,3 +1,4 @@
+import { getPreferredLanguage } from '../../i18n/languages';
 import httpClient from '../../services/httpClient';
 import type {
   TourPackageResponse,
@@ -14,9 +15,10 @@ export const tourismService = {
   /**
    * Fetch all active tour packages
    */
-  async getPackages(): Promise<TourPackageResponse[]> {
+  async getPackages(language = getPreferredLanguage()): Promise<TourPackageResponse[]> {
     const response = await httpClient.get<StandardApiResponse<TourPackageResponse[]>>(
-      '/api/v1/tourism/packages'
+      '/api/v1/tourism/packages',
+      { params: { lang: language } }
     );
     return response.data.data || [];
   },
@@ -24,9 +26,10 @@ export const tourismService = {
   /**
    * Fetch a single tour package by ID
    */
-  async getPackageById(id: string): Promise<TourPackageResponse> {
+  async getPackageById(id: string, language = getPreferredLanguage()): Promise<TourPackageResponse> {
     const response = await httpClient.get<StandardApiResponse<TourPackageResponse>>(
-      `/api/v1/tourism/packages/${id}`
+      `/api/v1/tourism/packages/${id}`,
+      { params: { lang: language } }
     );
     if (!response.data.data) {
       throw new Error(response.data.message || 'Tour package not found');

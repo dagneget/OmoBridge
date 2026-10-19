@@ -1,3 +1,5 @@
+import { getPreferredLanguage } from '../i18n/languages';
+
 /**
  * Query Key Factory for TanStack Query
  * Organizes cache keys hierarchically for precise invalidation and caching.
@@ -20,8 +22,8 @@ export const queryKeys = {
     all: ['tourism'] as const,
     packages: {
       all: () => [...queryKeys.tourism.all, 'packages'] as const,
-      list: (filters?: Record<string, unknown>) => [...queryKeys.tourism.packages.all(), 'list', filters || {}] as const,
-      detail: (id: string) => [...queryKeys.tourism.packages.all(), 'detail', id] as const,
+      list: (filters?: Record<string, unknown>, language = getPreferredLanguage()) => [...queryKeys.tourism.packages.all(), 'list', filters || {}, language] as const,
+      detail: (id: string, language = getPreferredLanguage()) => [...queryKeys.tourism.packages.all(), 'detail', id, language] as const,
     },
     hotels: {
       all: () => [...queryKeys.tourism.all, 'hotels'] as const,

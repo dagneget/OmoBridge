@@ -57,12 +57,15 @@ function createTestQueryClient() {
   });
 }
 
+import i18n from '../i18n';
+
 describe('Home Page (F-301)', () => {
   let queryClient: QueryClient;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     localStorage.clear();
     vi.restoreAllMocks();
+    await i18n.changeLanguage('en');
     queryClient = createTestQueryClient();
   });
 

@@ -1,3 +1,4 @@
+import { LANGUAGE_OPTIONS } from '../../i18n/languages';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -178,10 +179,7 @@ export default function RegisterBuyerPage() {
         <FormField id="buyer-lang" label="Preferred Language">
           <Select
             id="buyer-lang"
-            options={[
-              { value: 'en', label: 'English' },
-              { value: 'am', label: 'አማርኛ (Amharic)' },
-            ]}
+            options={LANGUAGE_OPTIONS}
             {...register('preferredLanguage')}
           />
         </FormField>

@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import { normalizeLanguage } from '../../i18n/languages';
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -52,6 +54,8 @@ function getCategoryIcon(category?: string) {
 }
 
 export default function TourismPage() {
+  const { i18n } = useTranslation();
+  const language = normalizeLanguage(i18n.language);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
 
@@ -62,8 +66,8 @@ export default function TourismPage() {
     error,
     refetch,
   } = useQuery({
-    queryKey: queryKeys.tourism.packages.list(),
-    queryFn: () => tourismService.getPackages(),
+    queryKey: queryKeys.tourism.packages.list(undefined, language),
+    queryFn: () => tourismService.getPackages(language),
   });
 
   const filteredPackages = useMemo(() => {
