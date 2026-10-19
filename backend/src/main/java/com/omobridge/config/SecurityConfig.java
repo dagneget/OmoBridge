@@ -104,7 +104,8 @@ public class SecurityConfig {
         var configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Idempotency-Key"));
+        configuration.setAllowedHeaders(List.of(
+                "Authorization", "Content-Type", "X-Idempotency-Key", "Cache-Control", "Accept", "Accept-Language"));
         configuration.setAllowCredentials(true);
         configuration.validateAllowCredentials();
 

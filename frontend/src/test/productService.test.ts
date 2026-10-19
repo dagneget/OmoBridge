@@ -47,3 +47,18 @@ it('cart validation requests network revalidation without changing the HTTP adap
     signal: undefined, headers: { 'Cache-Control': 'no-cache' },
   });
 });
+
+it('falls back to simple GET when fresh revalidation fails (e.g. CORS preflight restriction)', async () => {
+  const get = vi.spyOn(httpClient, 'get')
+    .mockRejectedValueOnce(new Error('Network error'))
+    .mockResolvedValueOnce({ data: { success: true, data: { id: 'fallback-id' } } });
+  const result = await productService.getProduct('fallback-id', undefined, { fresh: true });
+  expect(result).toEqual({ id: 'fallback-id' });
+  expect(get).toHaveBeenNthCalledWith(1, '/api/v1/public/products/fallback-id', {
+    signal: undefined, headers: { 'Cache-Control': 'no-cache' },
+  });
+  expect(get).toHaveBeenNthCalledWith(2, '/api/v1/public/products/fallback-id', {
+    signal: undefined,
+  });
+});
+
