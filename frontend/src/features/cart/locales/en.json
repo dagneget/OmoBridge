@@ -4,6 +4,7 @@
   "quantityFor": "Quantity for {{name}}",
   "quantityHelp": "Use a positive quantity with up to three decimal places.",
   "add": "Add to cart",
+  "buyNow": "Buy Now",
   "view": "View cart",
   "cannotAdd": "This product cannot be added right now.",
   "invalidQuantity": "Enter a quantity greater than zero with no more than three decimal places.",
