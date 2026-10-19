@@ -1,3 +1,12 @@
+import RoleGuard from '../../routes/RoleGuard';
+import { useAuthBootstrap } from '../../features/auth';
+import { CheckoutForm } from '../../features/checkout';
+
 export default function CheckoutPage() {
-  return <div>CheckoutPage</div>;
+  useAuthBootstrap();
+  return (
+    <RoleGuard>
+      <CheckoutForm />
+    </RoleGuard>
+  );
 }

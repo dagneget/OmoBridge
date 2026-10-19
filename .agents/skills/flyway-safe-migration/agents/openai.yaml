@@ -1,0 +1,4 @@
+interface:
+  display_name: "Flyway Safe Migration"
+  short_description: "Review Flyway migrations for production risk"
+  default_prompt: "Use $flyway-safe-migration to review this Flyway migration for locking, compatibility, rollback, and deployment risk."

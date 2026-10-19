@@ -1,57 +1,303 @@
-import { Routes, Route } from 'react-router-dom';
-import HomePage from '../pages/public/HomePage';
-import ProductsPage from '../pages/public/ProductsPage';
-import ProductDetailsPage from '../pages/public/ProductDetailsPage';
-import TourismPage from '../pages/public/TourismPage';
-import ServicesPage from '../pages/public/ServicesPage';
-import ExperienceDetailsPage from '../pages/public/ExperienceDetailsPage';
-import HotelsPage from '../pages/public/HotelsPage';
-import GuidesPage from '../pages/public/GuidesPage';
-import TransportPage from '../pages/public/TransportPage';
-import SafetyGuidelinesPage from '../pages/public/SafetyGuidelinesPage';
-import TestimonialsPage from '../pages/public/TestimonialsPage';
-import ContactPage from '../pages/public/ContactPage';
-import BookingPage from '../pages/public/BookingPage';
-import CartPage from '../pages/public/CartPage';
-import CheckoutPage from '../pages/public/CheckoutPage';
-import AboutPage from '../pages/public/AboutPage';
-import NotFoundPage from '../pages/public/NotFoundPage';
+import { lazy, Suspense, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import PublicLayout from '../components/layout/PublicLayout';
+import AuthLayout from '../components/layout/AuthLayout';
+import DashboardLayout from '../components/layout/DashboardLayout';
+import ErrorBoundary from '../components/common/ErrorBoundary';
+import RoleGuard from './RoleGuard';
+import { Roles, getDefaultDashboardRoute } from '../features/auth/roleHelpers';
+import { useAuthStore } from '../features/auth/authStore';
 
-import LoginPage from '../pages/auth/LoginPage';
-import RegisterProducerPage from '../pages/auth/RegisterProducerPage';
-import RegisterEnterprisePage from '../pages/auth/RegisterEnterprisePage';
-import RegisterDeliveryPage from '../pages/auth/RegisterDeliveryPage';
+// Lazy-loaded Public Pages
+const HomePage = lazy(() => import('../pages/public/HomePage'));
+const ProductsPage = lazy(() => import('../pages/public/ProductsPage'));
+const ProductDetailsPage = lazy(() => import('../pages/public/ProductDetailsPage'));
+const TourismPage = lazy(() => import('../pages/public/TourismPage'));
+const ServicesPage = lazy(() => import('../pages/public/ServicesPage'));
+const ExperienceDetailsPage = lazy(() => import('../pages/public/ExperienceDetailsPage'));
+const HotelsPage = lazy(() => import('../pages/public/HotelsPage'));
+const GuidesPage = lazy(() => import('../pages/public/GuidesPage'));
+const TransportPage = lazy(() => import('../pages/public/TransportPage'));
+const SafetyGuidelinesPage = lazy(() => import('../pages/public/SafetyGuidelinesPage'));
+const TestimonialsPage = lazy(() => import('../pages/public/TestimonialsPage'));
+const ContactPage = lazy(() => import('../pages/public/ContactPage'));
+const BookingPage = lazy(() => import('../pages/public/BookingPage'));
+const BookingConfirmationPage = lazy(() => import('../pages/public/BookingConfirmationPage'));
+const CartPage = lazy(() => import('../pages/public/CartPage'));
+const CheckoutPage = lazy(() => import('../pages/public/CheckoutPage'));
+const AboutPage = lazy(() => import('../pages/public/AboutPage'));
+const OfflinePage = lazy(() => import('../pages/public/OfflinePage'));
+const DesignTokensPage = lazy(() => import('../pages/public/DesignTokensPage'));
+const NotFoundPage = lazy(() => import('../pages/public/NotFoundPage'));
+const JoinPage = lazy(() => import('../pages/public/JoinPage'));
+const OrdersPage = lazy(() => import('../pages/account/OrdersPage'));
+const OrderDetailPage = lazy(() => import('../pages/account/OrderDetailPage'));
+const MyReviewsPage = lazy(() => import('../pages/account/MyReviewsPage'));
+const PaymentsPage = lazy(() => import('../pages/account/PaymentsPage'));
+const PaymentRecordPage = lazy(() => import('../pages/account/PaymentRecordPage'));
+const AccountPage = lazy(() => import('../pages/account/AccountPage'));
+const MyBookingsPage = lazy(() => import('../pages/account/MyBookingsPage'));
+
+// Lazy-loaded Auth Pages
+const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
+const RegisterBuyerPage = lazy(() => import('../pages/auth/RegisterBuyerPage'));
+const RegisterProducerPage = lazy(() => import('../pages/auth/RegisterProducerPage'));
+const RegisterEnterprisePage = lazy(() => import('../pages/auth/RegisterEnterprisePage'));
+const RegisterDeliveryPage = lazy(() => import('../pages/auth/RegisterDeliveryPage'));
+const RegisterGuidePage = lazy(() => import('../pages/auth/RegisterGuidePage'));
+const ForbiddenPage = lazy(() => import('../pages/auth/ForbiddenPage'));
+
+// Lazy-loaded Trace & Tracking
+const PublicTracePage = lazy(() => import('../pages/trace/PublicTracePage'));
+const LiveTrackingPage = lazy(() => import('../pages/tracking/LiveTrackingPage'));
+
+// Lazy-loaded Dashboard Pages
+const EnterpriseDashboardPage = lazy(() => import('../pages/dashboard/EnterpriseDashboardPage'));
+const FarmersManagementPage = lazy(() => import('../pages/dashboard/enterprise/FarmersManagementPage'));
+const PricingManagementPage = lazy(() => import('../pages/dashboard/enterprise/PricingManagementPage'));
+const SupplyIntakePage = lazy(() => import('../pages/dashboard/enterprise/SupplyIntakePage'));
+const InspectionPage = lazy(() => import('../pages/dashboard/enterprise/InspectionPage'));
+const FarmerPayablesPage = lazy(() => import('../pages/dashboard/enterprise/FarmerPayablesPage'));
+const FarmerDashboardPage = lazy(() => import('../pages/dashboard/FarmerDashboardPage'));
+const DeliveryDashboardPage = lazy(() => import('../pages/dashboard/DeliveryDashboardPage'));
+const GuideDashboardPage = lazy(() => import('../pages/dashboard/GuideDashboardPage'));
+const AdminDashboardPage = lazy(() => import('../pages/dashboard/AdminDashboardPage'));
+
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-[50vh]">
+    <div className="w-10 h-10 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+  </div>
+);
+
+function DashboardIndexRedirect() {
+  const { user } = useAuthStore();
+  const destination = getDefaultDashboardRoute(user?.roles);
+  return <Navigate to={destination} replace />;
+}
 
 export default function AppRoutes() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleForbidden = () => {
+      navigate('/forbidden');
+    };
+    window.addEventListener('omobridge:auth-forbidden', handleForbidden);
+    return () => window.removeEventListener('omobridge:auth-forbidden', handleForbidden);
+  }, [navigate]);
+
   return (
-    <Routes>
-      {/* Public Pages */}
-      <Route path="/" element={<HomePage />} />
-      <Route path="/products" element={<ProductsPage />} />
-      <Route path="/products/:id" element={<ProductDetailsPage />} />
-      <Route path="/tourism" element={<TourismPage />} />
-      <Route path="/services" element={<ServicesPage />} />
-      <Route path="/experiences/:id" element={<ExperienceDetailsPage />} />
-      <Route path="/hotels" element={<HotelsPage />} />
-      <Route path="/guides" element={<GuidesPage />} />
-      <Route path="/transport" element={<TransportPage />} />
-      <Route path="/safety-guidelines" element={<SafetyGuidelinesPage />} />
-      <Route path="/testimonials" element={<TestimonialsPage />} />
-      <Route path="/contact" element={<ContactPage />} />
-      <Route path="/booking" element={<BookingPage />} />
-      <Route path="/cart" element={<CartPage />} />
-      <Route path="/checkout" element={<CheckoutPage />} />
-      <Route path="/about" element={<AboutPage />} />
+    <ErrorBoundary>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          {/* Public Storefront Layout */}
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/products/:id" element={<ProductDetailsPage />} />
+            <Route path="/tourism" element={<TourismPage />} />
+            <Route path="/tourism/:id" element={<ExperienceDetailsPage />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/experiences/:id" element={<ExperienceDetailsPage />} />
+            <Route path="/hotels" element={<HotelsPage />} />
+            <Route path="/guides" element={<GuidesPage />} />
+            <Route path="/transport" element={<TransportPage />} />
+            <Route path="/safety-guidelines" element={<SafetyGuidelinesPage />} />
+            <Route path="/testimonials" element={<TestimonialsPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/booking" element={<BookingPage />} />
+            <Route path="/booking/confirmation" element={<BookingConfirmationPage />} />
+            <Route path="/booking/confirmation/:id" element={<BookingConfirmationPage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/account/reviews" element={<MyReviewsPage />} />
+            <Route path="/account/payments" element={<PaymentsPage />} />
+            <Route path="/account/payments/:id" element={<PaymentRecordPage />} />
+            <Route path="/account/orders" element={<OrdersPage />} />
+            <Route path="/account/orders/:id" element={<OrderDetailPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/trace/:token" element={<PublicTracePage />} />
+            <Route path="/track/:token" element={<LiveTrackingPage />} />
+            <Route path="/design-tokens" element={<DesignTokensPage />} />
+            <Route path="/offline" element={<OfflinePage />} />
+            <Route path="/forbidden" element={<ForbiddenPage />} />
+            <Route path="/join" element={<JoinPage />} />
+            <Route path="/register" element={<JoinPage />} />
+            <Route
+              path="/account"
+              element={
+                <RoleGuard>
+                  <AccountPage />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/account/bookings"
+              element={
+                <RoleGuard>
+                  <MyBookingsPage />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="/bookings/my"
+              element={
+                <RoleGuard>
+                  <MyBookingsPage />
+                </RoleGuard>
+              }
+            />
+          </Route>
 
-      {/* Auth Pages */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/auth/login" element={<LoginPage />} />
-      <Route path="/auth/register/producer" element={<RegisterProducerPage />} />
-      <Route path="/auth/register/enterprise" element={<RegisterEnterprisePage />} />
-      <Route path="/auth/register/delivery" element={<RegisterDeliveryPage />} />
+          {/* Authentication Layout */}
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/auth/login" element={<LoginPage />} />
+            <Route path="/register/buyer" element={<RegisterBuyerPage />} />
+            <Route path="/auth/register/buyer" element={<RegisterBuyerPage />} />
+            <Route path="/register/producer" element={<RegisterProducerPage />} />
+            <Route path="/auth/register/producer" element={<RegisterProducerPage />} />
+            <Route path="/register/enterprise" element={<RegisterEnterprisePage />} />
+            <Route path="/auth/register/enterprise" element={<RegisterEnterprisePage />} />
+            <Route path="/register/delivery" element={<RegisterDeliveryPage />} />
+            <Route path="/auth/register/delivery" element={<RegisterDeliveryPage />} />
+            <Route path="/register/guide" element={<RegisterGuidePage />} />
+            <Route path="/auth/register/guide" element={<RegisterGuidePage />} />
+          </Route>
 
-      {/* Catch-all */}
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+          {/* Role-Aware Protected Dashboard Layout */}
+          <Route element={<RoleGuard />}>
+            <Route element={<DashboardLayout />}>
+              <Route path="/dashboard" element={<DashboardIndexRedirect />} />
+              <Route
+                path="/dashboard/enterprise"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <EnterpriseDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/farmers"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <FarmersManagementPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/pricing"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <PricingManagementPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/supply"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <SupplyIntakePage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/inspection"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <InspectionPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/payables"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <FarmerPayablesPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/*"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <EnterpriseDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/farmer"
+                element={
+                  <RoleGuard allowedRoles={[Roles.PRODUCER_FARMER, Roles.SYSTEM_ADMIN]}>
+                    <FarmerDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/farmer/*"
+                element={
+                  <RoleGuard allowedRoles={[Roles.PRODUCER_FARMER, Roles.SYSTEM_ADMIN]}>
+                    <FarmerDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/delivery"
+                element={
+                  <RoleGuard allowedRoles={[Roles.DELIVERY_PROVIDER, Roles.SYSTEM_ADMIN]}>
+                    <DeliveryDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/delivery/*"
+                element={
+                  <RoleGuard allowedRoles={[Roles.DELIVERY_PROVIDER, Roles.SYSTEM_ADMIN]}>
+                    <DeliveryDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/guide"
+                element={
+                  <RoleGuard allowedRoles={[Roles.TOUR_GUIDE, Roles.SYSTEM_ADMIN]}>
+                    <GuideDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/guide/*"
+                element={
+                  <RoleGuard allowedRoles={[Roles.TOUR_GUIDE, Roles.SYSTEM_ADMIN]}>
+                    <GuideDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/admin"
+                element={
+                  <RoleGuard allowedRoles={[Roles.SYSTEM_ADMIN, Roles.TOURISM_AUTHORITY]}>
+                    <AdminDashboardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/admin/*"
+                element={
+                  <RoleGuard allowedRoles={[Roles.SYSTEM_ADMIN, Roles.TOURISM_AUTHORITY]}>
+                    <AdminDashboardPage />
+                  </RoleGuard>
+                }
+              />
+            </Route>
+          </Route>
+
+          {/* 404 Not Found Catch-All */}
+          <Route path="*" element={<PublicLayout />}>
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
   );
 }

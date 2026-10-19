@@ -1,0 +1,4 @@
+interface:
+  display_name: "JPA Query Reviewer"
+  short_description: "Review JPA queries and persistence boundaries"
+  default_prompt: "Use $jpa-query-reviewer to review this JPA code for query, fetching, pagination, and transaction risks."

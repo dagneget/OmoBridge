@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "flyway-safe-migration": {
+      "source": "Jiangxianze/spring-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/flyway-safe-migration/SKILL.md",
+      "computedHash": "3fdcb812d6c9f33caad801f3a646d60cffea426cc60b1112b52b99da01df7b6d"
+    },
+    "jpa-query-reviewer": {
+      "source": "Jiangxianze/spring-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/jpa-query-reviewer/SKILL.md",
+      "computedHash": "3c4e418e61095e62430d32af53fc9c28ee7f675d347dbe39c771a2fe496ba738"
+    },
+    "spring-boot-skill": {
+      "source": "rajeshanji8/springboot-skill",
+      "sourceType": "github",
+      "skillPath": "skills/spring-boot/SKILL.md",
+      "computedHash": "da578866954f8e579784fe2119a5da1adb02023cb3446a35a045025b88a8a3d0"
+    }
+  }
+}
