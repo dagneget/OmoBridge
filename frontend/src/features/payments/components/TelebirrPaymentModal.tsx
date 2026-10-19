@@ -3,7 +3,6 @@ import { useAuthStore } from '../../auth';
 import { usePaymentFlow } from '../usePaymentFlow';
 export type { PaymentFlowStatus } from '../usePaymentFlow';
 import {
-  Smartphone,
   CheckCircle2,
   AlertCircle,
   Clock,
@@ -35,7 +34,6 @@ function PaymentSession({
   amount,
   currency = 'ETB',
   referenceCode = '',
-  payerPhone = '',
   onPaymentSuccess,
 }: TelebirrPaymentModalProps) {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -88,7 +86,7 @@ function PaymentSession({
           onClose();
         }
       }}
-      title="Telebirr Mobile Payment"
+      title="Chapa Payment"
       panelClassName="bg-[var(--bg-surface)] text-[var(--text-main)]"
     >
       <div
@@ -114,8 +112,11 @@ function PaymentSession({
               </div>
             )}
           </div>
-          <div className="w-12 h-12 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-center justify-center text-brand-primary font-bold text-xs shadow-xs">
-            telebirr
+          <div
+            className="w-12 h-12 rounded-xl border border-[var(--border-subtle)] flex items-center justify-center font-bold text-xs shadow-xs"
+            style={{ backgroundColor: '#8DC63F', color: '#fff' }}
+          >
+            chapa
           </div>
         </div>
 
@@ -124,14 +125,12 @@ function PaymentSession({
           <div className="space-y-4">
             <div className="p-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] space-y-2 text-xs text-[var(--text-muted)]">
               <div className="flex items-center gap-2 text-[var(--text-main)] font-semibold">
-                <Smartphone className="w-4 h-4 text-brand-primary" />
-                <span>Mobile Confirmation Prompt</span>
+                <ShieldCheck className="w-4 h-4 text-brand-primary" />
+                <span>Secure Demo Payment</span>
               </div>
               <p>
-                Follow the instructions from your payment provider on your
-                registered Telebirr number
-                {payerPhone ? ` (${payerPhone})` : ''} to authorize this
-                payment. Never enter your PIN on this website.
+                Click the button below to pay via Chapa. In demo mode, payment
+                is automatically approved — no real charge will occur.
               </p>
               <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-muted)] pt-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
@@ -152,7 +151,7 @@ function PaymentSession({
                 className="bg-brand-primary hover:bg-brand-primary-hover focus-visible:ring-brand-primary font-bold flex items-center gap-2 touch-target"
                 data-testid="confirm-telebirr-pay-btn"
               >
-                <span>Authorize & Pay</span>
+                <span>Pay with Chapa</span>
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
@@ -168,11 +167,10 @@ function PaymentSession({
             <div className="w-12 h-12 border-4 border-brand-primary border-t-transparent rounded-full animate-spin mx-auto" />
             <div className="space-y-1">
               <h3 className="text-base font-bold text-[var(--text-main)]">
-                Waiting for Telebirr Confirmation...
+                Processing Chapa Payment...
               </h3>
               <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto">
-                Please check your mobile phone and enter your Telebirr PIN to
-                approve the transaction.
+                Please wait while we confirm your payment with Chapa.
               </p>
             </div>
             <div className="inline-flex items-center gap-1 text-[11px] text-[var(--text-muted)] bg-[var(--bg-surface-subtle)] px-3 py-1 rounded-full">

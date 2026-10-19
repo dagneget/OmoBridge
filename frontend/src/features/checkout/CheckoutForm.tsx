@@ -455,7 +455,7 @@ export function CheckoutForm() {
 
                   <div className="pt-1 text-center text-xs text-slate-400 dark:text-slate-500 flex items-center justify-center gap-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Telebirr & CBE Birr enabled upon confirmation</span>
+                    <span>Chapa enabled upon confirmation</span>
                   </div>
                 </div>
               </aside>
