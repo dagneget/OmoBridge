@@ -146,7 +146,77 @@ public class PaymentService {
         auditService.record("PAYMENT_ATTEMPT_CREATED", "PAYMENT_ATTEMPT", savedAttempt.getId(),
                 "Payment attempt created via " + request.provider() + " status " + savedAttempt.getStatus());
 
+        // For demo/prototype environment: mock Telebirr charge succeeds immediately,
+        // so auto-settle payment and transition order/booking to PAID without requiring an external webhook.
+        if (response.success()) {
+            settlePayment(payment, request.provider(), response.transactionId());
+        }
+
         return mapToAttemptResponse(savedAttempt);
+    }
+
+    @Transactional
+    public void settlePayment(Payment payment, String provider, String reference) {
+        if (payment.getStatus() == PaymentStatus.RELEASED) {
+            return;
+        }
+        payment.setStatus(PaymentStatus.RELEASED);
+        paymentRepository.save(payment);
+
+        // Transition Order to PAID
+        if (payment.getOrder() != null) {
+            Order order = payment.getOrder();
+            if (order.getStatus() == OrderStatus.PLACED) {
+                orderService.updateOrderStatus(order.getId(), OrderStatus.PAID, "Verified payment from provider " + provider, null);
+            }
+
+            // Write community fund contribution to ledger exactly once
+            List<CommunityFundLedger> existingLedger = communityFundLedgerRepository.findBySourceTypeAndSourceId("ORDER", order.getId());
+            if (existingLedger.isEmpty()) {
+                BigDecimal fundShare = order.getTotalAmount().multiply(new BigDecimal("0.02")).setScale(2, RoundingMode.HALF_UP);
+                if (fundShare.compareTo(BigDecimal.ZERO) > 0) {
+                    CommunityFundLedger ledger = new CommunityFundLedger();
+                    ledger.setSourceType("ORDER");
+                    ledger.setSourceId(order.getId());
+                    ledger.setPayment(payment);
+                    ledger.setEnterprise(order.getEnterprise());
+                    ledger.setAmount(fundShare);
+                    ledger.setCurrency(order.getCurrency());
+                    ledger.setEntryType(CommunityFundEntryType.CREDIT);
+                    ledger.setDescription("2% community fund contribution from order " + order.getOrderNo());
+                    communityFundLedgerRepository.save(ledger);
+                }
+            }
+        }
+
+        // Transition Booking to PAID
+        if (payment.getBooking() != null) {
+            Booking booking = payment.getBooking();
+            if (booking.getStatus() == BookingStatus.CONFIRMED || booking.getStatus() == BookingStatus.REQUESTED) {
+                booking.setStatus(BookingStatus.PAID);
+                bookingRepository.save(booking);
+            }
+
+            List<CommunityFundLedger> existingLedger = communityFundLedgerRepository.findBySourceTypeAndSourceId("BOOKING", booking.getId());
+            if (existingLedger.isEmpty()) {
+                BigDecimal fundShare = booking.getTotalAmount().multiply(new BigDecimal("0.02")).setScale(2, RoundingMode.HALF_UP);
+                if (fundShare.compareTo(BigDecimal.ZERO) > 0) {
+                    CommunityFundLedger ledger = new CommunityFundLedger();
+                    ledger.setSourceType("BOOKING");
+                    ledger.setSourceId(booking.getId());
+                    ledger.setPayment(payment);
+                    ledger.setEnterprise(booking.getEnterprise());
+                    ledger.setAmount(fundShare);
+                    ledger.setCurrency(booking.getCurrency());
+                    ledger.setEntryType(CommunityFundEntryType.CREDIT);
+                    ledger.setDescription("2% community fund contribution from tourism booking " + booking.getBookingCode());
+                    communityFundLedgerRepository.save(ledger);
+                }
+            }
+        }
+
+        auditService.record("PAYMENT_CONFIRMED", "PAYMENT", payment.getId(),
+                "Payment " + payment.getPaymentNo() + " settled via " + provider + " reference " + reference);
     }
 
     @Transactional
@@ -194,61 +264,7 @@ public class PaymentService {
             Payment payment = paymentRepository.findByPaymentNo(targetPaymentNo)
                     .orElseThrow(() -> new ResourceNotFoundException("Payment not found for paymentNo: " + targetPaymentNo));
 
-            payment.setStatus(PaymentStatus.RELEASED);
-            paymentRepository.save(payment);
-
-            // Transition Order to PAID
-            if (payment.getOrder() != null) {
-                Order order = payment.getOrder();
-                if (order.getStatus() == OrderStatus.PLACED) {
-                    orderService.updateOrderStatus(order.getId(), OrderStatus.PAID, "Verified payment from provider " + provider, null);
-                }
-
-                // Write community fund contribution to ledger exactly once
-                List<CommunityFundLedger> existingLedger = communityFundLedgerRepository.findBySourceTypeAndSourceId("ORDER", order.getId());
-                if (existingLedger.isEmpty()) {
-                    BigDecimal fundShare = order.getTotalAmount().multiply(new BigDecimal("0.02")).setScale(2, RoundingMode.HALF_UP);
-                    if (fundShare.compareTo(BigDecimal.ZERO) > 0) {
-                        CommunityFundLedger ledger = new CommunityFundLedger();
-                        ledger.setSourceType("ORDER");
-                        ledger.setSourceId(order.getId());
-                        ledger.setPayment(payment);
-                        ledger.setEnterprise(order.getEnterprise());
-                        ledger.setAmount(fundShare);
-                        ledger.setCurrency(order.getCurrency());
-                        ledger.setEntryType(CommunityFundEntryType.CREDIT);
-                        ledger.setDescription("2% community fund contribution from order " + order.getOrderNo());
-                        communityFundLedgerRepository.save(ledger);
-                    }
-                }
-            }
-
-            // Transition Booking to PAID
-            if (payment.getBooking() != null) {
-                Booking booking = payment.getBooking();
-                booking.setStatus(BookingStatus.PAID);
-                bookingRepository.save(booking);
-
-                List<CommunityFundLedger> existingLedger = communityFundLedgerRepository.findBySourceTypeAndSourceId("BOOKING", booking.getId());
-                if (existingLedger.isEmpty()) {
-                    BigDecimal fundShare = booking.getTotalAmount().multiply(new BigDecimal("0.02")).setScale(2, RoundingMode.HALF_UP);
-                    if (fundShare.compareTo(BigDecimal.ZERO) > 0) {
-                        CommunityFundLedger ledger = new CommunityFundLedger();
-                        ledger.setSourceType("BOOKING");
-                        ledger.setSourceId(booking.getId());
-                        ledger.setPayment(payment);
-                        ledger.setEnterprise(booking.getEnterprise());
-                        ledger.setAmount(fundShare);
-                        ledger.setCurrency(booking.getCurrency());
-                        ledger.setEntryType(CommunityFundEntryType.CREDIT);
-                        ledger.setDescription("2% community fund contribution from tourism booking " + booking.getBookingCode());
-                        communityFundLedgerRepository.save(ledger);
-                    }
-                }
-            }
-
-            auditService.record("PAYMENT_CONFIRMED", "PAYMENT", payment.getId(),
-                    "Payment " + payment.getPaymentNo() + " settled via verified event " + eventId);
+            settlePayment(payment, provider, eventId);
         }
 
         return true;
@@ -315,10 +331,17 @@ public class PaymentService {
         );
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public PaymentResponse getPaymentByOrderId(UUID orderId, UUID payerId) {
         Payment payment = paymentRepository.findByOrderIdAndPayerId(orderId, payerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found for order: " + orderId));
+        if (payment.getStatus() == PaymentStatus.PENDING && paymentAttemptRepository != null) {
+            boolean hasSuccess = paymentAttemptRepository.findByPaymentIdOrderByCreatedAtDesc(payment.getId())
+                    .stream().anyMatch(a -> a.getStatus() == PaymentAttemptStatus.SUCCESS);
+            if (hasSuccess) {
+                settlePayment(payment, "TELEBIRR", payment.getPaymentNo());
+            }
+        }
         return mapToPaymentResponse(payment);
     }
 
@@ -344,10 +367,17 @@ public class PaymentService {
         return mapToPaymentResponse(payment);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public PaymentResponse getPaymentByBookingId(UUID bookingId, UUID payerId) {
         var payment = paymentRepository.findByBookingIdAndPayerId(bookingId, payerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment unavailable"));
+        if (payment.getStatus() == PaymentStatus.PENDING && paymentAttemptRepository != null) {
+            boolean hasSuccess = paymentAttemptRepository.findByPaymentIdOrderByCreatedAtDesc(payment.getId())
+                    .stream().anyMatch(a -> a.getStatus() == PaymentAttemptStatus.SUCCESS);
+            if (hasSuccess) {
+                settlePayment(payment, "TELEBIRR", payment.getPaymentNo());
+            }
+        }
         return mapToPaymentResponse(payment);
     }
 
