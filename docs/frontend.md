@@ -432,3 +432,10 @@ Verification: 714 frontend tests (77 files), 22 focused backend checks and typec
 Delivered on `integration/four-agent-baseline` / `f741a09`: production CSP and hosting headers, lazy mock loading that excludes demo credentials from default release bundles, redacted React error callbacks and fallback, explicit disabled source maps, and `npm run security:check`. Verification: 730 frontend tests (79 files), typecheck/lint/build and artifact checks pass; dependency audit reports zero known vulnerabilities. Browser checks verify script/connection CSP enforcement and literal rendering of review HTML payloads. See [security review](frontend-security-review.md) and ADR-005.
 
 The review is complete; release is blocked by SEC-01, confirmed booking details remaining after logout. The handoff stays with OpenCode F-110. LocalStorage bearer-token risk and real-host HTTPS/CORS/header verification remain explicit in the review. No active source files in other agents’ worktrees were changed.
+
+
+### Dashboard responsiveness follow-up
+
+User-requested shared responsive fixes are delivered in `21da3c4` on `integration/four-agent-baseline` and applied to the active checkout after checking file hashes. The shell, sidebar drawer, role switcher, tables, tabs, pagination and dialog sizing now support phone, tablet and desktop layouts. Existing feature forms and data logic were preserved, including active enterprise/farmer work.
+
+Verification: 20 authenticated role/route views × five widths (320/360/768/1024/1440) pass all 100 checks, with no page-level overflow or compressed navigation labels. Drawer keyboard/focus/scroll locking, a multi-role header and a short-screen dialog pass. The integration branch passes 735 tests plus typecheck/build/lint/security artifact checks; active-checkout navigation tests pass 5/5, and the latest-feature snapshot typechecks. See [responsive review](dashboard-responsive-review.md). This follow-up does not complete or reassign any of the 134 planned feature tasks.

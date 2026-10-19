@@ -1284,6 +1284,7 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-19 | @codex | F-1401, F-1403 | Completed | Verified purchase review forms and eligibility/duplicate coverage; source `354d0db`, backend `b431e6b`; 682 frontend tests, 14 focused backend tests, build/lint and 360 px keyboard/axe checks pass |
 | 2026-10-19 | @codex | F-1402 | Completed | `b8035a1`: authenticated paginated My reviews, including non-public records; 714 frontend tests, 22 focused backend tests, build/lint and 360 px keyboard/axe checks pass; FP14 complete |
 | 2026-10-19 | @codex | F-1706 | Review completed; release blocker recorded | `f741a09`: CSP, artifact gate, mock removal, safe error logging; 730 frontend tests and browser checks pass; SEC-01 booking logout privacy assigned to OpenCode F-110 |
+| 2026-10-19 | @codex | User-requested dashboard responsiveness | Completed outside feature count | `21da3c4`: shared layout/control fixes applied to active checkout; 20 authenticated views × five widths pass; 735 integration tests and 5 active-checkout navigation tests pass; feature ownership preserved |
 
 ## 12. Change log (requirements)
 
