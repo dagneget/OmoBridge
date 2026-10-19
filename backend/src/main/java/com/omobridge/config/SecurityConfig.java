@@ -51,6 +51,7 @@ public class SecurityConfig {
                 // Public infrastructure & docs
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/api/v1/demo/**").permitAll()
                 // Authentication & registration endpoints
                 .requestMatchers("/api/v1/auth/**", "/api/auth/**").permitAll()
                 // Public product catalog & tourism lookup & pricing calculation
@@ -102,10 +103,10 @@ public class SecurityConfig {
             @Value("${CORS_ALLOWED_ORIGINS:http://localhost:5173}") List<String> allowedOrigins) {
         var configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(allowedOrigins);
-        configuration.validateAllowCredentials();
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Idempotency-Key"));
         configuration.setAllowCredentials(true);
+        configuration.validateAllowCredentials();
 
         var source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

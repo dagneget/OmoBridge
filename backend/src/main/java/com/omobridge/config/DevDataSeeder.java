@@ -17,6 +17,15 @@ import com.omobridge.identity.domain.User;
 import com.omobridge.identity.domain.UserRepository;
 import com.omobridge.identity.domain.UserStatus;
 import com.omobridge.identity.domain.VerificationStatus;
+import com.omobridge.inventory.domain.InventoryLocation;
+import com.omobridge.inventory.domain.InventoryLocationRepository;
+import com.omobridge.inventory.domain.InventoryLot;
+import com.omobridge.inventory.domain.InventoryLotRepository;
+import com.omobridge.inventory.domain.LotStatus;
+import com.omobridge.products.domain.Product;
+import com.omobridge.products.domain.ProductPriceBreakdown;
+import com.omobridge.products.domain.ProductPriceBreakdownRepository;
+import com.omobridge.products.domain.ProductRepository;
 import com.omobridge.supply.domain.BuyingPrice;
 import com.omobridge.supply.domain.BuyingPriceRepository;
 import com.omobridge.supply.domain.DeliveryStatus;
@@ -39,6 +48,13 @@ import com.omobridge.tourism.domain.TourAvailabilitySession;
 import com.omobridge.tourism.domain.TourAvailabilitySessionRepository;
 import com.omobridge.tourism.domain.TourPackage;
 import com.omobridge.tourism.domain.TourPackageRepository;
+import com.omobridge.traceability.domain.BatchStatus;
+import com.omobridge.traceability.domain.ProductionBatch;
+import com.omobridge.traceability.domain.ProductionBatchRepository;
+import com.omobridge.traceability.domain.ProductionInput;
+import com.omobridge.traceability.domain.ProductionOutput;
+import com.omobridge.traceability.domain.TraceRecord;
+import com.omobridge.traceability.domain.TraceRecordRepository;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -55,7 +71,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
-@Profile("dev")
+@Profile({"dev", "demo"})
 @RequiredArgsConstructor
 public class DevDataSeeder implements ApplicationRunner {
 
@@ -73,12 +89,23 @@ public class DevDataSeeder implements ApplicationRunner {
     private final SupplyDeliveryRepository supplyDeliveryRepository;
     private final FarmerPayableRepository farmerPayableRepository;
     private final FarmerPaymentRepository farmerPaymentRepository;
+    private final InventoryLocationRepository locationRepository;
+    private final InventoryLotRepository lotRepository;
+    private final ProductionBatchRepository batchRepository;
+    private final TraceRecordRepository traceRecordRepository;
+    private final ProductRepository productRepository;
+    private final ProductPriceBreakdownRepository productPriceBreakdownRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        log.info("Running OmoBridge dev data seeder...");
+        seedAll();
+    }
+
+    @Transactional
+    public void seedAll() {
+        log.info("Running OmoBridge showcase demo data seeder...");
 
         // 1. Roles
         Role roleEnterprise = roleRepository.findByName(RoleName.MICRO_ENTERPRISE.name())
@@ -90,52 +117,52 @@ public class DevDataSeeder implements ApplicationRunner {
         Role roleFarmer = roleRepository.findByName(RoleName.PRODUCER_FARMER.name())
                 .orElseGet(() -> roleRepository.save(new Role(RoleName.PRODUCER_FARMER.name(), "Producer farmer")));
 
-        // 2. Dev Users
-        User enterpriseUser = userRepository.findByPhoneNumber("+251911000001")
+        // 2. Demo Users (credentials for judges & testing)
+        User enterpriseUser = userRepository.findByPhoneNumber("+251911000003")
                 .orElseGet(() -> {
                     User u = new User();
-                    u.setPhoneNumber("+251911000001");
+                    u.setPhoneNumber("+251911000003");
                     u.setPasswordHash(passwordEncoder.encode("Password123!"));
-                    u.setFullName("Turmi Cultural Union Admin");
+                    u.setFullName("Bekele Haile");
                     u.setEmail("enterprise@omobridge.et");
                     u.setStatus(UserStatus.ACTIVE);
                     u.addRole(roleEnterprise);
                     return userRepository.save(u);
                 });
 
-        User guideUser = userRepository.findByPhoneNumber("+251911000002")
+        User guideUser = userRepository.findByPhoneNumber("+251911000005")
                 .orElseGet(() -> {
                     User u = new User();
-                    u.setPhoneNumber("+251911000002");
+                    u.setPhoneNumber("+251911000005");
                     u.setPasswordHash(passwordEncoder.encode("Password123!"));
-                    u.setFullName("Desta Eyasu");
+                    u.setFullName("Ayke Hamer");
                     u.setEmail("guide@omobridge.et");
                     u.setStatus(UserStatus.ACTIVE);
                     u.addRole(roleGuide);
                     return userRepository.save(u);
                 });
 
-        userRepository.findByPhoneNumber("+251911000003")
+        User farmerUser = userRepository.findByPhoneNumber("+251911000002")
                 .orElseGet(() -> {
                     User u = new User();
-                    u.setPhoneNumber("+251911000003");
+                    u.setPhoneNumber("+251911000002");
                     u.setPasswordHash(passwordEncoder.encode("Password123!"));
-                    u.setFullName("Sarah Jenkins (Tourist)");
-                    u.setEmail("buyer@omobridge.et");
-                    u.setStatus(UserStatus.ACTIVE);
-                    u.addRole(roleBuyer);
-                    return userRepository.save(u);
-                });
-
-        User farmerUser = userRepository.findByPhoneNumber("+251911000004")
-                .orElseGet(() -> {
-                    User u = new User();
-                    u.setPhoneNumber("+251911000004");
-                    u.setPasswordHash(passwordEncoder.encode("Password123!"));
-                    u.setFullName("Alemayehu Haile (Hamer Honey Producer)");
+                    u.setFullName("Bono Haile Producer");
                     u.setEmail("farmer@omobridge.et");
                     u.setStatus(UserStatus.ACTIVE);
                     u.addRole(roleFarmer);
+                    return userRepository.save(u);
+                });
+
+        userRepository.findByPhoneNumber("+251911000001")
+                .orElseGet(() -> {
+                    User u = new User();
+                    u.setPhoneNumber("+251911000001");
+                    u.setPasswordHash(passwordEncoder.encode("Password123!"));
+                    u.setFullName("Helen Carter (Tourist)");
+                    u.setEmail("buyer@omobridge.et");
+                    u.setStatus(UserStatus.ACTIVE);
+                    u.addRole(roleBuyer);
                     return userRepository.save(u);
                 });
 
@@ -143,10 +170,10 @@ public class DevDataSeeder implements ApplicationRunner {
         Enterprise enterprise = enterpriseRepository.findAll().stream().findFirst()
                 .orElseGet(() -> {
                     Enterprise ent = new Enterprise();
-                    ent.setName("South Omo Community Heritage Cooperative");
+                    ent.setName("South Omo Honey & Coffee Union");
                     ent.setRegistrationNumber("ENT-OMO-001");
-                    ent.setContactPhone("+251911000001");
-                    ent.setContactEmail("coop@omobridge.et");
+                    ent.setContactPhone("+251911000003");
+                    ent.setContactEmail("union@omobridge.et");
                     ent.setLocationWoreda("Turmi");
                     ent.setLocationTown("Turmi Town");
                     ent.setOwnerUser(enterpriseUser);
@@ -163,6 +190,16 @@ public class DevDataSeeder implements ApplicationRunner {
                     return saved;
                 });
 
+        // Ensure owner staff mapping
+        if (enterpriseStaffRepository.findByEnterpriseIdAndUserId(enterprise.getId(), enterpriseUser.getId()).isEmpty()) {
+            EnterpriseStaff staff = new EnterpriseStaff();
+            staff.setEnterprise(enterprise);
+            staff.setUser(enterpriseUser);
+            staff.setRole(StaffRole.OWNER);
+            staff.setActive(true);
+            enterpriseStaffRepository.save(staff);
+        }
+
         // 4. Farmer Profile
         Farmer farmer = farmerRepository.findByUserId(farmerUser.getId())
                 .orElseGet(() -> {
@@ -171,6 +208,8 @@ public class DevDataSeeder implements ApplicationRunner {
                     f.setEnterprise(enterprise);
                     f.setFarmerCode("FRM-OMO-001");
                     f.setVillage("Keske Village, Turmi");
+                    f.setKebele("Keske 01");
+                    f.setConsentPublicName(true);
                     return farmerRepository.save(f);
                 });
 
@@ -180,7 +219,7 @@ public class DevDataSeeder implements ApplicationRunner {
                     Guide g = new Guide();
                     g.setUser(guideUser);
                     g.setLicenseNumber("GUIDE-OMO-2024-001");
-                    g.setBio("Certified local guide with over 8 years of experience showcasing Hamer, Karo and Mursi traditions.");
+                    g.setBio("Certified local cultural guide with over 8 years of experience showcasing Hamer, Karo and Mursi traditions.");
                     g.setLanguages(List.of("English", "Amharic", "Hamer-Banna"));
                     g.setSpecialties("Cultural ceremonies, photography treks, bull jumping customs");
                     g.setDailyRate(BigDecimal.valueOf(2000.00));
@@ -238,73 +277,344 @@ public class DevDataSeeder implements ApplicationRunner {
                 "+251911445566", "booking@paradiselodge.et", BigDecimal.valueOf(3200.00),
                 "Panoramic Lake View, Luxury Spa, Fine Dining, Conference Facilities");
 
-        // 8. Supply: Product Types, Buying Prices, Delivery, Payables, Payments
-        seedSupply(enterprise, enterpriseUser, farmer);
+        // 8. Supply: Product Types, Buying Prices, Delivery, Payables, Payments, Lot & Trace Batch
+        ProductionOutput honeyBatchOutput = seedSupplyAndTraceability(enterprise, enterpriseUser, farmer);
 
-        log.info("Dev data seeder completed successfully.");
+        // 9. Storefront Products (6 showcase products with transparent cost breakdowns)
+        seedStorefrontProducts(enterprise, honeyBatchOutput);
+
+        log.info("Demo data seeder completed successfully with all showcase products and tours.");
     }
 
-    private void seedSupply(Enterprise enterprise, User staffUser, Farmer farmer) {
+    private ProductionOutput seedSupplyAndTraceability(Enterprise enterprise, User staffUser, Farmer farmer) {
         ProductType honey = seedProductType("HONEY-RAW", "Forest White Honey", "HONEY", "KG", "Raw unfiltered natural honey from South Omo forests");
         ProductType milk = seedProductType("MILK-COW-RAW", "Fresh Pastoral Cow Milk", "DAIRY", "LITER", "Fresh whole unpasteurized milk from indigenous cattle");
         seedProductType("COTTON-HAND-SPUN", "Organic Hand-Spun Cotton", "TEXTILE", "KG", "Hand-picked, traditionally carded and spun cotton");
         seedProductType("BEADWORK-HAMER", "Traditional Hamer Beadwork Bands", "CRAFT", "PIECE", "Authentic glass bead ornaments crafted by women artisans");
+        seedProductType("COFFEE-RAW", "Raw Highland Forest Coffee Cherry", "COFFEE", "KG", "Sun-dried heirloom Arabica cherries from South Ari highlands");
 
         seedBuyingPrice(enterprise, honey, "Grade A", BigDecimal.valueOf(350.00));
         seedBuyingPrice(enterprise, honey, "Grade B", BigDecimal.valueOf(280.00));
         seedBuyingPrice(enterprise, milk, "Grade A", BigDecimal.valueOf(60.00));
 
-        if (supplyDeliveryRepository.findAllByFarmerIdOrderByDeliveredAtDesc(farmer.getId()).isEmpty()) {
-            SupplyDelivery delivery = new SupplyDelivery();
-            delivery.setDeliveryNo("DEL-SEED-001");
-            delivery.setEnterprise(enterprise);
-            delivery.setFarmer(farmer);
-            delivery.setDeliveredAt(Instant.now().minusSeconds(86400));
-            delivery.setReceivedByUser(staffUser);
-            delivery.setStatus(DeliveryStatus.INSPECTED);
-            delivery.setNotes("First seasonal high-purity honey delivery");
+        SupplyDelivery delivery = supplyDeliveryRepository.findAllByFarmerIdOrderByDeliveredAtDesc(farmer.getId()).stream()
+                .findFirst()
+                .orElseGet(() -> {
+                    SupplyDelivery d = new SupplyDelivery();
+                    d.setDeliveryNo("DEL-SEED-001");
+                    d.setEnterprise(enterprise);
+                    d.setFarmer(farmer);
+                    d.setDeliveredAt(Instant.now().minusSeconds(86400 * 3));
+                    d.setReceivedByUser(staffUser);
+                    d.setStatus(DeliveryStatus.INSPECTED);
+                    d.setNotes("First seasonal high-purity honey delivery");
 
-            SupplyDeliveryItem item = new SupplyDeliveryItem();
-            item.setProductType(honey);
-            item.setGrade("Grade A");
-            item.setDeliveredQty(BigDecimal.valueOf(50.00));
-            item.setAcceptedQty(BigDecimal.valueOf(48.00));
-            item.setRejectedQty(BigDecimal.valueOf(2.00));
-            item.setRejectionReason("Excessive moisture in 2kg batch");
-            item.setUnitPriceSnapshot(BigDecimal.valueOf(350.00));
-            item.setLineTotal(BigDecimal.valueOf(16800.00)); // 48 * 350
-            delivery.addItem(item);
+                    SupplyDeliveryItem item = new SupplyDeliveryItem();
+                    item.setProductType(honey);
+                    item.setGrade("Grade A");
+                    item.setDeliveredQty(BigDecimal.valueOf(50.00));
+                    item.setAcceptedQty(BigDecimal.valueOf(48.00));
+                    item.setRejectedQty(BigDecimal.valueOf(2.00));
+                    item.setRejectionReason("Excessive moisture in 2kg batch");
+                    item.setUnitPriceSnapshot(BigDecimal.valueOf(350.00));
+                    item.setLineTotal(BigDecimal.valueOf(16800.00)); // 48 * 350
+                    d.addItem(item);
 
-            SupplyDelivery savedDelivery = supplyDeliveryRepository.save(delivery);
+                    SupplyDelivery saved = supplyDeliveryRepository.save(d);
 
-            FarmerPayable payable = new FarmerPayable();
-            payable.setPayableNo("PAYABLE-SEED-001");
-            payable.setFarmer(farmer);
-            payable.setEnterprise(enterprise);
-            payable.setDeliveryItem(savedDelivery.getItems().get(0));
-            payable.setAmountDue(BigDecimal.valueOf(16800.00));
-            payable.setAmountAllocated(BigDecimal.valueOf(10000.00));
-            payable.setStatus(PayableStatus.PARTIAL);
-            FarmerPayable savedPayable = farmerPayableRepository.save(payable);
+                    FarmerPayable payable = new FarmerPayable();
+                    payable.setPayableNo("PAYABLE-SEED-001");
+                    payable.setFarmer(farmer);
+                    payable.setEnterprise(enterprise);
+                    payable.setDeliveryItem(saved.getItems().get(0));
+                    payable.setAmountDue(BigDecimal.valueOf(16800.00));
+                    payable.setAmountAllocated(BigDecimal.valueOf(10000.00));
+                    payable.setStatus(PayableStatus.PARTIAL);
+                    FarmerPayable savedPayable = farmerPayableRepository.save(payable);
 
-            FarmerPayment payment = new FarmerPayment();
-            payment.setPaymentNo("PAY-SEED-001");
-            payment.setEnterprise(enterprise);
-            payment.setFarmer(farmer);
-            payment.setAmount(BigDecimal.valueOf(10000.00));
-            payment.setCurrency("ETB");
-            payment.setPaymentMethod("TELEBIRR");
-            payment.setStatus(FarmerPaymentStatus.SUCCESS);
-            payment.setGatewayReference("TB-TXN-SEED-001");
-            payment.setPaidAt(Instant.now().minusSeconds(3600));
+                    FarmerPayment payment = new FarmerPayment();
+                    payment.setPaymentNo("PAY-SEED-001");
+                    payment.setEnterprise(enterprise);
+                    payment.setFarmer(farmer);
+                    payment.setAmount(BigDecimal.valueOf(10000.00));
+                    payment.setCurrency("ETB");
+                    payment.setPaymentMethod("TELEBIRR");
+                    payment.setStatus(FarmerPaymentStatus.SUCCESS);
+                    payment.setGatewayReference("TB-TXN-SEED-001");
+                    payment.setPaidAt(Instant.now().minusSeconds(3600));
 
-            PaymentAllocation alloc = new PaymentAllocation();
-            alloc.setPayable(savedPayable);
-            alloc.setAmount(BigDecimal.valueOf(10000.00));
-            payment.addAllocation(alloc);
+                    PaymentAllocation alloc = new PaymentAllocation();
+                    alloc.setPayable(savedPayable);
+                    alloc.setAmount(BigDecimal.valueOf(10000.00));
+                    payment.addAllocation(alloc);
 
-            farmerPaymentRepository.save(payment);
+                    farmerPaymentRepository.save(payment);
+                    return saved;
+                });
+
+        // Inventory Location
+        InventoryLocation location = locationRepository.findFirstByEnterpriseId(enterprise.getId())
+                .orElseGet(() -> {
+                    InventoryLocation loc = new InventoryLocation();
+                    loc.setEnterprise(enterprise);
+                    loc.setName("Turmi Central Processing Hub");
+                    loc.setLocationType("PROCESSING_FACILITY");
+                    loc.setDescription("Main honey purification and packaging depot");
+                    return locationRepository.save(loc);
+                });
+
+        // Inventory Lot for Raw Honey
+        SupplyDeliveryItem deliveryItem = delivery.getItems().get(0);
+        InventoryLot rawLot = lotRepository.findByEnterpriseId(enterprise.getId()).stream()
+                .filter(l -> l.getProductType().getId().equals(honey.getId()))
+                .findFirst()
+                .orElseGet(() -> {
+                    InventoryLot lot = new InventoryLot();
+                    lot.setLotCode("LOT-OMO-HNY-001");
+                    lot.setEnterprise(enterprise);
+                    lot.setLocation(location);
+                    lot.setProductType(honey);
+                    lot.setSourceDeliveryItem(deliveryItem);
+                    lot.setGrade("Grade A");
+                    lot.setReceivedQty(BigDecimal.valueOf(48.00));
+                    lot.setBalanceQty(BigDecimal.valueOf(48.00));
+                    lot.setUnit("KG");
+                    lot.setStatus(LotStatus.ACTIVE);
+                    lot.setReceivedAt(Instant.now().minusSeconds(86400 * 2));
+                    return lotRepository.save(lot);
+                });
+
+        // Production Batch with Traceability Record
+        ProductionBatch batch = batchRepository.findByEnterpriseId(enterprise.getId()).stream()
+                .filter(b -> "BATCH-OMO-HNY-001".equals(b.getBatchCode()))
+                .findFirst()
+                .orElseGet(() -> {
+                    ProductionBatch b = new ProductionBatch();
+                    b.setBatchCode("BATCH-OMO-HNY-001");
+                    b.setEnterprise(enterprise);
+                    b.setStatus(BatchStatus.COMPLETED);
+                    b.setProcessedAt(Instant.now().minusSeconds(86400));
+                    b.setLaborCost(BigDecimal.valueOf(1680.00));
+                    b.setProcessingCost(BigDecimal.valueOf(2160.00));
+                    b.setPackagingCost(BigDecimal.valueOf(2400.00));
+                    b.setNotes("Traditional cold-filtered white honey packed into 500g glass jars");
+
+                    ProductionInput input = new ProductionInput();
+                    input.setLot(rawLot);
+                    input.setQuantity(BigDecimal.valueOf(48.00));
+                    input.setUnit("KG");
+                    b.addInput(input);
+
+                    ProductionOutput output = new ProductionOutput();
+                    output.setProductType(honey);
+                    output.setQuantity(BigDecimal.valueOf(96.00));
+                    output.setUnit("JAR");
+                    output.setGrade("PREMIUM");
+                    b.addOutput(output);
+
+                    TraceRecord trace = new TraceRecord();
+                    trace.setBatch(b);
+                    trace.setPublicToken("trc-omo-white-honey-001");
+                    trace.setOriginVillage("Keske Village, Turmi");
+                    trace.setOriginLabel("South Omo Beekeepers Cooperative");
+                    trace.setProcessingDate(Instant.now().minusSeconds(86400));
+                    trace.setPublicStory("Harvested by traditional pastoral beekeepers from tree-hung bark hives in protected riverine forests along the Keske river basin.");
+                    trace.setShowFarmerNames(true);
+                    b.setTraceRecord(trace);
+
+                    return batchRepository.save(b);
+                });
+
+        return batch.getOutputs().isEmpty() ? null : batch.getOutputs().iterator().next();
+    }
+
+    private void seedStorefrontProducts(Enterprise enterprise, ProductionOutput honeyOutput) {
+        // 1. Pure South Omo Forest White Honey (500g Jar) - with full traceability token
+        seedProduct(
+                enterprise,
+                "OMO-HNY-500G",
+                "Pure South Omo Forest White Honey (500g Jar)",
+                "HONEY",
+                "Raw, unpasteurized white honey collected by traditional beekeepers from wild tree hives in the deep riverine forests of South Omo. Rich in natural floral aromas.",
+                "For centuries, Hamer and Ari beekeepers have crafted traditional bark hives suspended high in wild acacia trees. Every purchase directly empowers local producer families with guaranteed fair prices.",
+                "JAR",
+                BigDecimal.valueOf(0.50),
+                BigDecimal.valueOf(450.00),
+                BigDecimal.valueOf(150.00),
+                honeyOutput,
+                BigDecimal.valueOf(200.00), // Purchase/Farmer cost
+                BigDecimal.valueOf(45.00),  // Processing
+                BigDecimal.valueOf(50.00),  // Packaging
+                BigDecimal.valueOf(35.00),  // Labor
+                BigDecimal.valueOf(30.00),  // Transport
+                BigDecimal.valueOf(55.00),  // Enterprise margin
+                BigDecimal.valueOf(35.00)   // Community fund
+        );
+
+        // 2. Lower Omo Wild Acacia Amber Honey (1kg)
+        seedProduct(
+                enterprise,
+                "OMO-HNY-1KG",
+                "Lower Omo Wild Acacia Amber Honey (1kg Jar)",
+                "HONEY",
+                "Golden amber wild honey harvested from indigenous acacia savannah blossoms across Lower Omo basin. Robust flavor profile with lingering herbal notes.",
+                "Harvested sustainably using smoke-free techniques developed through cooperative training to preserve forest biodiversity and protect wild honeybee colonies.",
+                "JAR",
+                BigDecimal.valueOf(1.00),
+                BigDecimal.valueOf(850.00),
+                BigDecimal.valueOf(80.00),
+                null,
+                BigDecimal.valueOf(400.00),
+                BigDecimal.valueOf(70.00),
+                BigDecimal.valueOf(80.00),
+                BigDecimal.valueOf(60.00),
+                BigDecimal.valueOf(50.00),
+                BigDecimal.valueOf(120.00),
+                BigDecimal.valueOf(70.00)
+        );
+
+        // 3. South Omo Shade-Grown Forest Coffee (250g Whole Bean)
+        seedProduct(
+                enterprise,
+                "OMO-COF-250G",
+                "South Omo Shade-Grown Forest Coffee (250g Whole Bean)",
+                "COFFEE",
+                "Heirloom Arabica beans grown in natural mountain shade canopy in South Ari highlands. Naturally sun-dried on raised African beds.",
+                "Cultivated without synthetic fertilizers or pesticides by smallholder farming families at elevations above 1,800m. Micro-roasted to highlight citrus and floral jasmine notes.",
+                "BAG",
+                BigDecimal.valueOf(0.25),
+                BigDecimal.valueOf(350.00),
+                BigDecimal.valueOf(120.00),
+                null,
+                BigDecimal.valueOf(150.00),
+                BigDecimal.valueOf(40.00),
+                BigDecimal.valueOf(35.00),
+                BigDecimal.valueOf(30.00),
+                BigDecimal.valueOf(25.00),
+                BigDecimal.valueOf(45.00),
+                BigDecimal.valueOf(25.00)
+        );
+
+        // 4. Handwoven Hamer Artisan Agelgil Basket
+        seedProduct(
+                enterprise,
+                "OMO-BSK-MED",
+                "Handwoven Hamer Artisan Agelgil Basket",
+                "CRAFT",
+                "Traditional multi-purpose container tightly hand-coiled with wild savannah grass and decorated with natural cowhide binding and geometric patterns.",
+                "Handmade by elder women artisans in Turmi and Dimeka kebeles. These containers traditionally preserve travel food and ceremonial items, keeping them fresh for days.",
+                "PIECE",
+                BigDecimal.valueOf(1.00),
+                BigDecimal.valueOf(900.00),
+                BigDecimal.valueOf(35.00),
+                null,
+                BigDecimal.valueOf(500.00),
+                BigDecimal.valueOf(50.00),
+                BigDecimal.valueOf(40.00),
+                BigDecimal.valueOf(60.00),
+                BigDecimal.valueOf(50.00),
+                BigDecimal.valueOf(120.00),
+                BigDecimal.valueOf(80.00)
+        );
+
+        // 5. Organic Hand-Spun Cotton Shawl (Netela / Gabi)
+        seedProduct(
+                enterprise,
+                "OMO-TXTL-SHAWL",
+                "Organic Hand-Spun Cotton Shawl (Netela / Gabi)",
+                "TEXTILE",
+                "Featherlight double-layered woven cotton wrap featuring intricate colored border embroidery (tibeb) crafted on traditional wooden foot looms.",
+                "Spun from 100% locally grown rain-fed South Omo cotton by women cooperatives and woven by master artisans with ancestral spinning techniques.",
+                "PIECE",
+                BigDecimal.valueOf(1.00),
+                BigDecimal.valueOf(1200.00),
+                BigDecimal.valueOf(25.00),
+                null,
+                BigDecimal.valueOf(700.00),
+                BigDecimal.valueOf(60.00),
+                BigDecimal.valueOf(50.00),
+                BigDecimal.valueOf(80.00),
+                BigDecimal.valueOf(60.00),
+                BigDecimal.valueOf(150.00),
+                BigDecimal.valueOf(100.00)
+        );
+
+        // 6. Traditional Pastoralist Clay Pot
+        seedProduct(
+                enterprise,
+                "OMO-POT-TRAD",
+                "Traditional Pastoralist Terracotta Clay Cooking Pot",
+                "CRAFT",
+                "Hand-molded earthenware pot pit-fired with organic husks and polished with smooth river stones. Exceptional thermal retention for slow stews.",
+                "Molded by pastoralist potters along the Keske and Mago riverbanks using seasonal sedimentary clay and age-old firing pits without wheels or electricity.",
+                "PIECE",
+                BigDecimal.valueOf(1.00),
+                BigDecimal.valueOf(650.00),
+                BigDecimal.valueOf(40.00),
+                null,
+                BigDecimal.valueOf(350.00),
+                BigDecimal.valueOf(40.00),
+                BigDecimal.valueOf(50.00),
+                BigDecimal.valueOf(40.00),
+                BigDecimal.valueOf(40.00),
+                BigDecimal.valueOf(80.00),
+                BigDecimal.valueOf(50.00)
+        );
+    }
+
+    private void seedProduct(Enterprise enterprise, String sku, String name, String category,
+                             String desc, String story, String unit, BigDecimal packSize,
+                             BigDecimal unitPrice, BigDecimal stockOnHand, ProductionOutput output,
+                             BigDecimal purchaseCost, BigDecimal processingCost,
+                             BigDecimal packagingCost, BigDecimal laborCost,
+                             BigDecimal transportCost, BigDecimal margin,
+                             BigDecimal communityFund) {
+        if (productRepository.findByEnterpriseIdAndSku(enterprise.getId(), sku).isPresent()) {
+            return;
         }
+
+        Product product = new Product();
+        product.setEnterprise(enterprise);
+        product.setSku(sku);
+        product.setName(name);
+        product.setCategory(category);
+        product.setDescription(desc);
+        product.setStory(story);
+        product.setUnit(unit);
+        product.setPackSize(packSize);
+        product.setUnitPrice(unitPrice);
+        product.setCurrency("ETB");
+        product.setStockOnHand(stockOnHand);
+        product.setStockReserved(BigDecimal.ZERO);
+        product.setPublished(true);
+        if (output != null) {
+            product.setProductionOutput(output);
+        }
+
+        Product savedProduct = productRepository.save(product);
+
+        ProductPriceBreakdown pb = new ProductPriceBreakdown();
+        pb.setProduct(savedProduct);
+        pb.setPurchaseCost(purchaseCost);
+        pb.setProcessingCost(processingCost);
+        pb.setPackagingCost(packagingCost);
+        pb.setLaborCost(laborCost);
+        pb.setTransportCost(transportCost);
+        pb.setEnterpriseMargin(margin);
+        pb.setCommunityFund(communityFund);
+        BigDecimal subtotal = purchaseCost.add(processingCost).add(packagingCost)
+                .add(laborCost).add(transportCost).add(margin).add(communityFund);
+        BigDecimal remainder = unitPrice.subtract(subtotal);
+        if (remainder.compareTo(BigDecimal.ZERO) > 0) {
+            pb.setPlatformFee(remainder);
+        } else {
+            pb.setPlatformFee(BigDecimal.ZERO);
+        }
+        pb.setTotalPrice(unitPrice);
+
+        productPriceBreakdownRepository.save(pb);
+        savedProduct.setPriceBreakdown(pb);
+        productRepository.save(savedProduct);
     }
 
     private ProductType seedProductType(String code, String name, String category, String unit, String desc) {
@@ -361,9 +671,9 @@ public class DevDataSeeder implements ApplicationRunner {
 
         TourPackage saved = tourPackageRepository.save(tourPackage);
 
-        // Create sessions for today and tomorrow
         createSessionIfAbsent(saved, LocalDate.now(), LocalTime.of(9, 0), maxGroupSize);
         createSessionIfAbsent(saved, LocalDate.now().plusDays(1), LocalTime.of(14, 0), maxGroupSize);
+        createSessionIfAbsent(saved, LocalDate.now().plusDays(2), LocalTime.of(10, 0), maxGroupSize);
     }
 
     private void createSessionIfAbsent(TourPackage tourPackage, LocalDate date, LocalTime time, int capacity) {

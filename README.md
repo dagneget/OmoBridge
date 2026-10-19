@@ -4,9 +4,12 @@
 
 ## Quick Start
 
+For hosted deployment, follow [Deploy to Render](docs/render-deployment.md).
+The root `render.yaml` defines the API, frontend, and PostgreSQL resources.
+
 ### Prerequisites
 - Java 21+
-- Node.js 20+ and npm/pnpm
+- Node.js 22.23.3 and npm/pnpm
 - Docker and Docker Compose
 
 ### Starting the System

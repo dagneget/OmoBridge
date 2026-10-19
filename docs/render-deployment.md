@@ -88,6 +88,21 @@ before schema changes; rolling back application code does not undo migrations.
 When adding a frontend custom domain, update CORS. When changing the API domain,
 update `VITE_API_BASE_URL` and rebuild. Keep secrets in Render's environment UI.
 
+## Verification performed (2026-10-19)
+
+- Blueprint validated against Render's published JSON Schema.
+- Production frontend build and artifact security checks passed with an HTTPS
+  API origin and mocks disabled; 16 focused frontend security tests passed.
+- Three backend CORS tests passed: approved preflight, unapproved origin, and
+  rejection of wildcard origins with credentials enabled.
+- Backend Maven package and complete container image build passed. Local Podman
+  defaults to OCI format and warns that Docker's `HEALTHCHECK` metadata is
+  ignored; Render also has its independent `/actuator/health` check in the
+  Blueprint. Use Docker image format when testing that metadata with Podman.
+- These checks do not constitute a live Render deployment or a complete
+  production acceptance test. The remaining product/security release work
+  described above still applies.
+
 References: [Blueprint specification](https://render.com/docs/blueprint-spec),
 [free resource limits](https://render.com/docs/free),
 [static headers](https://render.com/docs/static-site-headers),

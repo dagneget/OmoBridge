@@ -1,16 +1,18 @@
 # Build Stage
-FROM eclipse-temurin:21-jdk-alpine AS builder
+FROM docker.io/library/eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
 
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
-RUN chmod +x ./mvnw && ./mvnw dependency:go-offline -B
+# Resolve application dependencies without prefetching every reporting/plugin
+# dependency inherited from Spring Boot (which greatly slows cold builds).
+RUN chmod +x ./mvnw && ./mvnw dependency:resolve -B -ntp
 
 COPY src/ src/
-RUN ./mvnw clean package -DskipTests -B
+RUN ./mvnw clean package -DskipTests -B -ntp
 
 # Runtime Stage
-FROM eclipse-temurin:21-jre-alpine AS runner
+FROM docker.io/library/eclipse-temurin:21-jre-alpine AS runner
 WORKDIR /app
 
 # Create unprivileged user for security
