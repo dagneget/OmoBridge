@@ -184,13 +184,13 @@ Update the counts when you finish a task.
 | FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 1 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
 | FP11 | Delivery provider app | 0 / 8 |
-| FP12 | Guide dashboard | 0 / 4 |
+| FP12 | Guide dashboard | 4 / 4 |
 | FP13 | Admin and authority | 0 / 5 |
 | FP14 | Reviews | 3 / 3 |
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 1 / 9 |
-| | **Total** | **66 / 134** |
+| | **Total** | **70 / 134** |
 
 ### What can run in parallel
 
@@ -917,29 +917,29 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
 
 ### FP12: Guide dashboard
 
-- [ ] **F-1201 · Guide profile** · T2
+- [x] **F-1201 · Guide profile** · T2
   Needs: F-207 · Backend: B-307
   Build: edit bio, languages, expertise, rate, availability.
   Done when: a guide cannot edit another guide.
-  Owner: —
+  Done: @opencode · 2026-10-19 · `f03f240`. Profile form bound to `GET /api/v1/tourism/guides/me` and `PUT /api/v1/tourism/guides/{id}` (bio, languages, specialties, dailyRate, isAvailable). The guide id is read only from the `/me` response and never from the route or user input, so a guide cannot address another guide's record client-side; the server re-checks `@ownershipService.isAssignedGuide`. Rejected/suspended licences disable editing. Typecheck clean, oxlint clean, guide suite 15/15. No shared file edited: `/dashboard/guide/*` already renders `GuideDashboardPage` behind a TOUR_GUIDE RoleGuard, so `routes/index.tsx` and `DashboardLayout.tsx` are untouched.
 
-- [ ] **F-1202 · Assigned bookings** · T1
+- [x] **F-1202 · Assigned bookings** · T1
   Needs: F-207 · Backend: B-310, B-311
   Build: list and detail; accept or decline.
   Done when: only assigned bookings appear.
-  Owner: —
+  Done: @opencode · 2026-10-19 · `f03f240`. List and inline detail from `GET /api/v1/bookings/guides/{guideId}`, deliberately not the buyer-scoped `GET /api/v1/bookings/my`, so only server-assigned bookings render. Accept sends `CONFIRMED`, decline sends `DECLINED` via `PATCH /api/v1/bookings/{id}/status`, offered only while status is `REQUESTED`; failures surface without altering the list. Loading, error and empty states present. Typecheck clean, oxlint clean, guide suite 15/15.
 
-- [ ] **F-1203 · Guide reviews and payments** · T2
+- [x] **F-1203 · Guide reviews and payments** · T2
   Needs: F-1202 · Backend: B-1202
   Build: reviews received and payment records where the API provides them.
   Done when: renders from the API.
-  Owner: —
+  Done: @opencode · 2026-10-19 · `f03f240`. Reviews, average rating and total rendered from `GET /api/v1/reviews/public/target?targetType=GUIDE&targetId={guideId}`. The backend exposes no guide payments endpoint anywhere (verified across payment/finance classes), so payment records are shown as explicitly unavailable with the gap named in the UI instead of inventing amounts, per "where the API provides them". Gap recorded as F-1203-P1 in section 10. Typecheck clean, oxlint clean, guide suite 15/15.
 
-- [ ] **F-1204 · Guide tests** · T2
+- [x] **F-1204 · Guide tests** · T2
   Needs: F-1202
   Build: tests for profile and booking actions.
   Done when: suite passes.
-  Owner: —
+  Done: @opencode · 2026-10-19 · `f03f240`. 15 cases in `src/test/guideDashboard.test.tsx`: profile render of bio/languages/expertise/rate/availability, save addressed to the id returned by `/me` (never the route), language list parsing, refused-update messaging, load-error and no-profile states; bookings scoping to this guide, single accept control for the one `REQUESTED` item, accept -> `CONFIRMED`, decline -> `DECLINED`, failed action leaving the list intact, empty state; reviews aggregate/list, explicit payments-unavailable notice, reviews error state. `vitest run src/test/guideDashboard.test.tsx` 15/15 passed, typecheck clean, oxlint clean. Full suite 93 files / 853 tests green on repeated runs (an intermittent `payBooking` F-405 spinner failure observed concurrently traces to uncommitted payment work in the checkout, not to this change).
 
 ---
 
@@ -1232,6 +1232,7 @@ Confirm each against the real backend before the affected task. Do not invent en
 
 | F-508-T1 | F-508 | How does a buyer obtain an order’s delivery tracking token? | Open: live `OrderDetailResponse` has no tracking reference and no buyer order-to-delivery lookup exists. Provider/enterprise delivery-job endpoints are not a buyer mapping. Expose an authorized tracking token/reference, regenerate types, then connect `/track/:token`; frontend currently shows unavailable. |
 | F-508-P1 | F-508 | Does payment lookup enforce ownership? | Resolved on `integration/four-agent-baseline` / `0f8ce5f`: order-payment reads filter by authenticated payer and order buyer; cross-payer/foreign-order reads return 404. New receipt/history reads are payer-scoped. Backend HTTP and query tests pass. Adopt this commit before claiming the fix on another branch. Payment-attempt authorization/idempotency is a separate remaining review item. |
+| F-1203-P1 | F-1203 | Is there a guide payments endpoint for the payment records the guide dashboard should show? | Open: no guide-scoped payment or finance endpoint exists anywhere in the backend (searched payment/finance classes for guide scope; `AdminIdentityController`, `BookingController` and `GuideController` expose none). F-1203 renders reviews from `GET /api/v1/reviews/public/target?targetType=GUIDE` and displays payment records as explicitly unavailable, naming this gap in the UI rather than inventing amounts. Backend must expose a guide-scoped payment read and regenerate the contract before records can be shown. |
 
 ## 11. Activity log
 
@@ -1312,6 +1313,8 @@ Activity: 2026-10-18 · @claude-agent · F-807 · Completed · Payout disburseme
 Activity: 2026-10-18 · @claude-agent · F-808 · Completed · Unpaid delivery cancellation with audit reason capture preserving historical visibility and ledger adjustments. 43 test files (236 tests) pass, typecheck/lint/build clean.
 
 Activity: 2026-10-18 · @kiro · F-1001 · Claimed · Farmer home dashboard — balance, recent deliveries, today's buying prices, large icons. Backend: GET /api/v1/farmers/{farmerId}/balance, /deliveries, /payments; GET /api/v1/buying-prices/enterprises/{enterpriseId} (public). Branch: task/F-1001-farmer-home.
+
+Activity: 2026-10-19 · @opencode · F-1201, F-1202, F-1203, F-1204 · Completed · Guide dashboard: profile edit bound to `GET /api/v1/tourism/guides/me` + `PUT /{id}` (guide id taken only from the `/me` response), assigned bookings from `GET /api/v1/bookings/guides/{guideId}` with accept → CONFIRMED / decline → DECLINED restricted to REQUESTED, and reviews from `GET /api/v1/reviews/public/target?targetType=GUIDE`. No guide payments endpoint exists; records render as explicitly unavailable (gap F-1203-P1). Section dispatch reuses the existing `/dashboard/guide/*` route, so Codex-owned `routes/index.tsx` and `DashboardLayout.tsx` needed no patch. 15 guide tests, full suite 93 files / 853 tests, typecheck and oxlint clean. Source: `f03f240`.
 ## Integration milestones (outside the 134 feature tasks)
 
 - [x] **I-01 · Publish the four-agent integration baseline**
