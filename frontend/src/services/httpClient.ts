@@ -7,7 +7,18 @@ import axios, {
 import { normalizeApiError, NormalizedApiError } from './apiError';
 import { generateIdempotencyKey } from '../utils/idempotency';
 
-export const BASE_API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+export function resolveBaseApiUrl(): string {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl && envUrl.trim() && !envUrl.includes('localhost:8080')) {
+    return envUrl.trim();
+  }
+  if (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com')) {
+    return 'https://omobridge-api.onrender.com';
+  }
+  return envUrl || 'http://localhost:8080';
+}
+
+export const BASE_API_URL = resolveBaseApiUrl();
 export const TOKEN_STORAGE_KEY = 'omobridge_token';
 export { LANG_STORAGE_KEY } from '../i18n/languages';
 

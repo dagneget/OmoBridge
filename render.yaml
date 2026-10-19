@@ -63,7 +63,7 @@ services:
       - key: VITE_USE_MOCKS
         value: "false"
       - key: VITE_API_BASE_URL
-        sync: false
+        value: https://omobridge-api.onrender.com
     routes:
       - type: rewrite
         source: /*

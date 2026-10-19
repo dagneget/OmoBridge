@@ -191,6 +191,135 @@ export const mockProducts: ProductResponse[] = [
   },
 ];
 
+export const liveDemoProducts: ProductResponse[] = [
+  {
+    id: '717145d1-32dc-4858-b6ed-f2e423924c42',
+    enterpriseId: 'f72f40fc-b95e-4e04-9c69-1457a83f256b',
+    enterpriseName: 'South Omo Honey & Coffee Union',
+    name: 'Pure South Omo Forest White Honey (500g Jar)',
+    description:
+      'Raw, unpasteurized white honey collected by traditional beekeepers from wild tree hives in the deep riverine forests of South Omo. Rich in natural floral aromas.',
+    story:
+      'For centuries, Hamer and Ari beekeepers have crafted traditional bark hives suspended high in wild acacia trees. Every purchase directly empowers local producer families with guaranteed fair prices.',
+    category: 'HONEY',
+    unit: 'JAR',
+    unitPrice: 450,
+    currency: 'ETB',
+    availableStock: 150,
+    published: true,
+    priceBreakdown: {
+      purchaseCost: 200, processingCost: 45, packagingCost: 50, laborCost: 35,
+      transportCost: 30, enterpriseMargin: 55, communityFund: 35, taxAmount: 0,
+      platformFee: 0, totalPrice: 450,
+    },
+  },
+  {
+    id: '6044b1da-1590-400e-9441-ad293193eac7',
+    enterpriseId: 'f72f40fc-b95e-4e04-9c69-1457a83f256b',
+    enterpriseName: 'South Omo Honey & Coffee Union',
+    name: 'Lower Omo Wild Acacia Amber Honey (1kg Jar)',
+    description:
+      'Golden amber wild honey harvested from indigenous acacia savannah blossoms across Lower Omo basin. Robust flavor profile with lingering herbal notes.',
+    story:
+      'Harvested sustainably using smoke-free techniques developed through cooperative training to preserve forest biodiversity and protect wild honeybee colonies.',
+    category: 'HONEY',
+    unit: 'JAR',
+    unitPrice: 850,
+    currency: 'ETB',
+    availableStock: 80,
+    published: true,
+    priceBreakdown: {
+      purchaseCost: 400, processingCost: 70, packagingCost: 80, laborCost: 60,
+      transportCost: 50, enterpriseMargin: 120, communityFund: 70, taxAmount: 0,
+      platformFee: 0, totalPrice: 850,
+    },
+  },
+  {
+    id: '3eb5e568-c2d8-42a9-8352-c1a9d0e67a7f',
+    enterpriseId: 'f72f40fc-b95e-4e04-9c69-1457a83f256b',
+    enterpriseName: 'South Omo Honey & Coffee Union',
+    name: 'South Omo Shade-Grown Forest Coffee (250g Whole Bean)',
+    description:
+      'Heirloom Arabica beans grown in natural mountain shade canopy in South Ari highlands. Naturally sun-dried on raised African beds.',
+    story:
+      'Cultivated without synthetic fertilizers or pesticides by smallholder farming families at elevations above 1,800m. Micro-roasted to highlight citrus and floral jasmine notes.',
+    category: 'COFFEE',
+    unit: 'BAG',
+    unitPrice: 350,
+    currency: 'ETB',
+    availableStock: 120,
+    published: true,
+    priceBreakdown: {
+      purchaseCost: 150, processingCost: 40, packagingCost: 35, laborCost: 30,
+      transportCost: 25, enterpriseMargin: 45, communityFund: 25, taxAmount: 0,
+      platformFee: 0, totalPrice: 350,
+    },
+  },
+  {
+    id: '3deed58c-ad30-400e-b197-fc52296a7284',
+    enterpriseId: 'f72f40fc-b95e-4e04-9c69-1457a83f256b',
+    enterpriseName: 'South Omo Honey & Coffee Union',
+    name: 'Handwoven Hamer Artisan Agelgil Basket',
+    description:
+      'Traditional multi-purpose container tightly hand-coiled with wild savannah grass and decorated with natural cowhide binding and geometric patterns.',
+    story:
+      'Handmade by elder women artisans in Turmi and Dimeka kebeles. These containers traditionally preserve travel food and ceremonial items, keeping them fresh for days.',
+    category: 'CRAFT',
+    unit: 'PIECE',
+    unitPrice: 900,
+    currency: 'ETB',
+    availableStock: 35,
+    published: true,
+    priceBreakdown: {
+      purchaseCost: 500, processingCost: 50, packagingCost: 40, laborCost: 60,
+      transportCost: 50, enterpriseMargin: 120, communityFund: 80, taxAmount: 0,
+      platformFee: 0, totalPrice: 900,
+    },
+  },
+  {
+    id: '7db3c051-640e-4d27-b257-f9c0e6e05a71',
+    enterpriseId: 'f72f40fc-b95e-4e04-9c69-1457a83f256b',
+    enterpriseName: 'South Omo Honey & Coffee Union',
+    name: 'Organic Hand-Spun Cotton Shawl (Netela / Gabi)',
+    description:
+      'Featherlight double-layered woven cotton wrap featuring intricate colored border embroidery (tibeb) crafted on traditional wooden foot looms.',
+    story:
+      'Spun from 100% locally grown rain-fed South Omo cotton by women cooperatives and woven by master artisans with ancestral spinning techniques.',
+    category: 'TEXTILE',
+    unit: 'PIECE',
+    unitPrice: 1200,
+    currency: 'ETB',
+    availableStock: 25,
+    published: true,
+    priceBreakdown: {
+      purchaseCost: 700, processingCost: 60, packagingCost: 50, laborCost: 80,
+      transportCost: 60, enterpriseMargin: 150, communityFund: 100, taxAmount: 0,
+      platformFee: 0, totalPrice: 1200,
+    },
+  },
+  {
+    id: '505c8144-9902-4deb-b0ed-786149f4a910',
+    enterpriseId: 'f72f40fc-b95e-4e04-9c69-1457a83f256b',
+    enterpriseName: 'South Omo Honey & Coffee Union',
+    name: 'Traditional Pastoralist Terracotta Clay Cooking Pot',
+    description:
+      'Hand-molded earthenware pot pit-fired with organic husks and polished with smooth river stones. Exceptional thermal retention for slow stews.',
+    story:
+      'Molded by pastoralist potters along the Keske and Mago riverbanks using seasonal sedimentary clay and age-old firing pits without wheels or electricity.',
+    category: 'CRAFT',
+    unit: 'PIECE',
+    unitPrice: 650,
+    currency: 'ETB',
+    availableStock: 40,
+    published: true,
+    priceBreakdown: {
+      purchaseCost: 350, processingCost: 40, packagingCost: 50, laborCost: 40,
+      transportCost: 40, enterpriseMargin: 80, communityFund: 50, taxAmount: 0,
+      platformFee: 0, totalPrice: 650,
+    },
+  },
+];
+
 export const mockTrackingResponse: DeliveryTrackingResponse = {
   jobId: '99999999-9999-4999-8999-000000000001',
   jobNo: 'TRK-OMO-9876',

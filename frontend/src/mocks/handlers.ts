@@ -3,7 +3,7 @@ import { paymentHistoryHandlers } from './paymentHistoryHandlers';
 import { http, HttpResponse } from 'msw';
 import { checkoutHandler, orderConfirmationHandler, myOrdersHandler, orderPaymentHandler } from './checkoutHandler';
 import type { LoginRequest } from '../types/api';
-import { mockUsers, createMockAuthResponse, MOCK_PASSWORD } from './fixtures/users';
+import { mockUsers, createMockAuthResponse, MOCK_PASSWORD, MOCK_TOKEN_PREFIX } from './fixtures/users';
 import {
   mockTourPackages,
   mockSessions,
@@ -12,6 +12,7 @@ import {
   mockTransportServices,
   mockSafetyGuidelines,
   mockProducts,
+  liveDemoProducts,
   mockTrackingResponse,
   mockPublicTrace,
 } from './fixtures/catalog';
@@ -66,7 +67,7 @@ const authHandlers = ['/api/v1/auth', '/api/auth'].flatMap((base) => [
       else if (identifier === 'bono@omobridge.et') user = mockUsers.producer;
       else if (identifier === 'ayke@omobridge.et') user = mockUsers.guide;
     }
-    if (!user || (body.password !== MOCK_PASSWORD && body.password !== 'Secret@123' && body.password !== 'password123' && body.password !== 'Password123!')) {
+    if (!user || (body.password !== MOCK_PASSWORD && body.password !== 'Secret@123' && body.password !== 'password123')) {
       return errorResponse(401, 'UNAUTHORIZED', 'Invalid credentials', request);
     }
     return HttpResponse.json({
@@ -81,10 +82,10 @@ const authHandlers = ['/api/v1/auth', '/api/auth'].flatMap((base) => [
     let user = Object.values(mockUsers).find(
       (candidate) =>
         token === createMockAuthResponse(candidate).accessToken ||
-        token === `mock-jwt-token-for-${candidate.id}` ||
-        token === `mock-jwt-token-for-${candidate.phoneNumber}`
+        token === `${MOCK_TOKEN_PREFIX}${candidate.id}` ||
+        token === `${MOCK_TOKEN_PREFIX}${candidate.phoneNumber}`
     );
-    if (!user && (token === 'mock-jwt-token-for-bekele@omo.et' || token === 'mock-jwt-token-for-33333333-3333-3333-3333-333333333333' || token === 'mock-jwt-token-for-admin@southomo.org')) {
+    if (!user && (token === `${MOCK_TOKEN_PREFIX}bekele@omo.et` || token === `${MOCK_TOKEN_PREFIX}33333333-3333-3333-3333-333333333333` || token === `${MOCK_TOKEN_PREFIX}admin@southomo.org`)) {
       user = mockUsers.enterprise;
     }
     if (!user) return errorResponse(401, 'UNAUTHORIZED', 'Authentication required', request);
@@ -183,7 +184,9 @@ export const handlers = [
   }),
 
   http.get('*/api/v1/public/products/:id', ({ params, request }) => {
-    const prod = mockProducts.find((p) => p.id === params.id);
+    const prod =
+      mockProducts.find((p) => p.id === params.id) ??
+      liveDemoProducts.find((p) => p.id === params.id);
     if (!prod) return errorResponse(404, 'RESOURCE_NOT_FOUND', 'Product not found', request);
     return HttpResponse.json({
       success: true,

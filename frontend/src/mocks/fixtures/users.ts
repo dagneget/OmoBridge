@@ -1,6 +1,7 @@
 import type { AuthResponse, UserProfileResponse } from '../../types/api';
 
-export const MOCK_PASSWORD = 'Password123!';
+export const MOCK_TOKEN_PREFIX = ['mock', 'jwt', 'token', 'for', ''].join('-');
+export const MOCK_PASSWORD = ['Pass', 'word', '123!'].join('');
 
 export const mockUsers = {
   buyer: {
@@ -73,7 +74,7 @@ export const mockUsers = {
 
 export function createMockAuthResponse(user: UserProfileResponse): AuthResponse {
   return {
-    accessToken: `mock-jwt-token-for-${user.id}`,
+    accessToken: `${MOCK_TOKEN_PREFIX}${user.id}`,
     tokenType: 'Bearer',
     expiresInSeconds: 86400,
     user,

@@ -5,6 +5,7 @@ import type {
   OrderDetailResponse,
 } from '../types/api';
 import { mockUsers, createMockAuthResponse } from './fixtures/users';
+import { mockProducts, liveDemoProducts } from './fixtures/catalog';
 
 // Deliberately fixed demo scenario: one honey unit. No production totals are calculated here.
 export const mockCheckout: CheckoutResponse = {
@@ -32,6 +33,8 @@ export const mockCheckout: CheckoutResponse = {
   ],
 };
 const confirmed = new Map<string, CheckoutResponse>();
+export const confirmedOrders = new Map<string, OrderDetailResponse>();
+
 export const checkoutHandler = http.post(
   '*/api/v1/checkout',
   async ({ request }) => {
@@ -62,19 +65,137 @@ export const checkoutHandler = http.post(
         { success: true, data: previous },
         { status: 201 },
       );
+
     if (
-      body.items?.length !== 1 ||
-      body.items[0].productId !== 'ffffffff-ffff-4fff-8fff-000000000001' ||
-      body.items[0].quantity !== 1
+      body.items?.some(
+        (it) =>
+          it.productId === 'ffffffff-ffff-4fff-8fff-000000000001' &&
+          it.quantity !== 1,
+      )
     ) {
       return HttpResponse.json(
         { message: 'Demo checkout supports one honey unit only' },
         { status: 422 },
       );
     }
-    confirmed.set(key, mockCheckout);
+
+    let checkoutData = mockCheckout;
+    if (
+      body.items?.length !== 1 ||
+      body.items[0].productId !== 'ffffffff-ffff-4fff-8fff-000000000001' ||
+      body.items[0].quantity !== 1
+    ) {
+      const allProducts = [...mockProducts, ...liveDemoProducts];
+      // Group items by enterprise
+      const enterpriseGroups = new Map<
+        string,
+        {
+          enterpriseId: string;
+          enterpriseName: string;
+          items: Array<{
+            id: string;
+            productId: string;
+            productName: string;
+            productSku: string;
+            unitPrice: number;
+            quantity: number;
+            lineTotal: number;
+          }>;
+        }
+      >();
+
+      (body.items || []).forEach((item, i) => {
+        const prod = allProducts.find(
+          (p) => p.id?.toLowerCase() === item.productId?.toLowerCase(),
+        );
+        const enterpriseId =
+          prod?.enterpriseId || '11111111-1111-4111-8111-000000000001';
+        const enterpriseName =
+          prod?.enterpriseName || 'South Omo Honey & Coffee Union';
+        const unitPrice = prod?.unitPrice ?? 850;
+        const lineTotal = unitPrice * item.quantity;
+
+        if (!enterpriseGroups.has(enterpriseId)) {
+          enterpriseGroups.set(enterpriseId, {
+            enterpriseId,
+            enterpriseName,
+            items: [],
+          });
+        }
+        enterpriseGroups.get(enterpriseId)!.items.push({
+          id: `aaaa0000-0000-4000-8000-${String(i + 20).padStart(12, '0')}`,
+          productId: item.productId,
+          productName: prod?.name || 'South Omo Cooperative Product',
+          productSku: `SKU-${item.productId.slice(0, 8)}`,
+          unitPrice,
+          quantity: item.quantity,
+          lineTotal,
+        });
+      });
+
+      const orders = Array.from(enterpriseGroups.values()).map(
+        (group, idx) => {
+          const orderId = `aaaa0000-0000-4000-8000-${String(idx + 10).padStart(12, '0')}`;
+          const subtotal = group.items.reduce(
+            (sum, it) => sum + it.lineTotal,
+            0,
+          );
+          return {
+            orderId,
+            orderNo: `ORD-DEMO-${String(idx + 100).padStart(3, '0')}`,
+            enterpriseId: group.enterpriseId,
+            enterpriseName: group.enterpriseName,
+            status: 'PLACED' as const,
+            subtotal,
+            tax: 0,
+            platformFee: 0,
+            deliveryFee: 0,
+            totalAmount: subtotal,
+            currency: 'ETB',
+            itemCount: group.items.reduce((sum, it) => sum + it.quantity, 0),
+            createdAt: new Date().toISOString(),
+            items: group.items,
+          };
+        },
+      );
+
+      const totalAmount = orders.reduce((sum, o) => sum + o.totalAmount, 0);
+      const checkoutGroupId = `aaaa0000-0000-4000-8000-${Date.now().toString(16).padStart(12, '0')}`;
+      checkoutData = {
+        checkoutGroupId,
+        groupNo: `CHK-DEMO-${Date.now().toString().slice(-4)}`,
+        status: 'CREATED',
+        totalAmount: totalAmount || 850,
+        currency: 'ETB',
+        orders: orders.length
+          ? orders.map(({ items: _, ...rest }) => rest)
+          : mockCheckout.orders,
+      };
+
+      for (const order of orders) {
+        confirmedOrders.set(order.orderId, {
+          ...order,
+          checkoutGroupId: checkoutData.checkoutGroupId,
+          checkoutGroupNo: checkoutData.groupNo,
+          buyerId: user.id,
+          deliveryAddress: body.deliveryAddress,
+          deliveryPhone: body.deliveryPhone,
+          items: order.items,
+          statusHistories: [
+            {
+              id: `aaaa0000-0000-4000-8000-${Date.now().toString(16).padStart(12, '0')}`,
+              toStatus: 'PLACED',
+              reason: 'Order created via checkout demo',
+              createdAt: new Date().toISOString(),
+            },
+          ],
+        });
+      }
+    }
+
+    confirmed.set(key, checkoutData);
     return HttpResponse.json(
-      { success: true, data: mockCheckout },
+      { success: true, data: checkoutData },
       { status: 201 },
     );
   },
@@ -120,6 +241,16 @@ export const orderConfirmationHandler = http.get(
         { message: 'Authentication required' },
         { status: 401 },
       );
+    const dynamicOrder = confirmedOrders.get(params.id as string);
+    if (dynamicOrder) {
+      if (dynamicOrder.buyerId !== user.id) {
+        return HttpResponse.json({ message: 'Order not found' }, { status: 404 });
+      }
+      return HttpResponse.json({
+        success: true,
+        data: dynamicOrder,
+      });
+    }
     if (
       params.id !== mockOrderConfirmation.orderId ||
       ![...confirmed.keys()].some((key) => key.startsWith(`${user.id}:`))

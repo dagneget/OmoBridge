@@ -14,7 +14,10 @@ import { orderConfirmationService } from './orderConfirmationService';
 import { ReservationCountdown } from './ReservationCountdown';
 import { useCheckoutResultText } from './useCheckoutResultText';
 const control =
-  'inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-slate-400 bg-white px-3 py-2 text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 disabled:opacity-60 dark:bg-slate-900 dark:text-slate-100';
+  'inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-800 dark:text-slate-150 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-750 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:opacity-60 transition-colors cursor-pointer';
+
+const controlPrimary =
+  'inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold px-5 py-2.5 text-sm shadow-md shadow-emerald-700/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 disabled:opacity-60 transition-all cursor-pointer';
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const reservationExpired = (order?: OrderDetailResponse) =>
   order?.status === 'CANCELLED' &&
@@ -257,12 +260,14 @@ export function CheckoutResult({ result, onNewCheckout }: Props) {
           }}
         />
       )}
-      <Link className={control} to="/account/orders">
-        {t('myOrders')}
-      </Link>
-      <button type="button" className={control} onClick={onNewCheckout}>
-        {t('newCheckout')}
-      </button>
+      <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+        <Link className={control} to="/account/orders">
+          {t('myOrders')}
+        </Link>
+        <button type="button" className={controlPrimary} onClick={onNewCheckout}>
+          {t('newCheckout')}
+        </button>
+      </div>
     </div>
   );
 }
@@ -292,50 +297,62 @@ function SellerOrder({
   const status = current?.status ?? order.status;
   return (
     <article
-      className="space-y-3 break-words rounded-lg border border-slate-300 p-4"
+      className="space-y-4 break-words rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-sm"
       aria-labelledby={id}
     >
-      <h4 id={id} className="text-lg font-semibold">
-        {order.enterpriseName ?? t('unknown')}
-      </h4>
-      <p>{t('order', { reference: order.orderNo ?? t('unknown') })}</p>
-      {order.orderId && (
-        <Link
-          className={control}
-          to={`/account/orders/${encodeURIComponent(order.orderId)}`}
-        >
-          {t('viewOrder')}
-        </Link>
-      )}
-      <dl className="space-y-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
         <div>
-          <dt className="font-semibold">{t('total')}</dt>
-          <dd>
+          <h4 id={id} className="text-lg font-bold text-slate-900 dark:text-white">
+            {order.enterpriseName ?? t('unknown')}
+          </h4>
+          <p className="text-xs font-mono text-slate-500 dark:text-slate-400 mt-0.5">
+            {t('order', { reference: order.orderNo ?? t('unknown') })}
+          </p>
+        </div>
+        {order.orderId && (
+          <Link
+            className={control}
+            to={`/account/orders/${encodeURIComponent(order.orderId)}`}
+          >
+            {t('viewOrder')}
+          </Link>
+        )}
+      </div>
+
+      <dl className="grid grid-cols-2 gap-4 py-2">
+        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+          <dt className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('total')}</dt>
+          <dd className="text-base font-bold text-slate-900 dark:text-white mt-0.5">
             {current
               ? amount(current.totalAmount, current.currency)
               : amount(order.totalAmount, order.currency)}
           </dd>
         </div>
-        <div>
-          <dt className="font-semibold">{t('status')}</dt>
-          <dd>{status ? t(status) : t('unknown')}</dd>
+        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+          <dt className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('status')}</dt>
+          <dd className="text-base font-bold text-emerald-700 dark:text-emerald-400 mt-0.5">
+            {status ? t(status) : t('unknown')}
+          </dd>
         </div>
       </dl>
-      {error && <p role="alert">{t(forbidden ? 'unavailable' : 'error')}</p>}
+
+      {error && <p role="alert" className="text-xs font-semibold text-rose-600 dark:text-rose-400">{t(forbidden ? 'unavailable' : 'error')}</p>}
       {(status === 'PLACED' || expired) && (
         <ReservationCountdown expired={expired} />
       )}
-      <button
-        type="button"
-        className={control}
-        disabled={!payable}
-        onClick={onPay}
-        aria-describedby={!payable ? `${id}-payment` : undefined}
-      >
-        {t('pay', { reference: order.orderNo ?? t('unknown') })}
-      </button>
+      <div className="pt-2">
+        <button
+          type="button"
+          className={payable ? controlPrimary : control}
+          disabled={!payable}
+          onClick={onPay}
+          aria-describedby={!payable ? `${id}-payment` : undefined}
+        >
+          {t('pay', { reference: order.orderNo ?? t('unknown') })}
+        </button>
+      </div>
       {!payable && (
-        <p id={`${id}-payment`} className="text-sm">
+        <p id={`${id}-payment`} className="text-xs text-slate-500 dark:text-slate-400">
           {t(
             verified && status !== 'PLACED'
               ? 'notPayable'

@@ -41,7 +41,7 @@ export function securityBuildPlugin(): Plugin {
     apply: 'build',
     configResolved(config) {
       policy = productionPolicy(
-        config.env.VITE_API_BASE_URL || 'http://localhost:8080',
+        config.env.VITE_API_BASE_URL || 'https://omobridge-api.onrender.com',
       );
     },
     transformIndexHtml: {
