@@ -63,7 +63,14 @@ public class OwnershipService {
             return false;
         }
 
-        return farmerRepository.findById(farmerId)
+        boolean matchesFarmerPk = farmerRepository.findById(farmerId)
+                .map(farmer -> farmer.getUser().getId().equals(currentUserId))
+                .orElse(false);
+        if (matchesFarmerPk) {
+            return true;
+        }
+
+        return farmerRepository.findByUserId(farmerId)
                 .map(farmer -> farmer.getUser().getId().equals(currentUserId))
                 .orElse(false);
     }
@@ -75,6 +82,7 @@ public class OwnershipService {
         }
 
         return farmerRepository.findById(farmerId)
+                .or(() -> farmerRepository.findByUserId(farmerId))
                 .filter(farmer -> farmer.getEnterprise() != null)
                 .map(farmer -> isEnterpriseMember(authentication, farmer.getEnterprise().getId()))
                 .orElse(false);

@@ -3315,6 +3315,8 @@ export interface components {
             /** Format: uuid */
             enterpriseId?: string;
             enterpriseName?: string;
+            /** Format: uuid */
+            farmerId?: string;
             farmerCode?: string;
             /** @enum {string} */
             verificationStatus?: "PENDING" | "VERIFIED" | "REJECTED" | "SUSPENDED";

@@ -295,6 +295,7 @@ public class AuthServiceImpl implements AuthService {
 
         UUID enterpriseId = null;
         String enterpriseName = null;
+        UUID farmerId = null;
         String farmerCode = null;
         VerificationStatus verificationStatus = null;
 
@@ -311,6 +312,7 @@ public class AuthServiceImpl implements AuthService {
         Optional<Farmer> farmerOpt = farmerRepository.findByUserId(user.getId());
         if (farmerOpt.isPresent()) {
             Farmer farmer = farmerOpt.get();
+            farmerId = farmer.getId();
             farmerCode = farmer.getFarmerCode();
             verificationStatus = farmer.getVerificationStatus();
             if (enterpriseId == null && farmer.getEnterprise() != null) {
@@ -341,6 +343,7 @@ public class AuthServiceImpl implements AuthService {
                 roleNames,
                 enterpriseId,
                 enterpriseName,
+                farmerId,
                 farmerCode,
                 verificationStatus
         );

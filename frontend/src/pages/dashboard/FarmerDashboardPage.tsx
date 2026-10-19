@@ -34,10 +34,7 @@ export default function FarmerDashboardPage() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
 
-  // TODO: UserProfileResponse includes farmerCode but not farmerId UUID.
-  // The FarmerSelfServiceController requires a farmerId path param.
-  // Until the backend exposes farmerId in /me, use demo seed ID for the farmer portal.
-  const farmerId = DEMO_FARMER_ID;
+  const farmerId = user?.farmerId || user?.id || (user?.roles?.includes('SYSTEM_ADMIN') ? DEMO_FARMER_ID : undefined);
   const enterpriseId = user?.enterpriseId || DEMO_ENTERPRISE_ID;
   const farmerName = user?.fullName || t('farmer.dashboard.title');
 
@@ -48,8 +45,9 @@ export default function FarmerDashboardPage() {
     isError: balanceError,
     refetch: refetchBalance,
   } = useQuery({
-    queryKey: queryKeys.farmer.balance(farmerId),
-    queryFn: () => farmerService.getBalance(farmerId),
+    queryKey: queryKeys.farmer.balance(farmerId || 'me'),
+    queryFn: () => farmerService.getBalance(farmerId!),
+    enabled: !!farmerId,
   });
 
   // 2. Fetch farmer's own deliveries
@@ -59,8 +57,9 @@ export default function FarmerDashboardPage() {
     isError: deliveriesError,
     refetch: refetchDeliveries,
   } = useQuery({
-    queryKey: queryKeys.farmer.deliveries(farmerId),
-    queryFn: () => farmerService.getDeliveries(farmerId),
+    queryKey: queryKeys.farmer.deliveries(farmerId || 'me'),
+    queryFn: () => farmerService.getDeliveries(farmerId!),
+    enabled: !!farmerId,
   });
 
   // 3. Fetch today's buying prices (public endpoint, no auth needed)
@@ -81,8 +80,9 @@ export default function FarmerDashboardPage() {
     isError: paymentsError,
     refetch: refetchPayments,
   } = useQuery({
-    queryKey: queryKeys.farmer.payments(farmerId),
-    queryFn: () => farmerService.getPayments(farmerId),
+    queryKey: queryKeys.farmer.payments(farmerId || 'me'),
+    queryFn: () => farmerService.getPayments(farmerId!),
+    enabled: !!farmerId,
   });
 
   const hasAnyError = balanceError || deliveriesError || pricesError || paymentsError;
@@ -124,6 +124,19 @@ export default function FarmerDashboardPage() {
             </button>
           </div>
         </div>
+
+        {/* Pending Verification Notice */}
+        {user?.verificationStatus === 'PENDING' && (
+          <div className="mt-4 p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-200">
+            <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+            <div>
+              <span className="font-semibold block">Profile Pending Cooperative Verification</span>
+              <span className="text-amber-800/90 dark:text-amber-300/80">
+                Your farmer account ({user.farmerCode || 'Pending Code'}) is awaiting review from the South Omo cooperative desk. You can review live market prices below while pending verification.
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Global Error Recovery Alert */}
         {hasAnyError && (

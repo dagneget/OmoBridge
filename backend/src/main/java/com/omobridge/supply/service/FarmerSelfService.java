@@ -30,24 +30,24 @@ public class FarmerSelfService {
     private final FarmerPaymentRepository paymentRepository;
 
     public List<SupplyDeliveryResponse> getFarmerDeliveries(UUID farmerId) {
-        ensureFarmerExists(farmerId);
-        return deliveryRepository.findAllByFarmerIdOrderByDeliveredAtDesc(farmerId)
+        Farmer farmer = ensureFarmerExists(farmerId);
+        return deliveryRepository.findAllByFarmerIdOrderByDeliveredAtDesc(farmer.getId())
                 .stream()
                 .map(SupplyDeliveryResponse::fromEntity)
                 .toList();
     }
 
     public List<FarmerPayableResponse> getFarmerPayables(UUID farmerId) {
-        ensureFarmerExists(farmerId);
-        return payableRepository.findAllByFarmerIdOrderByCreatedAtDesc(farmerId)
+        Farmer farmer = ensureFarmerExists(farmerId);
+        return payableRepository.findAllByFarmerIdOrderByCreatedAtDesc(farmer.getId())
                 .stream()
                 .map(FarmerPayableResponse::fromEntity)
                 .toList();
     }
 
     public List<FarmerPaymentResponse> getFarmerPayments(UUID farmerId) {
-        ensureFarmerExists(farmerId);
-        return paymentRepository.findAllByFarmerIdOrderByCreatedAtDesc(farmerId)
+        Farmer farmer = ensureFarmerExists(farmerId);
+        return paymentRepository.findAllByFarmerIdOrderByCreatedAtDesc(farmer.getId())
                 .stream()
                 .map(FarmerPaymentResponse::fromEntity)
                 .toList();
@@ -55,7 +55,7 @@ public class FarmerSelfService {
 
     public FarmerBalanceSummaryResponse getFarmerBalanceSummary(UUID farmerId) {
         Farmer farmer = ensureFarmerExists(farmerId);
-        List<FarmerPayable> payables = payableRepository.findAllByFarmerIdOrderByCreatedAtDesc(farmerId);
+        List<FarmerPayable> payables = payableRepository.findAllByFarmerIdOrderByCreatedAtDesc(farmer.getId());
 
         BigDecimal totalDeliveredValue = payables.stream()
                 .filter(p -> p.getStatus() != PayableStatus.VOID)
@@ -86,6 +86,7 @@ public class FarmerSelfService {
 
     private Farmer ensureFarmerExists(UUID farmerId) {
         return farmerRepository.findById(farmerId)
+                .or(() -> farmerRepository.findByUserId(farmerId))
                 .orElseThrow(() -> new ResourceNotFoundException("Farmer not found with id: " + farmerId));
     }
 }

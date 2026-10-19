@@ -15,6 +15,7 @@ public record UserProfileResponse(
     Set<String> roles,
     UUID enterpriseId,
     String enterpriseName,
+    UUID farmerId,
     String farmerCode,
     VerificationStatus verificationStatus
 ) {}
