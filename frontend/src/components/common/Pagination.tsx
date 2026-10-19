@@ -41,7 +41,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   return (
     <nav
       aria-label="Pagination"
-      className={`flex items-center justify-center gap-1 sm:gap-2 ${className}`}
+      className={`flex flex-wrap items-center justify-center gap-1 sm:gap-2 ${className}`}
     >
       <button
         type="button"

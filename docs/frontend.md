@@ -211,3 +211,31 @@ npm run preview
 
 ### Running in Standalone Mock Mode (No Backend Needed)
 Set `VITE_USE_MOCKS=true` in `frontend/.env` and start `npm run dev`. MSW intercepts all API calls in the browser with seed fixtures.
+
+
+### F-1401 and F-1403 buyer reviews
+
+Delivered order details and completed booking confirmations now offer a rating/comment form for each distinct purchased product, package or guide. Submission uses the existing authenticated review endpoint, checks the server confirmation, handles duplicate/ineligible/account errors, and supports explicit retry after uncertain responses. English/Amharic text, native keyboard controls, confirmation focus, account/target-scoped drafts, abort/timeout handling and online-only submission are included. Backend eligibility fixes are in `b431e6b`; frontend implementation and tests are in `354d0db`.
+
+Validation: 682 frontend tests (75 files), typecheck/build and lint pass, with only existing inspection and bundle warnings. The 44 new frontend cases and 14 focused backend cases cover eligibility, duplicates and contract/session boundaries. Firefox 360 px checks both routes, keyboard submission, offline blocking, confirmation focus, duplicate rejection, no overflow and zero review-form axe violations. See [review handoff](frontend-reviews-handoff.md). F-1402 remains pending its authenticated reviewer-list contract; F-508 tracking remains independently blocked.
+
+
+### F-1402 My reviews
+
+On `integration/four-agent-baseline` / `b8035a1`, `/account/reviews` is linked from Account and guarded by session verification. It lists the authenticated user’s own reviews, including non-public reviews, through `GET /api/v1/reviews/my`. The new endpoint enforces reviewer scope, a capped page size and stable ordering; its generated types come from the running backend. Ratings, comments, submission dates and product/experience links are displayed with English/Amharic text and empty/loading/error/offline states. Private queries are scoped to authentication revision and cleared on account changes, with no persistence.
+
+Verification: 714 frontend tests (77 files), 22 focused backend checks and typecheck/lint/build pass; only existing inspection and bundle warnings remain. PostgreSQL history mapping/count uses at most two queries. Firefox at 360 px verifies keyboard account navigation, pagination and refresh, offline handling, another account’s empty list, no overflow and zero review-page axe violations. FP14 is complete. See [review handoff](frontend-reviews-handoff.md).
+
+
+### F-1706 security review
+
+Delivered on `integration/four-agent-baseline` / `f741a09`: production CSP and hosting headers, lazy mock loading that excludes demo credentials from default release bundles, redacted React error callbacks and fallback, explicit disabled source maps, and `npm run security:check`. Verification: 730 frontend tests (79 files), typecheck/lint/build and artifact checks pass; dependency audit reports zero known vulnerabilities. Browser checks verify script/connection CSP enforcement and literal rendering of review HTML payloads. See [security review](frontend-security-review.md) and ADR-005.
+
+The review is complete; release is blocked by SEC-01, confirmed booking details remaining after logout. The handoff stays with OpenCode F-110. LocalStorage bearer-token risk and real-host HTTPS/CORS/header verification remain explicit in the review. No active source files in other agents’ worktrees were changed.
+
+
+### Dashboard responsiveness follow-up
+
+User-requested shared responsive fixes are delivered in `21da3c4` on `integration/four-agent-baseline` and applied to the active checkout after checking file hashes. The shell, sidebar drawer, role switcher, tables, tabs, pagination and dialog sizing now support phone, tablet and desktop layouts. Existing feature forms and data logic were preserved, including active enterprise/farmer work.
+
+Verification: 20 authenticated role/route views × five widths (320/360/768/1024/1440) pass all 100 checks, with no page-level overflow or compressed navigation labels. Drawer keyboard/focus/scroll locking, a multi-role header and a short-screen dialog pass. The integration branch passes 735 tests plus typecheck/build/lint/security artifact checks; active-checkout navigation tests pass 5/5, and the latest-feature snapshot typechecks. See [responsive review](dashboard-responsive-review.md). This follow-up does not complete or reassign any of the 134 planned feature tasks.

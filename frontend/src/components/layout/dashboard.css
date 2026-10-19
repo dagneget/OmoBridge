@@ -1,0 +1,112 @@
+.dashboard-shell {
+  width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dashboard-sidebar {
+  width: min(18rem, calc(100vw - 1rem));
+  height: 100dvh;
+}
+.dashboard-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 4rem;
+}
+.dashboard-header-actions {
+  max-width: 100%;
+}
+.dashboard-content :where(.flex:not([class*='max-w-'])) {
+  max-width: 100%;
+}
+.dashboard-content
+  :where(.grid, .flex)
+  > :where(:not(.whitespace-nowrap):not(a):not(button):not(svg)) {
+  min-width: 0;
+}
+.dashboard-content :where(input, select, textarea) {
+  max-width: 100%;
+}
+.dashboard-content :where(.overflow-x-auto) {
+  max-width: 100%;
+  overscroll-behavior-x: contain;
+}
+.dashboard-content :where(svg) {
+  flex-shrink: 0;
+}
+@media (min-width: 1024px) {
+  .dashboard-sidebar {
+    width: 16rem;
+  }
+}
+@media (max-width: 639px) {
+  .dashboard-topbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboard-header-actions {
+    padding-inline-start: 3.25rem;
+  }
+}
+/* Keep narrow toolbars usable without changing feature-specific grid layouts. */
+@media (max-width: 767px) {
+  .dashboard-content
+    :where(.flex.items-center.justify-between, .flex.justify-between) {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .dashboard-content
+    :where(.flex.items-center.gap-2):has(> button, > a, > select) {
+    flex-wrap: wrap;
+  }
+}
+.dashboard-sidebar[inert] {
+  visibility: hidden;
+}
+@media (max-width: 399px) {
+  .dashboard-content :where(.grid.grid-cols-2) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* Older feature dialogs use their own panels rather than the shared Modal. */
+.dashboard-content :where(.fixed.inset-0):has(> [class*='max-w-']) {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.dashboard-content :where(.fixed.inset-0) > :where([class*='max-w-']) {
+  min-width: 0;
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+}
+
+.dashboard-content
+  :where(.overflow-x-auto.flex, [role='tablist'])
+  > :where(a, button, [role='tab']) {
+  flex-shrink: 0;
+}
+.dashboard-content
+  :where(.fixed.inset-0)
+  > :where([class*='max-w-'])
+  > :where(.flex):first-child {
+  flex-wrap: nowrap;
+  align-items: flex-start;
+}
+.dashboard-content
+  :where(.fixed.inset-0)
+  > :where([class*='max-w-'])
+  > :where(.flex):first-child
+  > button {
+  min-width: 44px;
+  min-height: 44px;
+  flex-shrink: 0;
+}
+.dashboard-content :where(table) {
+  overflow-wrap: normal;
+}
+@media (max-width: 767px) {
+  .dashboard-content :where(button, select, input:not([type='checkbox']):not([type='radio']), a[class*='rounded']) {
+    min-height: 44px;
+  }
+}

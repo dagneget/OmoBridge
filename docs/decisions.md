@@ -80,3 +80,11 @@ Building the complete offline-first Progressive Web App (PWA) for OmoBridge requ
 6. **Telephony & USSD Integration**: USSD code is dynamically read from configuration (defaulting to placeholder `*844#`). A standalone simulation utility (`tools/ussd-simulator/`) verifies the session callback against the real backend without cluttering production bundles.
 7. **Multilingual Architecture**: Complete translation bundles for English (`en`) and Amharic (`am`). Fallback hierarchy: User language → Amharic → English. Local South Omo languages (Hamer, Dasenech, Tsamai) scaffolded with safe review flags and fallbacks.
 
+
+## ADR-005: Frontend security review and release gates
+
+Reviewed 2026-10-19 for F-1706. See [frontend security review](frontend-security-review.md) for the completed checklist, measured evidence and unresolved findings.
+
+Production builds enforce a same-origin script policy and restrict API connections to the configured origin. Build-generated `_headers` supplies policies that require HTTP headers, including `frame-ancestors`; actual host enforcement must be verified at deployment. Inline styles remain permitted for existing maps. Mock fixtures are dynamically loaded only when explicitly enabled, raw render errors are redacted, and public source maps are disabled. `npm run security:check` checks production artifacts without logging matched secrets. The dependency audit reports zero known advisories at this review date.
+
+ADR-004's localStorage bearer-token design remains a documented development constraint, not a claim of XSS-resistant credential storage. A coordinated backend session change is required for httpOnly cookies. The confirmed booking-detail cache leak after logout is a release blocker assigned to OpenCode's F-110 privacy/cache work; this review does not take over that allocation. Production HTTPS API/CORS/header verification also remains a deployment gate. Completing F-1706 records the review and fixes; it does not approve release.

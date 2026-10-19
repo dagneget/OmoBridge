@@ -67,11 +67,11 @@ export const Tabs: React.FC<TabsProps> = ({
   const activeTab = tabs.find((t) => t.id === activeTabId) || tabs[0];
 
   return (
-    <div className={`flex flex-col w-full ${className}`}>
+    <div className={`flex min-w-0 max-w-full flex-col w-full ${className}`}>
       <div
         role="tablist"
         aria-orientation="horizontal"
-        className="flex border-b border-border gap-2 overflow-x-auto no-scrollbar"
+        className="flex min-w-0 max-w-full border-b border-border gap-2 overflow-x-auto no-scrollbar"
       >
         {tabs.map((tab, idx) => {
           const isSelected = tab.id === activeTabId;
@@ -89,7 +89,7 @@ export const Tabs: React.FC<TabsProps> = ({
               disabled={tab.disabled}
               onClick={() => handleSelectTab(tab.id)}
               onKeyDown={(e) => handleKeyDown(e, idx)}
-              className={`px-4 py-3 min-h-[44px] text-sm font-medium transition-colors border-b-2 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              className={`shrink-0 px-4 py-3 min-h-[44px] text-sm font-medium transition-colors border-b-2 whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                 isSelected
                   ? 'border-primary text-primary font-semibold'
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted'

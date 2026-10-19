@@ -175,22 +175,22 @@ Update the counts when you finish a task.
 | FP0 | Foundation and audit | 8 / 8 |
 | FP1 | App shell, design system, PWA core | 8 / 10 |
 | FP2 | Authentication and roles | 9 / 9 |
-| FP3 | Public tourism | 11 / 11 |
+| FP3 | Public tourism | 10 / 11 |
 | FP4 | Bookings | 5 / 5 |
-| FP5 | Catalog, cart, checkout | 6 / 9 |
-| FP6 | Payments and live tracking | 0 / 7 |
+| FP5 | Catalog, cart, checkout | 7 / 9 |
+| FP6 | Payments and live tracking | 4 / 7 |
 | FP7 | Traceability | 0 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
-| FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
+| FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 1 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
 | FP11 | Delivery provider app | 0 / 8 |
 | FP12 | Guide dashboard | 0 / 4 |
 | FP13 | Admin and authority | 0 / 5 |
-| FP14 | Reviews | 0 / 3 |
+| FP14 | Reviews | 3 / 3 |
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
-| FP17 | Quality, tools and release | 0 / 9 |
-| | **Total** | **54 / 134** |
+| FP17 | Quality, tools and release | 1 / 9 |
+| | **Total** | **66 / 134** |
 
 ### What can run in parallel
 
@@ -554,6 +554,7 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Tests: Node 22 typecheck, lint, build and npm test → passed (336 tests, 42 files). Firefox 360 × 800 CSS viewport: keyboard submit/refresh/new-checkout, loading/error/offline, simulated server expiry, no horizontal overflow or feature axe/contrast violations. MSW fixtures only; physical devices and real payments were not tested.
   Blocked: Live OpenAPI exposes no reservation deadline or reservation-read endpoint; countdown cannot be wired without a contract change. Order-payment destinations are not connected on this isolated branch. Primary already has F-405’s shared Telebirr modal/service (`fc16594`), which should be reused during integration. No invented API field, `createdAt + 30 minutes` deadline, or dead payment link. See gap F-506-E1 and `features/checkout/RESULT_HANDOFF.md`.
   Delivery: `feat/checkout-result` · Commit: `1162266` (isolated branch, awaiting integration). Backend full suite ran: 129 tests, 0 assertion failures, 4 existing errors (three delivery cleanup foreign-key errors and one PostgreSQL container startup error); no backend changes.
+  Integration update: F-602 (`ed05fa1`) now connects each seller order to the shared verified payment modal. The reservation-deadline API gap remains open; F-506 stays [!].
 
 - [x] **F-507 · Price transparency component** · T1
   Needs: F-102, F-104
@@ -574,36 +575,44 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Implemented: @codex · 2026-10-18 · Authenticated `/account/orders` list/detail, snapshot items/prices/quantities, server price breakdown, chronological status history, delivery details and payment status. Account/checkout navigation; session-scoped private queries; ownership checks before rendering and payment lookup; four data states and English/Amharic fallback.
   Tests: Node 22 typecheck, lint, build and npm test → passed (379 tests, 44 files). Firefox 360 × 800 CSS viewport: keyboard checkout → orders → detail → list, loading/empty/error/offline, refresh recovery, snapshots/history, foreign-order rejection with no payment fetch; no feature overflow or axe/contrast violations. MSW browser fixtures; physical devices and real payments untested.
   Backend verification: seven `OrderAndCheckoutIntegrationTest` cases passed, including another buyer’s detail request returning 404. Full suite: 129 tests, 0 assertion failures, 4 existing errors (three delivery cleanup foreign-key errors and one PostgreSQL container startup error); no Java changes.
-  Blocked: Buyer order contract exposes no tracking token/mapping (F-508-T1). Backend payment lookup checks authentication but not resource ownership (F-508-P1); frontend order verification does not secure direct API access. Tracking shows unavailable; no API or token is invented. See `features/orders/README.md`.
+  Blocked: Buyer order contract exposes no tracking token/mapping (F-508-T1). F-508-P1 is resolved on `integration/four-agent-baseline` / `0f8ce5f`: backend order-payment reads require matching payer and order buyer; dependent branches must adopt that commit. Tracking shows unavailable; no API or token is invented. See `features/orders/README.md`.
   Delivery: `feat/my-orders` · Commit: `caed304` (isolated branch, awaiting integration). Preserve the other agent’s route table and Account changes when merging.
 
-- [ ] **F-509 · Cancel order** · T2
+- [x] **F-509 · Cancel order** · T2
   Needs: F-508 · Backend: B-804, B-905
   Build: cancel where allowed; explain the refund state.
   Done when: tests cover allowed and forbidden cancellations.
-  Owner: —
+  Owner: @codex · Started: 2026-10-18 · Completed: 2026-10-19 · Branch: `integration/four-agent-baseline` · Commit: `c45cf04`
+  Delivered: Explicit English/Amharic confirmation on owned, freshly verified online order details, matching existing backend PLACED/PAID/PACKED/IN_TRANSIT eligibility. Delivered/cancelled, foreign and unverified/offline orders cannot submit. Duplicate clicks are blocked; uncertain results require a successful status refresh before explicit retry. Only a validated server CANCELLED response updates that order, and older in-flight reads are cancelled before the cache update. Cancellation never claims a refund; existing payment/refund records retain their server states. No new API, offline queue or backend production change.
+  Verification: 638 frontend tests (73 files), typecheck/lint/build pass with existing inspection/bundle warnings. All 15 focused PostgreSQL order tests pass, including eight new cancellation cases for allowed/terminal/foreign/anonymous states, held-stock release and no automatic refund. Firefox 360 px verifies keyboard confirm/keep/focus restoration, offline blocking, cancellation after server response, unchanged partial refund, persisted cancellation after refresh, no overflow and zero order-section axe violations. Browser/API tests use isolated fixtures; no live customer cancellation, real money movement or physical-device claim. F-508 tracking remains blocked separately.
 
 ---
 
 ### FP6: Payments and live tracking
 
-- [ ] **F-601 · Payment flow component** · T1
+- [x] **F-601 · Payment flow component** · T1
   Needs: F-005, F-102 · Backend: B-902, B-903
   Build: start an attempt with an idempotency key; show pending, success and failure; poll or refresh status; timeout message; retry with the same key; never mark success from the client.
   Done when: tests cover success, failure, timeout, duplicate click and a forged success in the URL.
-  Owner: —
+  Owner: @codex · Completed: 2026-10-18 · Branch: `integration/four-agent-baseline` · Commit: `d0f8ac7`
+  Delivered: Existing F-405 modal now shares an abortable payment flow, buyer/target-scoped session key, same-key retries/reopening, 3-second settlement polling, manual refresh, 25-second timeout and stale-session protection. Gateway attempt SUCCESS alone never marks paid: booking/payment reads must confirm settlement. Order ownership is checked before initiation and status lookup; backend security gaps still require enforcement.
+  Verification: 531 frontend tests pass (29 focused payment/booking tests), typecheck/lint/build pass; existing inspection and bundle warnings remain. Firefox 360 px fixture confirms forged URL rejection, pending gateway success, keyboard refresh/focus wrap, one attempt, no horizontal overflow, and zero success-dialog axe violations. No live financial transaction or physical-device claim. See `frontend/src/features/payments/README.md`.
 
-- [ ] **F-602 · Pay each order in a checkout group** · T1
+- [x] **F-602 · Pay each order in a checkout group** · T1
   Needs: F-601, F-506 · Backend: B-902
   Build: sequential or per-order payment UI for a multi-seller checkout; overall group status.
   Done when: paying one order does not mark the others paid.
-  Owner: —
+  Owner: @codex · Completed: 2026-10-18 · Branch: `integration/four-agent-baseline` · Commit: `ed05fa1`
+  Delivered: Each verified online PLACED seller order opens the existing F-601 modal with its fresh server amount/currency/reference. Settlement refetches only that order; no optimistic PAID status or group-wide payment update. English/Amharic progress counts use confirmed order statuses and flag partial/unverified results. Account, offline, cancelled, invalid-total and failed-verification states close or disable payment safely.
+  Verification: 549 frontend tests pass (38 checkout result/payment tests); typecheck/lint/build pass with existing inspection/bundle warnings. Firefox 360 px keyboard fixture pays two orders independently, verifies 1/2 then 2/2, distinct attempt keys/amounts, no overflow and zero checkout axe violations. Service fixtures only; no real financial transaction. F-506 reservation-expiry and backend ownership/tracking gaps remain open.
 
-- [ ] **F-603 · Payment history** · T2
+- [x] **F-603 · Payment history** · T2
   Needs: F-601 · Backend: B-901
   Build: buyer payment list and receipt view.
   Done when: only the buyer's own payments appear.
-  Owner: —
+  Owner: @codex · Completed: 2026-10-18 · Branch: `integration/four-agent-baseline` · Commit: `0f8ce5f`
+  Delivered: Account links to `/account/payments` and `/account/payments/:id`; paginated own-payment history, order/booking references, settled receipt view and gated printing, with English/Amharic strings. Added authenticated payer-filtered backend list/record endpoints, generated their real OpenAPI types, and fixed order-payment reads to require both payer and order ownership (F-508-P1). Auth changes abort/purge old private queries; offline/error/loading/empty states stay explicit; pending/failed/refunded records never become settled receipts from a URL.
+  Verification: 583 frontend tests, typecheck/lint/build pass; 156 backend suite tests pass, with final 20 payment checks passing including cross-payer HTTP rejection and mixed booking/order mapping within two service SQL statements. Firefox 360 px account → history → receipt keyboard journey, print eligibility/offline recovery, foreign-account 404 and receipt axe checks pass without overflow. Browser data is mocked; no live financial transaction or physical-device claim. Existing inspection/bundle warnings remain.
 
 - [ ] **F-604 · Live tracking page** · T1
   Needs: F-304 · Backend: B-1005
@@ -617,11 +626,13 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: the link appears only for orders with a delivery job.
   Owner: —
 
-- [ ] **F-606 · Refund display** · T2
+- [x] **F-606 · Refund display** · T2
   Needs: F-508 · Backend: B-905
   Build: refund status and amounts on orders and bookings.
   Done when: partial and full refunds render.
-  Owner: —
+  Owner: @codex · Completed: 2026-10-18 · Branch: `integration/four-agent-baseline` · Commit: `f687759`
+  Delivered: Shared English/Amharic refund display on owned order details and booking confirmation: original amount, completed refunds, amount not refunded, NONE/PARTIAL/FULL coverage, and paginated references/statuses/reasons/dates. Added payer-scoped refund-summary reads and booking-payment lookup requiring matching booking buyer. Totals and coverage are calculated on the server; pending/failed records never count as completed, missing/error reads remain unknown, and UI never changes payment/order/booking status or issues refunds.
+  Verification: 614 frontend tests (71 files), typecheck/lint/build and 170 backend tests pass. Focused order/payment/refund regression: 73 tests. Real PostgreSQL tests cover partial/full, foreign reads, mixed refund statuses and a four-service-query budget. Firefox 360 px checks partial order/full booking displays, keyboard refresh, offline/reconnect, no overflow and zero order-refund-section axe violations. Browser fixtures only; no live financial transaction or physical-device claim. Existing inspection/bundle warnings remain.
 
 - [ ] **F-607 · Payment and tracking tests** · T1
   Needs: F-602, F-605
@@ -744,11 +755,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: a mismatch is highlighted in a test.
   Owner: —
 
-- [ ] **F-904 · Production batch wizard** · T1
+- [~] **F-904 · Production batch wizard** · T1
   Needs: F-901 · Backend: B-602
   Build: select lots and quantities, enter outputs and losses, unit and conversion note, live input = outputs + losses check, costs.
   Done when: imbalance is blocked and server errors are shown.
-  Owner: —
+  Owner: @antigravity · Started: 2026-10-18
 
 - [ ] **F-905 · Batch detail and lifecycle** · T1
   Needs: F-904 · Backend: B-603, B-606
@@ -968,23 +979,23 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
 
 ### FP14: Reviews
 
-- [ ] **F-1401 · Leave a review** · T2
+- [x] **F-1401 · Leave a review** · T2
   Needs: F-404, F-508 · Backend: B-1202
   Build: rating and comment, shown only after a completed booking or delivered order; one review per item.
   Done when: early and duplicate reviews are blocked with clear messages.
-  Owner: —
+  Done: @codex · 2026-10-19 · Source: `354d0db` (backend prerequisite `b431e6b`). Delivered-order and freshly verified completed-booking review forms; English/Amharic, online-only, one review per item, clear duplicate/ineligibility messages. Typecheck/lint/build, 682 frontend tests and 360 px keyboard/axe checks pass. Existing F-508 detail supports reviews; tracking stays blocked separately.
 
-- [ ] **F-1402 · My reviews** · T3
+- [x] **F-1402 · My reviews** · T3
   Needs: F-1401
   Build: list of the user's reviews.
   Done when: renders.
-  Owner: —
+  Done: @codex · 2026-10-19 · Source: `b8035a1`. `/account/reviews` and Account link use the authenticated, reviewer-scoped paginated endpoint, including non-public reviews. English/Amharic; empty/loading/error/offline states; session-scoped query cleanup. Tests: 714 frontend (77 files), 22 focused backend, typecheck/lint/build, 360 px keyboard/privacy/axe checks pass. [Handoff](frontend-reviews-handoff.md).
 
-- [ ] **F-1403 · Review tests** · T2
+- [x] **F-1403 · Review tests** · T2
   Needs: F-1401
   Build: tests for eligibility and duplicates.
   Done when: suite passes.
-  Owner: —
+  Done: @codex · 2026-10-19 · Source: `354d0db` / `b431e6b`. 44 frontend review cases plus 14 focused backend cases cover eligibility, duplicate rejection, matching purchase targets, response validation, account/target changes, explicit retry and timeout. Complete frontend suite: 682 tests pass (75 files). Browser review-form axe checks: zero violations. See [handoff](frontend-reviews-handoff.md).
 
 ---
 
@@ -1100,11 +1111,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: budgets and results are recorded; initial route loads quickly on a throttled connection.
   Owner: —
 
-- [ ] **F-1706 · Security review** · T1
+- [x] **F-1706 · Security review** · T1
   Needs: F-201
   Build: CSP, XSS review, token handling check, dependency audit, no secrets in the build, no tokens or personal data in logs, source map policy.
   Done when: checklist completed in `docs/decisions.md`.
-  Owner: —
+  Done: @codex · 2026-10-19 · Source: `f741a09`. Review checklist in ADR-005 and [security report](frontend-security-review.md). Build CSP/hosting headers, mock-credential removal, redacted React errors, source-map policy and artifact gate verified. Tests: 730 frontend (79 files), typecheck/lint/build/security:check pass; dependency audit: zero known vulnerabilities; Firefox verifies CSP and escaped review markup. Review completed, not release approval: SEC-01 booking details remain after logout and are handed to OpenCode F-110; localStorage and deployment gates are documented.
 
 - [ ] **F-1707 · USSD simulator tool** · T1
   Needs: F-001 · Backend: B-1105, B-1106
@@ -1220,7 +1231,7 @@ Confirm each against the real backend before the affected task. Do not invent en
 | F-506-E1 | F-506 | Where is the authoritative per-order reservation deadline? | Open: live OpenAPI `CheckoutResponse` and `OrderDetailResponse` have no expiry field and no reservation-read endpoint. Backend must expose the deadline and regenerate the contract. The frontend shows unknown timing; only explicit server cancellation history is treated as expired. Generic countdown is tested but cannot be wired to live data yet. |
 
 | F-508-T1 | F-508 | How does a buyer obtain an order’s delivery tracking token? | Open: live `OrderDetailResponse` has no tracking reference and no buyer order-to-delivery lookup exists. Provider/enterprise delivery-job endpoints are not a buyer mapping. Expose an authorized tracking token/reference, regenerate types, then connect `/track/:token`; frontend currently shows unavailable. |
-| F-508-P1 | F-508 | Does payment lookup enforce ownership? | Security gap: `BuyerPaymentController.getPaymentByOrderId` uses only `isAuthenticated()`; `PaymentService.getPaymentByOrderId` looks up payment by order UUID without checking the buyer. Frontend verifies the order before its lookup, but direct API access remains unprotected. Backend must enforce payer/order ownership. |
+| F-508-P1 | F-508 | Does payment lookup enforce ownership? | Resolved on `integration/four-agent-baseline` / `0f8ce5f`: order-payment reads filter by authenticated payer and order buyer; cross-payer/foreign-order reads return 404. New receipt/history reads are payer-scoped. Backend HTTP and query tests pass. Adopt this commit before claiming the fix on another branch. Payment-attempt authorization/idempotency is a separate remaining review item. |
 
 ## 11. Activity log
 
@@ -1271,6 +1282,10 @@ Add a row for every claim, completion and blocker. Newest at the bottom.
 | 2026-10-18 | @codex | F-107, F-501, F-507 | Marked [x] at user request | Implementation complete on referenced branches; outstanding verification and merge notes remain applicable. |
 
 | 2026-10-18 | @codex | F-504 | Completed on isolated branch | 731dc57: cart/add controls, English/Amharic and 21 UI tests; 267 total tests, typecheck/lint/build and Firefox 360 px keyboard/contrast/all-state checks pass. Awaiting merge. |
+| 2026-10-19 | @codex | F-1401, F-1403 | Completed | Verified purchase review forms and eligibility/duplicate coverage; source `354d0db`, backend `b431e6b`; 682 frontend tests, 14 focused backend tests, build/lint and 360 px keyboard/axe checks pass |
+| 2026-10-19 | @codex | F-1402 | Completed | `b8035a1`: authenticated paginated My reviews, including non-public records; 714 frontend tests, 22 focused backend tests, build/lint and 360 px keyboard/axe checks pass; FP14 complete |
+| 2026-10-19 | @codex | F-1706 | Review completed; release blocker recorded | `f741a09`: CSP, artifact gate, mock removal, safe error logging; 730 frontend tests and browser checks pass; SEC-01 booking logout privacy assigned to OpenCode F-110 |
+| 2026-10-19 | @codex | User-requested dashboard responsiveness | Completed outside feature count | `21da3c4`: shared layout/control fixes applied to active checkout; 20 authenticated views × five widths pass; 735 integration tests and 5 active-checkout navigation tests pass; feature ownership preserved |
 
 ## 12. Change log (requirements)
 

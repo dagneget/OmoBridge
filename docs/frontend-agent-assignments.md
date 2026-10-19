@@ -106,13 +106,13 @@ Existing statuses below are a snapshot, not new claims. The `Needs` column is pr
 | F-603 | Not started | T2 | Payment history | F-601 |
 | F-606 | Not started | T2 | Refund display | F-508 |
 | F-607 | Not started | T1 | Payment and tracking tests | F-602, F-605 |
-| F-1401 | Not started | T2 | Leave a review | F-404, F-508 |
-| F-1402 | Not started | T3 | My reviews | F-1401 |
-| F-1403 | Not started | T2 | Review tests | F-1401 |
+| F-1401 | Done | T2 | Leave a review | F-404, F-508 |
+| F-1402 | Done | T3 | My reviews | F-1401 |
+| F-1403 | Done | T2 | Review tests | F-1401 |
 | F-1701 | Not started | T1 | Critical-flow component tests | T1 feature tasks |
 | F-1702 | Not started | T2 | Contract tests | F-007 |
 | F-1703 | Not started | T1 | End-to-end golden path | T1 feature tasks |
-| F-1706 | Not started | T1 | Security review | F-201 |
+| F-1706 | Done | T1 | Security review | F-201 |
 | F-1708 | Not started | T1 | Demo script and demo checklist | F-1703 |
 | F-1709 | Not started | T2 | Final report and deployment notes | F-1701 to F-1708 |
 
@@ -182,3 +182,39 @@ Send each agent this document and the repository path. The common instructions a
 - **Kiro:** “Own farmer/guide/admin, languages/accessibility/performance and the existing hotels follow-up in the assignment document. Start F-1001 after claiming it. Reuse F-311 language-switcher work, preserve feature owners' active edits, and coordinate shared i18n/layout/config changes through Codex.”
 
 Allocation check: **17 + 17 + 23 + 23 = 80 unfinished tasks, each assigned exactly once.** This document does not start any of the new agents or claim their tasks.
+
+## Published integration baseline · 2026-10-18
+
+Use `integration/four-agent-baseline` (published commit `cab412f`, verified source `d388615`); see [baseline handoff](frontend-integration-baseline.md). It includes primary through `37dc470`, Codex buyer flows, and shared session startup fixes. Frontend 507 tests and backend 140 tests pass; full verification details and prerequisites are in the handoff. Merge/rebase into a saved task branch from a separate worktree; do not switch the shared active checkout.
+
+The allocation above is the original snapshot. At this baseline cutoff, 56/134 features are done, 75 not started and three blocked. F-809/F-810 are complete. Preserve later F-901/F-1001/F-1101 claims and commits; they are outside this baseline. Codex next owns F-601 and the documented payment/order contract blockers.
+
+
+Codex delivery update · 2026-10-18: F-601 is complete on `integration/four-agent-baseline` / `d0f8ac7` (531 frontend tests; typecheck/lint/build and 360 px payment fixture pass). Next: F-602 checkout-group wiring using the shared payment component. Existing backend ownership/expiry/tracking blockers remain open. Preserve all other active claims.
+
+
+Codex delivery update · 2026-10-18: F-602 is complete on `integration/four-agent-baseline` / `ed05fa1`. Per-seller checkout payments use F-601, with independent server-confirmed progress (549 frontend tests; typecheck/lint/build; 360 px keyboard/axe fixture pass). Next: F-603 payment history, subject to an authorized buyer payment-list/receipt contract. F-506 expiry and backend ownership/tracking blockers remain open. Preserve other agents’ claims and source changes.
+
+
+Codex delivery update · 2026-10-18: F-603 is complete on `integration/four-agent-baseline` / `0f8ce5f` (583 frontend tests, 156 backend tests; final 20 payment checks and 360 px keyboard/receipt axe checks pass). Own-payment history and receipts now have real payer-scoped endpoints; F-508-P1 is resolved on this branch. Next Codex task: F-606 refund display. Tracking and reservation-deadline gaps remain open. Adopt the integration branch into saved task worktrees; preserve active source changes.
+
+
+Codex delivery update · 2026-10-18: F-606 is complete on `integration/four-agent-baseline` / `f687759` (614 frontend tests, 170 backend tests; typecheck/lint/build and 360 px partial-order/full-booking refund checks pass). Refund totals and coverage are server-calculated and payer-scoped. No refund issuance UI or other agent source was changed. F-607 remains dependent on OpenCode’s F-605 tracking integration; preserve that ownership. F-506 expiry and F-508 tracking remain blocked.
+
+
+Codex delivery update · 2026-10-19: F-509 is complete on `integration/four-agent-baseline` / `c45cf04` (638 frontend tests, 15 focused PostgreSQL order tests; typecheck/lint/build and 360 px keyboard/axe checks pass). Buyer cancellation uses the existing endpoint with confirmation, same-account checks, uncertain-response recovery and no refund inference. The existing F-508 order-detail implementation is sufficient for this action; F-508 tracking and F-506 expiry remain blocked. F-607 still depends on OpenCode’s F-605; preserve that ownership when selecting the next ready Codex task.
+
+
+Codex progress update · 2026-10-19: F-1401 claimed in the isolated integration worktree. Verified backend prerequisites now reject early booking reviews, unrelated target items, and ambiguous order/booking proof. Nine eligibility unit cases and five PostgreSQL integration cases pass. F-1401 remains in progress until the frontend form is implemented; F-1402/F-1403 remain unchecked. Other agents’ ownership is unchanged.
+
+
+Codex delivery update · 2026-10-19: F-1401 and F-1403 are complete on `integration/four-agent-baseline` / `354d0db` with backend prerequisite `b431e6b`. All 682 frontend tests, 14 focused backend tests, typecheck/lint/build and 360 px keyboard/axe review checks pass. Next: F-1402 My reviews, which needs an authenticated reviewer-scoped list contract. Preserve OpenCode’s F-605/F-607 dependency and all other active ownership.
+
+
+Codex delivery update · 2026-10-19: F-1402 is complete on `integration/four-agent-baseline` / `b8035a1`, completing FP14. The Account review list uses a real principal-scoped paginated endpoint and regenerated OpenAPI types, including non-public reviews. Validation: 714 frontend tests, 22 focused backend checks, typecheck/lint/build, two-query page budget and 360 px keyboard/privacy/axe checks pass. F-607 remains dependent on OpenCode’s F-605; F-506 expiry and F-508 tracking remain blocked. Next Codex work should focus on available FP17 checks while preserving other agents’ ownership.
+
+
+Codex security update · 2026-10-19: F-1706 review is complete on `integration/four-agent-baseline` / `f741a09`. CSP, safe render-error logging, removal of mock credentials from the default production bundle, explicit source-map policy and a production artifact gate are verified. All 730 frontend tests and build/typecheck/lint/security checks pass; npm audit reports zero known vulnerabilities. **Release blocker SEC-01:** loaded booking details remain visible after logout, confirmed in Firefox with demo data. OpenCode should address this under its allocated F-110 cache/privacy cleanup, adding account-scoped booking queries, immediate hiding and old-session cleanup. Other ownership remains unchanged. This review does not approve production release.
+
+
+Dashboard responsiveness handoff · 2026-10-19: At the user’s request, Codex completed shared layout/control fixes in `21da3c4` and applied the nine reviewed shared files to the active checkout. Other agents’ feature pages and staged changes were preserved; the active Modal’s original props were retained. All 20 signed-in dashboard views pass 100 width checks, including the newest enterprise/farmer pages. Integration tests: 735 passing; active responsive navigation tests: 5 passing. See `docs/dashboard-responsive-review.md` before replaying shared-file changes; the active checkout already contains the responsive edits. Original task ownership and task counts remain unchanged.

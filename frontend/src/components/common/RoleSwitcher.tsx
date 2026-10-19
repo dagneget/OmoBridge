@@ -32,7 +32,7 @@ export default function RoleSwitcher() {
   };
 
   return (
-    <div className="flex items-center gap-1.5 bg-muted/60 hover:bg-muted border border-border px-2.5 py-1 rounded-lg text-xs transition-colors">
+    <div className="flex max-w-full min-w-0 items-center gap-1.5 bg-muted/60 hover:bg-muted focus-within:ring-2 focus-within:ring-emerald-600 focus-within:ring-offset-2 border border-border px-2.5 py-1 rounded-lg text-xs transition-colors">
       <ArrowLeftRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" aria-hidden="true" />
       <label htmlFor="role-switcher-select" className="sr-only">
         Switch Active Role
@@ -41,7 +41,7 @@ export default function RoleSwitcher() {
         id="role-switcher-select"
         value={currentRole}
         onChange={handleRoleChange}
-        className="bg-transparent font-medium text-foreground focus:outline-none cursor-pointer pr-1"
+        className="min-h-[44px] min-w-0 max-w-full bg-transparent font-medium text-foreground focus:outline-none cursor-pointer pr-1"
         aria-label="Switch Active Role"
       >
         {normalizedUserRoles.map((role) => (

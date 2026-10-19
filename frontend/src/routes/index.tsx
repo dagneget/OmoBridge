@@ -30,6 +30,8 @@ const OfflinePage = lazy(() => import('../pages/public/OfflinePage'));
 const DesignTokensPage = lazy(() => import('../pages/public/DesignTokensPage'));
 const NotFoundPage = lazy(() => import('../pages/public/NotFoundPage'));
 const JoinPage = lazy(() => import('../pages/public/JoinPage'));
+const OrdersPage = lazy(() => import('../pages/account/OrdersPage'));
+const OrderDetailPage = lazy(() => import('../pages/account/OrderDetailPage'));
 const AccountPage = lazy(() => import('../pages/account/AccountPage'));
 const MyBookingsPage = lazy(() => import('../pages/account/MyBookingsPage'));
 
@@ -53,6 +55,14 @@ const PricingManagementPage = lazy(() => import('../pages/dashboard/enterprise/P
 const SupplyIntakePage = lazy(() => import('../pages/dashboard/enterprise/SupplyIntakePage'));
 const InspectionPage = lazy(() => import('../pages/dashboard/enterprise/InspectionPage'));
 const FarmerPayablesPage = lazy(() => import('../pages/dashboard/enterprise/FarmerPayablesPage'));
+const InventoryManagementPage = lazy(() => import('../pages/dashboard/enterprise/InventoryManagementPage'));
+const ProductionBatchWizardPage = lazy(() => import('../pages/dashboard/enterprise/ProductionBatchWizardPage'));
+const ProductionBatchDetailPage = lazy(() => import('../pages/dashboard/enterprise/ProductionBatchDetailPage'));
+const EnterpriseProductsPage = lazy(() => import('../pages/dashboard/enterprise/EnterpriseProductsPage'));
+const EnterpriseOrdersPage = lazy(() => import('../pages/dashboard/enterprise/EnterpriseOrdersPage'));
+const EnterpriseTourismPage = lazy(() => import('../pages/dashboard/enterprise/EnterpriseTourismPage'));
+const EnterpriseBookingsPage = lazy(() => import('../pages/dashboard/enterprise/EnterpriseBookingsPage'));
+const EnterpriseReportsPage = lazy(() => import('../pages/dashboard/enterprise/EnterpriseReportsPage'));
 const FarmerDashboardPage = lazy(() => import('../pages/dashboard/FarmerDashboardPage'));
 const DeliveryDashboardPage = lazy(() => import('../pages/dashboard/DeliveryDashboardPage'));
 const GuideDashboardPage = lazy(() => import('../pages/dashboard/GuideDashboardPage'));
@@ -105,6 +115,8 @@ export default function AppRoutes() {
             <Route path="/booking/confirmation/:id" element={<BookingConfirmationPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/account/orders" element={<OrdersPage />} />
+            <Route path="/account/orders/:id" element={<OrderDetailPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/trace/:token" element={<PublicTracePage />} />
             <Route path="/track/:token" element={<LiveTrackingPage />} />
@@ -204,6 +216,86 @@ export default function AppRoutes() {
                 element={
                   <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
                     <FarmerPayablesPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/payments"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <FarmerPayablesPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/inventory"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <InventoryManagementPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/production"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <ProductionBatchWizardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/production/new"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <ProductionBatchWizardPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/production/:batchId"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <ProductionBatchDetailPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/products"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <EnterpriseProductsPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/orders"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <EnterpriseOrdersPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/tourism"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <EnterpriseTourismPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/bookings"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <EnterpriseBookingsPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/dashboard/enterprise/reports"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <EnterpriseReportsPage />
                   </RoleGuard>
                 }
               />

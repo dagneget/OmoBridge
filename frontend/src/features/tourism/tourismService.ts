@@ -1,6 +1,7 @@
 import httpClient from '../../services/httpClient';
 import type {
   TourPackageResponse,
+  TourPackageRequest,
   Hotel,
   GuideResponse,
   TransportService,
@@ -82,4 +83,45 @@ export const tourismService = {
     );
     return response.data.data || [];
   },
+
+  /**
+   * Enterprise Tourism Package Management (F-911)
+   */
+  async getEnterprisePackages(enterpriseId: string): Promise<TourPackageResponse[]> {
+    const response = await httpClient.get<StandardApiResponse<TourPackageResponse[]>>(
+      `/api/v1/enterprises/${enterpriseId}/tourism/packages`
+    );
+    return response.data.data || [];
+  },
+
+  async createPackage(enterpriseId: string, request: TourPackageRequest): Promise<TourPackageResponse> {
+    const response = await httpClient.post<StandardApiResponse<TourPackageResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/tourism/packages`,
+      request
+    );
+    if (!response.data.data) {
+      throw new Error(response.data.message || 'Failed to create tour package');
+    }
+    return response.data.data;
+  },
+
+  async updatePackage(
+    enterpriseId: string,
+    id: string,
+    request: TourPackageRequest
+  ): Promise<TourPackageResponse> {
+    const response = await httpClient.put<StandardApiResponse<TourPackageResponse>>(
+      `/api/v1/enterprises/${enterpriseId}/tourism/packages/${id}`,
+      request
+    );
+    if (!response.data.data) {
+      throw new Error(response.data.message || 'Failed to update tour package');
+    }
+    return response.data.data;
+  },
+
+  async deletePackage(enterpriseId: string, id: string): Promise<void> {
+    await httpClient.delete(`/api/v1/enterprises/${enterpriseId}/tourism/packages/${id}`);
+  },
 };
+

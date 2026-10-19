@@ -27,7 +27,7 @@ export function Table<T>({
   className = '',
 }: TableProps<T>) {
   return (
-    <div className={`w-full overflow-x-auto rounded-xl border border-border bg-card ${className}`}>
+    <div tabIndex={0} className={`focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 min-w-0 max-w-full w-full overflow-x-auto rounded-xl border border-border bg-card ${className}`}>
       <table className="w-full text-left text-sm text-foreground border-collapse">
         <thead className="bg-muted/50 border-b border-border text-xs uppercase text-muted-foreground font-semibold tracking-wider">
           <tr>
