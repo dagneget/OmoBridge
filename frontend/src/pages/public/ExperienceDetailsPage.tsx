@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import { normalizeLanguage } from '../../i18n/languages';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -48,6 +50,8 @@ function CategoryBadgeIcon({ category, className }: { category?: string; classNa
 }
 
 export default function ExperienceDetailsPage() {
+  const { i18n } = useTranslation();
+  const language = normalizeLanguage(i18n.language);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -58,10 +62,10 @@ export default function ExperienceDetailsPage() {
     error,
     refetch,
   } = useQuery({
-    queryKey: queryKeys.tourism.packages.detail(id || ''),
+    queryKey: queryKeys.tourism.packages.detail(id || '', language),
     queryFn: () => {
       if (!id) throw new Error('Package ID is required');
-      return tourismService.getPackageById(id);
+      return tourismService.getPackageById(id, language);
     },
     enabled: Boolean(id),
   });

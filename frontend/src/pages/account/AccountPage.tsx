@@ -20,39 +20,22 @@ import { Card, Button, StatusChip } from '../../components/common';
 import { useAuthStore } from '../../features/auth/authStore';
 import { Roles, getDefaultDashboardRoute } from '../../features/auth/roleHelpers';
 
-const SUPPORTED_LANGUAGES = [
-  { code: 'en', name: 'English (US / International)', native: 'English' },
-  { code: 'am', name: 'Amharic (Ethiopia)', native: 'አማርኛ' },
-  { code: 'hbr', name: 'Hamer-Banna (South Omo)', native: 'Hamer' },
-  { code: 'dsh', name: 'Dasenech (Lower Omo)', native: 'Daasanach' },
-  { code: 'tsm', name: 'Tsamai (Woito Valley)', native: 'Tsamai' },
-];
+import { useTranslation } from 'react-i18next';
+import { SUPPORTED_LANGUAGES, LANG_STORAGE_KEY, normalizeLanguage } from '../../i18n/languages';
+import { changeLanguage } from '../../i18n/changeLanguage';
 
-export const LANGUAGE_STORAGE_KEY = 'omobridge_language';
+export const LANGUAGE_STORAGE_KEY = LANG_STORAGE_KEY;
 
 export default function AccountPage() {
-  const { user, setUser, logout } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
-  const [selectedLang, setSelectedLang] = useState<string | null>(null);
+  const { i18n } = useTranslation();
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const currentLang = normalizeLanguage(i18n.language);
 
-  const currentLang =
-    selectedLang ||
-    user?.preferredLanguage ||
-    (typeof window !== 'undefined' ? localStorage.getItem(LANGUAGE_STORAGE_KEY) : null) ||
-    'en';
-
-  const handleLanguageChange = (newCode: string) => {
-    setSelectedLang(newCode);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(LANGUAGE_STORAGE_KEY, newCode);
-    }
-
-    if (user) {
-      const updatedUser = { ...user, preferredLanguage: newCode };
-      setUser(updatedUser);
-    }
+  const handleLanguageChange = async (newCode: string) => {
+    await changeLanguage(newCode);
 
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 2500);
@@ -239,7 +222,7 @@ export default function AccountPage() {
               </h2>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Choose your preferred interface language. Changes persist across sessions and API requests.
+              Choose your preferred language for available translations. Hamer and Karo interface text falls back to Amharic, then English. Changes persist across sessions and API requests.
             </p>
 
             {saveSuccess && (

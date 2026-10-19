@@ -1,3 +1,4 @@
+import { getPreferredLanguage } from '../i18n/languages';
 import axios, {
   type AxiosInstance,
   type AxiosRequestConfig,
@@ -8,7 +9,7 @@ import { generateIdempotencyKey } from '../utils/idempotency';
 
 export const BASE_API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 export const TOKEN_STORAGE_KEY = 'omobridge_token';
-export const LANG_STORAGE_KEY = 'omobridge_lang';
+export { LANG_STORAGE_KEY } from '../i18n/languages';
 
 // Custom interface extending config with retry count
 interface RetryableRequestConfig extends InternalAxiosRequestConfig {
@@ -35,7 +36,7 @@ export function createHttpClient(baseURL: string = BASE_API_URL): AxiosInstance 
       }
 
       // Attach Preferred Language
-      const lang = typeof window !== 'undefined' ? localStorage.getItem(LANG_STORAGE_KEY) || 'en' : 'en';
+      const lang = getPreferredLanguage();
       if (!config.headers['Accept-Language']) {
         config.headers['Accept-Language'] = lang;
       }

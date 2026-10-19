@@ -1,3 +1,4 @@
+import useShellText from '../../i18n/useShellText';
 import { useState, Suspense } from 'react';
 import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom';
 import {
@@ -15,12 +16,15 @@ import {
 import { TOKEN_STORAGE_KEY } from '../../services/httpClient';
 import { OfflineBanner } from '../common/OfflineBanner';
 import { LanguageSwitcher } from '../common/LanguageSwitcher';
+import { useCartStore } from '../../features/cart';
 
 export default function PublicLayout() {
+  const shellText = useShellText();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const navigate = useNavigate();
 
+  const cartItemCount = useCartStore((state) => state.items.length);
   const token = typeof window !== 'undefined' ? localStorage.getItem(TOKEN_STORAGE_KEY) : null;
 
   const toggleTheme = () => {
@@ -46,7 +50,7 @@ export default function PublicLayout() {
 
       {/* Top Notification / Banner */}
       <div className="bg-emerald-900 text-emerald-100 text-xs py-1.5 px-4 text-center font-medium">
-        Connecting South Omo agricultural producers and community eco-tourism directly to markets
+        {shellText("Connecting South Omo agricultural producers and community eco-tourism directly to markets")}
       </div>
 
       {/* Main Navbar */}
@@ -86,7 +90,7 @@ export default function PublicLayout() {
                   }`
                 }
               >
-                {label}
+                {shellText(label)}
               </NavLink>
             ))}
           </nav>
@@ -94,13 +98,13 @@ export default function PublicLayout() {
           {/* Right Actions */}
           <div className="flex items-center gap-2">
             {/* Language Switcher */}
-            <LanguageSwitcher />
+            <LanguageSwitcher compact />
 
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
               type="button"
-              aria-label="Toggle Dark Mode"
+              aria-label={shellText("Toggle Dark Mode")}
               className="touch-target p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -109,10 +113,15 @@ export default function PublicLayout() {
             {/* Cart Link */}
             <Link
               to="/cart"
-              aria-label="Shopping Cart"
+              aria-label={shellText("Shopping Cart")}
               className="touch-target p-2 relative text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               <ShoppingBag className="w-5 h-5" />
+              {cartItemCount > 0 && (
+                <span className="absolute 0 top-0.5 right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-600 px-1 text-[10px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-slate-900">
+                  {cartItemCount}
+                </span>
+              )}
             </Link>
 
             {/* Sign in / Dashboard */}
@@ -123,14 +132,14 @@ export default function PublicLayout() {
                 className="touch-target hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-sm font-medium shadow-sm transition-colors cursor-pointer"
               >
                 <User className="w-4 h-4" />
-                Dashboard
+                {shellText("Dashboard")}
               </button>
             ) : (
               <Link
                 to="/login"
                 className="touch-target hidden sm:inline-flex items-center justify-center px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-sm font-medium shadow-sm transition-colors"
               >
-                Sign In
+                {shellText("Sign In")}
               </Link>
             )}
 
@@ -138,7 +147,7 @@ export default function PublicLayout() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Open mobile menu"
+              aria-label={shellText("Open mobile menu")}
               className="touch-target md:hidden p-2 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -157,20 +166,20 @@ export default function PublicLayout() {
                 className="touch-target flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
               >
                 <Icon className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
-                {label}
+                {shellText(label)}
               </Link>
             ))}
             <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
               <div className="flex items-center justify-between px-2 py-1">
                 <span className="text-xs font-semibold text-slate-500">Language / ቋንቋ</span>
-                <LanguageSwitcher />
+                <LanguageSwitcher compact />
               </div>
               <Link
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
                 className="touch-target w-full flex items-center justify-center px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg font-medium text-base shadow-sm"
               >
-                Sign In / Register
+                {shellText("Sign In / Register")}
               </Link>
             </div>
           </div>
@@ -212,30 +221,30 @@ export default function PublicLayout() {
                 የደቡብ ኦሞ አርሶ አደሮች፣ የቱሪዝም ድርጅቶች እና የሸማቾች ዲጂታል ድልድይ።
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Promoting ethical trade, community consent, and sustainable eco-tourism in South Omo, Ethiopia.
+                {shellText("Promoting ethical trade, community consent, and sustainable eco-tourism in South Omo, Ethiopia.")}
               </p>
             </div>
 
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
-                Eco-Tourism
+                {shellText("Eco-Tourism")}
               </h3>
               <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
-                <li><Link to="/tourism" className="hover:text-emerald-700">Tour Packages</Link></li>
-                <li><Link to="/hotels" className="hover:text-emerald-700">Resorts & Lodges</Link></li>
-                <li><Link to="/guides" className="hover:text-emerald-700">Local Certified Guides</Link></li>
-                <li><Link to="/transport" className="hover:text-emerald-700">4WD Transport Services</Link></li>
-                <li><Link to="/testimonials" className="hover:text-emerald-700">Visitor Stories & Reviews</Link></li>
+                <li><Link to="/tourism" className="hover:text-emerald-700">{shellText("Tour Packages")}</Link></li>
+                <li><Link to="/hotels" className="hover:text-emerald-700">{shellText("Resorts & Lodges")}</Link></li>
+                <li><Link to="/guides" className="hover:text-emerald-700">{shellText("Local Certified Guides")}</Link></li>
+                <li><Link to="/transport" className="hover:text-emerald-700">{shellText("4WD Transport Services")}</Link></li>
+                <li><Link to="/testimonials" className="hover:text-emerald-700">{shellText("Visitor Stories & Reviews")}</Link></li>
               </ul>
             </div>
 
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
-                Local Products
+                {shellText("Local Products")}
               </h3>
               <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
-                <li><Link to="/products" className="hover:text-emerald-700">Wild Forest Honey</Link></li>
-                <li><Link to="/products" className="hover:text-emerald-700">Organic Sesame & Grains</Link></li>
+                <li><Link to="/products" className="hover:text-emerald-700">{shellText("Wild Forest Honey")}</Link></li>
+                <li><Link to="/products" className="hover:text-emerald-700">{shellText("Organic Sesame & Grains")}</Link></li>
                 <li><Link to="/products" className="hover:text-emerald-700">Handcrafted Beadwork</Link></li>
                 <li><Link to="/trace/TRACE-HONEY-001" className="hover:text-emerald-700">Scan QR Traceability</Link></li>
               </ul>
@@ -247,7 +256,7 @@ export default function PublicLayout() {
               </h3>
               <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
                 <li><Link to="/safety-guidelines" className="hover:text-emerald-700">Cultural Etiquette & Photos</Link></li>
-                <li><Link to="/about" className="hover:text-emerald-700">About Kinka</Link></li>
+                <li><Link to="/about" className="hover:text-emerald-700">{shellText("About Kinka")}</Link></li>
                 <li><Link to="/contact" className="hover:text-emerald-700">Contact & Support Desks</Link></li>
                 <li><Link to="/design-tokens" className="hover:text-emerald-700">Design System & Amharic</Link></li>
               </ul>

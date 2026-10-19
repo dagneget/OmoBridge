@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import { normalizeLanguage } from '../../i18n/languages';
 import React, { useState, useRef } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -33,6 +35,8 @@ import { generateIdempotencyKey } from '../../utils/idempotency';
 import type { SessionResponse, TourPackageResponse, PriceBreakdownResponse } from '../../types/api';
 
 export default function BookingPage() {
+  const { i18n } = useTranslation();
+  const language = normalizeLanguage(i18n.language);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuthStore();
@@ -62,8 +66,8 @@ export default function BookingPage() {
     isLoading: isPackageLoading,
     isError: isPackageError,
   } = useQuery<TourPackageResponse>({
-    queryKey: ['tourism', 'package', packageId],
-    queryFn: () => tourismService.getPackageById(packageId),
+    queryKey: ['tourism', 'package', packageId, language],
+    queryFn: () => tourismService.getPackageById(packageId, language),
     enabled: Boolean(packageId),
   });
 

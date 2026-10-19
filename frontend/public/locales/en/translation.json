@@ -18,7 +18,9 @@
     "refresh": "Refresh",
     "viewAll": "View All",
     "today": "Today",
-    "na": "N/A"
+    "na": "N/A",
+    "language": "Language",
+    "switchLanguage": "Switch to"
   },
   "farmer": {
     "dashboard": {

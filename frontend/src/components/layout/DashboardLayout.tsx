@@ -1,3 +1,5 @@
+import useShellText from '../../i18n/useShellText';
+import { LanguageSwitcher } from '../common/LanguageSwitcher';
 import { useEffect, useRef, useState, Suspense } from 'react';
 import './dashboard.css';
 import { useDashboardText } from './useDashboardText';
@@ -25,6 +27,7 @@ import { useAuthStore } from '../../features/auth/authStore';
 import { normalizeRole, Roles } from '../../features/auth/roleHelpers';
 
 export default function DashboardLayout() {
+  const shellText = useShellText();
   const t = useDashboardText();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
@@ -263,7 +266,7 @@ export default function DashboardLayout() {
           <button
             type="button"
             onClick={() => setSidebarOpen(false)}
-            aria-label="Close sidebar"
+            aria-label={shellText("Close sidebar")}
             data-sidebar-close
             className="lg:hidden touch-target p-1 text-slate-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
           >
@@ -288,7 +291,7 @@ export default function DashboardLayout() {
               }
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
-              <span>{label}</span>
+              <span>{shellText(label)}</span>
             </NavLink>
           ))}
         </nav>
@@ -297,7 +300,7 @@ export default function DashboardLayout() {
         <div className="shrink-0 p-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
           {user && (
             <div className="px-3 py-2 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-xs space-y-1">
-              <span className="text-slate-400 block">Signed in as:</span>
+              <span className="text-slate-400 block">{shellText("Signed in as:")}</span>
               <span className="font-semibold text-slate-700 dark:text-slate-200 truncate block">
                 {user.fullName || user.phoneNumber}
               </span>
@@ -309,7 +312,7 @@ export default function DashboardLayout() {
             className="touch-target w-full flex items-center gap-2.5 px-3.5 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
-            <span>Sign Out</span>
+            <span>{shellText("Sign Out")}</span>
           </button>
         </div>
       </aside>
@@ -327,7 +330,7 @@ export default function DashboardLayout() {
               type="button"
               onClick={() => setSidebarOpen(true)}
               ref={toggle}
-              aria-label="Open sidebar menu"
+              aria-label={shellText("Open sidebar menu")}
               aria-expanded={mobileOpen}
               aria-controls="dashboard-navigation"
               className="lg:hidden shrink-0 touch-target p-2 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -340,12 +343,13 @@ export default function DashboardLayout() {
           </div>
 
           <div className="dashboard-header-actions flex min-w-0 flex-wrap items-center gap-2">
+            <LanguageSwitcher compact />
             <RoleSwitcher />
             <Link
               to="/"
               className="touch-target text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700"
             >
-              Storefront
+              {shellText("Storefront")}
             </Link>
           </div>
         </header>

@@ -18,7 +18,9 @@
     "refresh": "አድስ",
     "viewAll": "ሁሉንም ይመልከቱ",
     "today": "ዛሬ",
-    "na": "የለም"
+    "na": "የለም",
+    "language": "ቋንቋ",
+    "switchLanguage": "ቋንቋ ይቀይሩ፦"
   },
   "farmer": {
     "dashboard": {

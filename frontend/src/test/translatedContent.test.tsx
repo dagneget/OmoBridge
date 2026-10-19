@@ -6,6 +6,8 @@ import { LanguageSwitcher } from '../components/common/LanguageSwitcher';
 import PublicLayout from '../components/layout/PublicLayout';
 import i18n from '../i18n';
 import { httpClient, LANG_STORAGE_KEY } from '../services/httpClient';
+import { getPreferredLanguage } from '../i18n/languages';
+import { tourismService } from '../features/tourism/tourismService';
 import { queryClient } from '../services/queryClient';
 
 function createTestQueryClient() {
@@ -86,6 +88,34 @@ describe('Translated content and language switching (F-311)', () => {
     // Switch back to English
     i18n.changeLanguage('en');
     expect(i18n.t('nav.home')).toBe('Home');
+  });
+
+  it.each(['amf', 'kxh'])('sends %s to the API while preserving the selected language with fallback text', async (language) => {
+    renderLanguageSwitcher();
+    fireEvent.click(screen.getByTestId(`lang-btn-${language}`));
+    await waitFor(() => expect(i18n.language).toBe(language));
+    expect(localStorage.getItem(LANG_STORAGE_KEY)).toBe(language);
+    expect(screen.getByTestId(`lang-btn-${language}`)).toHaveAttribute('aria-pressed', 'true');
+    expect(i18n.t('nav.home')).toBe('ዋና ገጽ');
+    expect(document.documentElement.lang).toBe(language);
+
+    const adapter = vi.fn(async (config) => ({ data: { data: [] }, status: 200, statusText: 'OK', headers: {}, config }));
+    await httpClient.get('/language-test', { adapter });
+    expect(adapter.mock.calls[0][0].headers['Accept-Language']).toBe(language);
+
+    const get = vi.spyOn(httpClient, 'get').mockResolvedValue({ data: { data: [] } });
+    await tourismService.getPackages();
+    expect(get).toHaveBeenCalledWith('/api/v1/tourism/packages', { params: { lang: language } });
+    await tourismService.getPackageById('tour-1');
+    expect(get).toHaveBeenCalledWith('/api/v1/tourism/packages/tour-1', { params: { lang: language } });
+  });
+
+  it('restores legacy Hamer preferences and prioritizes the shared preference', () => {
+    localStorage.clear();
+    localStorage.setItem('omobridge_language', 'hbr');
+    expect(getPreferredLanguage()).toBe('amf');
+    localStorage.setItem(LANG_STORAGE_KEY, 'kxh');
+    expect(getPreferredLanguage()).toBe('kxh');
   });
 
   it('renders LanguageSwitcher in PublicLayout navigation header', () => {
