@@ -1,0 +1,101 @@
+# Evaluation defaults: free Postgres expires after 30 days. Upgrade for production.
+# Browser origins are prompted during setup; replace them with assigned HTTPS URLs.
+services:
+  - type: web
+    name: omobridge-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SERVER_PORT
+        value: "10000"
+      - key: SERVER_ADDRESS
+        value: 0.0.0.0
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - key: DB_HOST
+        fromDatabase:
+          name: omobridge-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: omobridge-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: omobridge-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: omobridge-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: omobridge-db
+          property: password
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE
+        value: "5"
+      - key: SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE
+        value: "1"
+      - key: MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS
+        value: never
+      - key: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+        value: health,info
+  - type: web
+    name: omobridge-web
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build && npm run security:check
+    staticPublishPath: ./dist
+    envVars:
+      - key: NODE_VERSION
+        value: 22.23.3
+      - key: VITE_USE_MOCKS
+        value: "false"
+      - key: VITE_API_BASE_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      # The build's CSP meta tag supplies the API-specific policy. This HTTP
+      # policy adds frame-ancestors, which cannot be enforced through a meta tag.
+      - path: /*
+        name: Content-Security-Policy
+        value: "frame-ancestors 'self'"
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(self), geolocation=(self), microphone=()
+      - path: /sw.js
+        name: Cache-Control
+        value: no-cache
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
+databases:
+  - name: omobridge-db
+    plan: free
+    region: frankfurt
+    databaseName: omobridge
+    user: omobridge
+    ipAllowList: []

@@ -16,6 +16,10 @@ import {
   Boxes,
   PlusCircle,
   Tag,
+  Factory,
+  Compass,
+  CalendarCheck,
+  ShoppingBag,
 } from 'lucide-react';
 import { useAuthStore } from '../../features/auth/authStore';
 import { enterpriseService } from '../../features/enterprise/enterpriseService';
@@ -249,6 +253,45 @@ export default function EnterpriseDashboardPage() {
           >
             <Boxes className="w-4 h-4" />
             <span>Inventory Lots</span>
+          </Link>
+          <Link
+            to="/dashboard/enterprise/production"
+            className="px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5"
+          >
+            <Factory className="w-4 h-4" />
+            <span>Production Batches</span>
+          </Link>
+          <Link
+            to="/dashboard/enterprise/products"
+            className="px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5"
+            data-testid="tab-enterprise-products"
+          >
+            <Package className="w-4 h-4" />
+            <span>Products</span>
+          </Link>
+          <Link
+            to="/dashboard/enterprise/orders"
+            className="px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5"
+            data-testid="tab-enterprise-orders"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            <span>Orders</span>
+          </Link>
+          <Link
+            to="/dashboard/enterprise/tourism"
+            className="px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5"
+            data-testid="tab-enterprise-tourism"
+          >
+            <Compass className="w-4 h-4" />
+            <span>Experiences</span>
+          </Link>
+          <Link
+            to="/dashboard/enterprise/bookings"
+            className="px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5"
+            data-testid="tab-enterprise-bookings"
+          >
+            <CalendarCheck className="w-4 h-4" />
+            <span>Bookings</span>
           </Link>
           <Link
             to="/dashboard/enterprise/reports"

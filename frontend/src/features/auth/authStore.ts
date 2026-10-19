@@ -55,7 +55,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
     token: initialToken,
     user: initialUser,
     isAuthenticated: !!initialToken,
-    isLoading: !!initialToken,
+    isLoading: !!initialToken && !initialUser,
     activeRole: initialUser?.roles?.[0] ? normalizeRole(initialUser.roles[0]) : null,
 
     setAuth: (response: AuthResponse) => {

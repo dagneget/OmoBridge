@@ -24,8 +24,16 @@ import {
   mockDeliveries,
   mockEnterpriseOrders,
   mockInventoryLots,
+  mockInventoryLocations,
+  mockInventoryMovements,
+  mockReconciliationReports,
   mockFarmerPayables,
   mockFarmerPayments,
+  mockProductionBatches,
+  mockEnterpriseProducts,
+  mockOrderDetails,
+  mockAiReports,
+  mockEnterpriseBookings,
 } from './fixtures/enterprise';
 
 function errorResponse(status: number, code: string, message: string, request: Request) {
@@ -48,12 +56,17 @@ const authHandlers = ['/api/v1/auth', '/api/auth'].flatMap((base) => [
       return errorResponse(400, 'VALIDATION_FAILED', 'Password is required', request);
     }
     const identifier = body.phoneNumber || body.identifier;
-    const user = Object.values(mockUsers).find(
+    let user = Object.values(mockUsers).find(
       (candidate) =>
         candidate.phoneNumber === identifier ||
         ('email' in candidate && candidate.email === identifier)
     );
-    if (!user || body.password !== MOCK_PASSWORD) {
+    if (!user) {
+      if (identifier === 'dimeka@omobridge.et' || identifier === 'bekele@omo.et') user = mockUsers.enterprise;
+      else if (identifier === 'bono@omobridge.et') user = mockUsers.producer;
+      else if (identifier === 'ayke@omobridge.et') user = mockUsers.guide;
+    }
+    if (!user || (body.password !== MOCK_PASSWORD && body.password !== 'Secret@123' && body.password !== 'password123' && body.password !== 'Password123!')) {
       return errorResponse(401, 'UNAUTHORIZED', 'Invalid credentials', request);
     }
     return HttpResponse.json({
@@ -62,11 +75,18 @@ const authHandlers = ['/api/v1/auth', '/api/auth'].flatMap((base) => [
     });
   }),
   http.get(`*${base}/me`, ({ request }) => {
-    const user = Object.values(mockUsers).find(
+    const authHeader = request.headers.get('Authorization') || '';
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+
+    let user = Object.values(mockUsers).find(
       (candidate) =>
-        request.headers.get('Authorization') ===
-        `Bearer ${createMockAuthResponse(candidate).accessToken}`
+        token === createMockAuthResponse(candidate).accessToken ||
+        token === `mock-jwt-token-for-${candidate.id}` ||
+        token === `mock-jwt-token-for-${candidate.phoneNumber}`
     );
+    if (!user && (token === 'mock-jwt-token-for-bekele@omo.et' || token === 'mock-jwt-token-for-33333333-3333-3333-3333-333333333333' || token === 'mock-jwt-token-for-admin@southomo.org')) {
+      user = mockUsers.enterprise;
+    }
     if (!user) return errorResponse(401, 'UNAUTHORIZED', 'Authentication required', request);
     return HttpResponse.json({ success: true, data: user });
   }),
@@ -397,10 +417,246 @@ export const handlers = [
     });
   }),
 
+  http.get('*/api/v1/enterprises/:enterpriseId/orders/:orderId', ({ params }) => {
+    const { orderId } = params;
+    const order = mockOrderDetails[String(orderId)];
+    if (!order) {
+      return HttpResponse.json({ success: false, message: 'Order not found' }, { status: 404 });
+    }
+    return HttpResponse.json({
+      success: true,
+      data: order,
+    });
+  }),
+
+  http.patch('*/api/v1/enterprises/:enterpriseId/orders/:orderId/status', async ({ params, request }) => {
+    const { orderId } = params;
+    const body = (await request.json().catch(() => ({}))) as { newStatus?: string; reason?: string };
+    const order = mockOrderDetails[String(orderId)];
+    if (!order) {
+      return HttpResponse.json({ success: false, message: 'Order not found' }, { status: 404 });
+    }
+
+    const currentStatus = order.status || 'PLACED';
+    const newStatus = body.newStatus;
+    if (!newStatus) {
+      return HttpResponse.json({ success: false, message: 'newStatus is required' }, { status: 400 });
+    }
+
+    const allowedTransitions: Record<string, string[]> = {
+      PLACED: ['PAID', 'CANCELLED'],
+      PAID: ['PACKED', 'CANCELLED'],
+      PACKED: ['IN_TRANSIT', 'CANCELLED'],
+      IN_TRANSIT: ['DELIVERED', 'CANCELLED'],
+      DELIVERED: [],
+      CANCELLED: [],
+    };
+
+    if (!allowedTransitions[currentStatus]?.includes(newStatus)) {
+      return HttpResponse.json(
+        {
+          success: false,
+          message: `Invalid status transition from ${currentStatus} to ${newStatus}`,
+        },
+        { status: 400 }
+      );
+    }
+
+    order.status = newStatus as any;
+    if (!order.statusHistories) {
+      order.statusHistories = [];
+    }
+    order.statusHistories.push({
+      id: `hist-${Date.now()}`,
+      fromStatus: currentStatus as any,
+      toStatus: newStatus as any,
+      changedBy: 'Enterprise Manager',
+      reason: body.reason || `Status updated to ${newStatus}`,
+      createdAt: new Date().toISOString(),
+    });
+
+    // Also update mockEnterpriseOrders summary
+    const summaryOrder = mockEnterpriseOrders.find((o) => o.orderId === orderId);
+    if (summaryOrder) {
+      summaryOrder.status = newStatus as any;
+    }
+
+    return HttpResponse.json({
+      success: true,
+      message: `Order status updated to ${newStatus}`,
+      data: order,
+    });
+  }),
+
   http.get('*/api/v1/enterprises/:enterpriseId/inventory/lots', () => {
     return HttpResponse.json({
       success: true,
       data: mockInventoryLots,
+    });
+  }),
+
+  // Enterprise Inventory Locations
+  http.get('*/api/v1/enterprises/:enterpriseId/inventory/locations', () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockInventoryLocations,
+    });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/inventory/locations', async ({ params, request }) => {
+    const { enterpriseId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const newLoc = {
+      id: `loc-${Date.now()}`,
+      enterpriseId: String(enterpriseId),
+      name: body?.name || 'New Storage Location',
+      locationType: body?.locationType || 'WAREHOUSE',
+      description: body?.description || '',
+      createdAt: new Date().toISOString(),
+    };
+    mockInventoryLocations.push(newLoc);
+    return HttpResponse.json(
+      {
+        success: true,
+        message: 'Location created successfully',
+        data: newLoc,
+      },
+      { status: 201 }
+    );
+  }),
+
+  // Enterprise Inventory Movements
+  http.get('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/movements', ({ params }) => {
+    const { lotId } = params;
+    return HttpResponse.json({
+      success: true,
+      data: mockInventoryMovements[String(lotId)] || [],
+    });
+  }),
+
+  // Enterprise Inventory Adjustments
+  http.post('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/adjustments', async ({ params, request }) => {
+    const { lotId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const lot = mockInventoryLots.find((l) => l.id === lotId);
+    const adjustmentQty = Number(body?.quantity || 0);
+    const isIncrease = body?.adjustmentType === 'INCREASE';
+    const newBalance = (lot?.balanceQty || 0) + (isIncrease ? adjustmentQty : -adjustmentQty);
+
+    if (lot) {
+      lot.balanceQty = Math.max(0, newBalance);
+    }
+
+    const movement = {
+      id: `mov-${Date.now()}`,
+      lotId: String(lotId),
+      movementType: 'ADJUSTMENT' as const,
+      quantity: isIncrease ? adjustmentQty : -adjustmentQty,
+      balanceAfter: lot ? lot.balanceQty : newBalance,
+      reason: body?.reason || 'Stock balance adjustment',
+      referenceType: 'MANUAL_ADJUSTMENT',
+      createdAt: new Date().toISOString(),
+    };
+
+    if (!mockInventoryMovements[String(lotId)]) {
+      mockInventoryMovements[String(lotId)] = [];
+    }
+    mockInventoryMovements[String(lotId)].unshift(movement);
+
+    return HttpResponse.json({
+      success: true,
+      message: 'Lot adjusted successfully',
+      data: movement,
+    });
+  }),
+
+  // Enterprise Inventory Transfers
+  http.post('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/transfers', async ({ params, request }) => {
+    const { lotId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const lot = mockInventoryLots.find((l) => l.id === lotId);
+    const transferQty = Number(body?.quantity || 0);
+
+    const movement = {
+      id: `mov-${Date.now()}`,
+      lotId: String(lotId),
+      movementType: 'TRANSFER_OUT' as const,
+      quantity: -transferQty,
+      balanceAfter: lot?.balanceQty || 0,
+      reason: body?.reason || 'Internal warehouse transfer',
+      referenceType: 'LOCATION_TRANSFER',
+      referenceId: body?.targetLocationId,
+      createdAt: new Date().toISOString(),
+    };
+
+    if (!mockInventoryMovements[String(lotId)]) {
+      mockInventoryMovements[String(lotId)] = [];
+    }
+    mockInventoryMovements[String(lotId)].unshift(movement);
+
+    return HttpResponse.json({
+      success: true,
+      message: 'Lot transferred successfully',
+      data: movement,
+    });
+  }),
+
+  // Enterprise Inventory Disposals
+  http.post('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/disposals', async ({ params, request }) => {
+    const { lotId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const lot = mockInventoryLots.find((l) => l.id === lotId);
+    const disposeQty = Number(body?.quantity || 0);
+
+    if (lot) {
+      lot.balanceQty = Math.max(0, (lot.balanceQty || 0) - disposeQty);
+      if (lot.balanceQty === 0) lot.status = 'DISPOSED';
+    }
+
+    const movement = {
+      id: `mov-${Date.now()}`,
+      lotId: String(lotId),
+      movementType: 'DISPOSAL' as const,
+      quantity: -disposeQty,
+      balanceAfter: lot?.balanceQty || 0,
+      reason: body?.reason || 'Scrap / damaged material disposal',
+      referenceType: 'MANUAL_DISPOSAL',
+      createdAt: new Date().toISOString(),
+    };
+
+    if (!mockInventoryMovements[String(lotId)]) {
+      mockInventoryMovements[String(lotId)] = [];
+    }
+    mockInventoryMovements[String(lotId)].unshift(movement);
+
+    return HttpResponse.json({
+      success: true,
+      message: 'Lot disposed successfully',
+      data: movement,
+    });
+  }),
+
+  // Enterprise Inventory Reconciliation
+  http.get('*/api/v1/enterprises/:enterpriseId/inventory/reconciliation', () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockReconciliationReports,
+    });
+  }),
+
+  http.get('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/reconciliation', ({ params }) => {
+    const { lotId } = params;
+    const report = mockReconciliationReports.find((r) => r.lotId === lotId) || {
+      lotId: String(lotId),
+      lotCode: 'LOT-UNKNOWN',
+      storedBalance: 0,
+      movementSum: 0,
+      reconciled: true,
+      note: 'Reconciled',
+    };
+    return HttpResponse.json({
+      success: true,
+      data: report,
     });
   }),
 
@@ -445,4 +701,493 @@ export const handlers = [
       data: newPmt,
     });
   }),
+
+  // Enterprise Production Batches & Processing Traceability
+  http.get('*/api/v1/enterprises/:enterpriseId/production/batches', () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockProductionBatches,
+    });
+  }),
+
+  http.get('*/api/v1/enterprises/:enterpriseId/production/batches/:batchId', ({ params }) => {
+    const { batchId } = params;
+    const batch = mockProductionBatches.find((b) => b.id === batchId);
+    if (!batch) {
+      return HttpResponse.json({ success: false, message: 'Production batch not found' }, { status: 404 });
+    }
+    return HttpResponse.json({
+      success: true,
+      data: batch,
+    });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/production/batches', async ({ params, request }) => {
+    const { enterpriseId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+
+    if (!body?.inputs || body.inputs.length === 0) {
+      return HttpResponse.json(
+        { success: false, message: 'A production batch must contain at least one input lot' },
+        { status: 400 }
+      );
+    }
+    if (!body?.outputs || body.outputs.length === 0) {
+      return HttpResponse.json(
+        { success: false, message: 'A production batch must contain at least one output product' },
+        { status: 400 }
+      );
+    }
+
+    // Conservation of mass validation in compatible units
+    const baseUnit = body.inputs[0].unit;
+    const allInputsSame = body.inputs.every((i: any) => i.unit?.toLowerCase() === baseUnit?.toLowerCase());
+    const allOutputsSame = body.outputs.every((o: any) => o.unit?.toLowerCase() === baseUnit?.toLowerCase());
+    const allLossesSame = !body.losses || body.losses.every((l: any) => l.unit?.toLowerCase() === baseUnit?.toLowerCase());
+
+    if (allInputsSame && allOutputsSame && allLossesSame) {
+      const totalIn = body.inputs.reduce((acc: number, i: any) => acc + Number(i.quantity || 0), 0);
+      const totalOut = body.outputs.reduce((acc: number, o: any) => acc + Number(o.quantity || 0), 0);
+      const totalLoss = (body.losses || []).reduce((acc: number, l: any) => acc + Number(l.quantity || 0), 0);
+      const discrepancy = Math.round((totalIn - (totalOut + totalLoss)) * 1000) / 1000;
+
+      if (discrepancy !== 0) {
+        return HttpResponse.json(
+          {
+            success: false,
+            message: `BATCH_IMBALANCE: Total inputs (${totalIn} ${baseUnit}) must equal outputs (${totalOut}) + losses (${totalLoss}). Discrepancy: ${discrepancy} ${baseUnit}`,
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    const batchId = `batch-${Date.now()}`;
+    const batchCode = `BATCH-2026-${Math.floor(100 + Math.random() * 900)}`;
+    const newBatch = {
+      id: batchId,
+      batchCode,
+      enterpriseId: String(enterpriseId),
+      status: (body.completeImmediately ? 'COMPLETED' : 'DRAFT') as 'COMPLETED' | 'DRAFT',
+      processedAt: body.completeImmediately ? new Date().toISOString() : undefined,
+      laborCost: Number(body.laborCost || 0),
+      processingCost: Number(body.processingCost || 0),
+      packagingCost: Number(body.packagingCost || 0),
+      notes: body.notes || '',
+      inputs: body.inputs.map((inReq: any, idx: number) => {
+        const lot = mockInventoryLots.find((l) => l.id === inReq.lotId);
+        return {
+          id: `in-${idx}-${Date.now()}`,
+          lotId: inReq.lotId,
+          lotCode: lot?.lotCode || inReq.lotId,
+          quantity: Number(inReq.quantity),
+          unit: inReq.unit,
+        };
+      }),
+      outputs: body.outputs.map((outReq: any, idx: number) => {
+        const pt = mockProductTypes.find((p) => p.id === outReq.productTypeId);
+        return {
+          id: `out-${idx}-${Date.now()}`,
+          productTypeId: outReq.productTypeId,
+          productTypeName: pt?.name || 'Processed Product',
+          quantity: Number(outReq.quantity),
+          unit: outReq.unit,
+          grade: outReq.grade,
+          resultingLotId: outReq.createInventoryLot ? `lot-out-${Date.now()}` : undefined,
+        };
+      }),
+      losses: (body.losses || []).map((lossReq: any, idx: number) => ({
+        id: `loss-${idx}-${Date.now()}`,
+        quantity: Number(lossReq.quantity),
+        unit: lossReq.unit,
+        reason: lossReq.reason,
+      })),
+      traceToken: `token-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    };
+
+    mockProductionBatches.unshift(newBatch);
+
+    return HttpResponse.json(
+      {
+        success: true,
+        message: 'Production batch created successfully',
+        data: newBatch,
+      },
+      { status: 201 }
+    );
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/production/batches/:batchId/complete', ({ params }) => {
+    const { batchId } = params;
+    const batch = mockProductionBatches.find((b) => b.id === batchId);
+    if (!batch) {
+      return HttpResponse.json({ success: false, message: 'Production batch not found' }, { status: 404 });
+    }
+    batch.status = 'COMPLETED';
+    batch.processedAt = new Date().toISOString();
+    return HttpResponse.json({ success: true, data: batch });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/production/batches/:batchId/cancel', ({ params }) => {
+    const { batchId } = params;
+    const batch = mockProductionBatches.find((b) => b.id === batchId);
+    if (!batch) {
+      return HttpResponse.json({ success: false, message: 'Production batch not found' }, { status: 404 });
+    }
+    batch.status = 'CANCELLED';
+    return HttpResponse.json({ success: true, data: batch });
+  }),
+
+  http.get('*/api/v1/enterprises/:enterpriseId/production/batches/:batchId/validation', ({ params }) => {
+    const { batchId } = params;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        batchId,
+        chainValid: true,
+        inputDeliveriesCount: 3,
+        farmerOriginsCount: 3,
+        steps: ['Supply Delivery Intake', 'Quality Grading & Acceptance', 'Storage Lot Storage', 'Processing & Batch Milling'],
+      },
+    });
+  }),
+
+  // Enterprise Products Catalog & Transparent Pricing (F-907, F-908)
+  http.get('*/api/v1/enterprises/:enterpriseId/products', () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockEnterpriseProducts,
+    });
+  }),
+
+  http.get('*/api/v1/enterprises/:enterpriseId/products/:productId', ({ params }) => {
+    const { productId } = params;
+    const prod = mockEnterpriseProducts.find((p) => p.id === productId);
+    if (!prod) {
+      return HttpResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
+    }
+    return HttpResponse.json({ success: true, data: prod });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/products', async ({ params, request }) => {
+    const { enterpriseId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+
+    const packSize = Number(body.packSize || 1);
+    const purchaseCost = Number(body.purchaseCost || 200 * packSize);
+    const processingCost = Number(body.processingCost || 25 * packSize);
+    const packagingCost = Number(body.packagingCost || 20 * packSize);
+    const laborCost = Number(body.laborCost || 15 * packSize);
+    const transportCost = Number(body.transportCost || 10);
+    const directCost = purchaseCost + processingCost + packagingCost + laborCost + transportCost;
+    const marginRate = Number(body.marginRate || 0.15);
+    const enterpriseMargin = Math.round(directCost * marginRate * 100) / 100;
+    const subtotal = directCost + enterpriseMargin;
+    const communityFund = Math.round(subtotal * 0.03 * 100) / 100;
+    const platformFee = Math.round(subtotal * 0.05 * 100) / 100;
+    const taxAmount = Math.round(subtotal * 0.15 * 100) / 100;
+    const totalPrice = Math.round((subtotal + communityFund + platformFee + taxAmount) * 100) / 100;
+
+    const newProd = {
+      id: `prod-${Date.now()}`,
+      enterpriseId: String(enterpriseId),
+      enterpriseName: 'South Omo Community Heritage Cooperative',
+      sku: body.sku || `SKU-OMO-${Date.now()}`,
+      name: body.name || 'Artisanal Product',
+      description: body.description || '',
+      story: body.story || '',
+      category: body.category || 'Honey & Hive Products',
+      unit: 'UNIT',
+      packSize,
+      unitPrice: totalPrice,
+      currency: 'ETB',
+      productionOutputId: body.productionOutputId,
+      stockOnHand: Number(body.initialStock || 50),
+      stockReserved: 0,
+      availableStock: Number(body.initialStock || 50),
+      published: Boolean(body.publishImmediately),
+      traceToken: `TRC-OMO-${Date.now()}`,
+      priceBreakdown: {
+        purchaseCost,
+        processingCost,
+        packagingCost,
+        laborCost,
+        transportCost,
+        enterpriseMargin,
+        communityFund,
+        platformFee,
+        taxAmount,
+        totalPrice,
+      },
+      createdAt: new Date().toISOString(),
+    };
+
+    mockEnterpriseProducts.unshift(newProd);
+
+    return HttpResponse.json(
+      {
+        success: true,
+        message: 'Product created with transparent pricing breakdown',
+        data: newProd,
+      },
+      { status: 201 }
+    );
+  }),
+
+  http.patch('*/api/v1/enterprises/:enterpriseId/products/:productId/publish', ({ params, request }) => {
+    const { productId } = params;
+    const url = new URL(request.url);
+    const publishParam = url.searchParams.get('publish');
+    const shouldPublish = publishParam !== 'false';
+
+    const prod = mockEnterpriseProducts.find((p) => p.id === productId);
+    if (!prod) {
+      return HttpResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
+    }
+    prod.published = shouldPublish;
+    return HttpResponse.json({ success: true, data: prod });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/products/:productId/adjust-stock', async ({ params, request }) => {
+    const { productId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const prod = mockEnterpriseProducts.find((p) => p.id === productId);
+    if (!prod) {
+      return HttpResponse.json({ success: false, message: 'Product not found' }, { status: 404 });
+    }
+
+    const delta = Number(body.quantity || 0);
+    prod.stockOnHand = (prod.stockOnHand || 0) + delta;
+    prod.availableStock = prod.stockOnHand - (prod.stockReserved || 0);
+
+    const movement = {
+      id: `smov-${Date.now()}`,
+      productId: String(productId),
+      movementType: delta >= 0 ? 'RESTOCK' : 'ADJUSTMENT_DAMAGE',
+      quantity: delta,
+      balanceAfter: prod.stockOnHand,
+      reason: body.reason || 'Inventory audit adjustment',
+      createdAt: new Date().toISOString(),
+    };
+
+    return HttpResponse.json({ success: true, data: movement });
+  }),
+
+  // AI Narrative Reports & Assistant (B-1204, B-1205, B-1206)
+  http.get('*/api/v1/enterprises/:enterpriseId/ai/reports', () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockAiReports,
+    });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/ai/reports', async ({ request, params }) => {
+    const { enterpriseId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const reportType = body.reportType || 'WEEKLY_OPERATIONS_SUMMARY';
+    const period = body.period || '2026-W42';
+    const language = body.language || 'EN';
+
+    let content = '';
+    if (reportType === 'FARMER_TRAINING_MESSAGE') {
+      content = language === 'AM'
+        ? `ለደቡብ ኦሞ አምራቾች የጥራት ማሻሻያ መልዕክት: ምርትን በሚሰበስቡበት ወቅት የንጽህና መስፈርቶችን ያክብሩ። ደረጃ ሀ ማር የተሻለ የገበያ ዋጋ ያስገኛል።`
+        : `Farmer Training Guidance (${period}): Maintain strict clean stainless steel harvesting protocols. Grade A honey guarantees top fair-trade cooperative payout rates.`;
+    } else {
+      content = `AI Generated Narrative Operations Report (${period}) [Language: ${language}]:
+- Active Farmers: 48 registered producers across Turmi and Dimeka woredas.
+- Total Farmer Payout: 345,000 ETB distributed with 76.5% producer price share.
+- Production Efficiency: High throughput achieved in certified raw lot processing.
+- Market Outlook: Growing tourist lodge demand for 500g packaged retail honey.`;
+    }
+
+    const newReport = {
+      id: `rep-${Date.now()}`,
+      enterpriseId: String(enterpriseId),
+      reportType,
+      period,
+      language,
+      content,
+      status: 'GENERATED',
+      createdAt: new Date().toISOString(),
+    };
+
+    mockAiReports.unshift(newReport as any);
+
+    return HttpResponse.json(
+      {
+        success: true,
+        message: 'AI Report generated and pending enterprise review',
+        data: newReport,
+      },
+      { status: 201 }
+    );
+  }),
+
+  http.patch('*/api/v1/enterprises/:enterpriseId/ai/reports/:reportId/approval', ({ params, request }) => {
+    const { reportId } = params;
+    const url = new URL(request.url);
+    const approveParam = url.searchParams.get('approve');
+    const isApproved = approveParam === 'true';
+
+    const report = mockAiReports.find((r) => r.id === reportId);
+    if (!report) {
+      return HttpResponse.json({ success: false, message: 'Report not found' }, { status: 404 });
+    }
+
+    report.status = isApproved ? 'APPROVED' : 'REJECTED';
+
+    return HttpResponse.json({
+      success: true,
+      message: `Report ${reportId} has been ${report.status}`,
+      data: report,
+    });
+  }),
+
+  // Enterprise: Tourism Packages (CRUD)
+  http.get('*/api/v1/enterprises/:enterpriseId/tourism/packages', ({ params }) => {
+    const list = mockTourPackages.filter((p) => !p.enterpriseId || p.enterpriseId === params.enterpriseId);
+    return HttpResponse.json({
+      success: true,
+      data: list.length > 0 ? list : mockTourPackages,
+    });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/tourism/packages', async ({ params, request }) => {
+    const body = (await request.json().catch(() => ({}))) as any;
+    const newPkg = {
+      id: `pkg-${Date.now()}`,
+      enterpriseId: String(params.enterpriseId),
+      enterpriseName: 'South Omo Community Heritage Cooperative',
+      name: body.name || 'Custom Experience',
+      category: body.category || 'CULTURAL',
+      overview: body.overview || '',
+      story: body.story || '',
+      locationText: body.locationText || 'South Omo',
+      durationHours: Number(body.durationHours || 4),
+      maxGroupSize: Number(body.maxGroupSize || 8),
+      priceAmount: Number(body.priceAmount || 1500),
+      priceUnit: body.priceUnit || 'PER_PERSON',
+      currency: body.currency || 'ETB',
+      culturalRules: body.culturalRules || '',
+      safetyNotes: body.safetyNotes || '',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+    };
+    mockTourPackages.unshift(newPkg as any);
+    return HttpResponse.json(
+      {
+        success: true,
+        message: 'Tour package created successfully',
+        data: newPkg,
+      },
+      { status: 201 }
+    );
+  }),
+
+  http.put('*/api/v1/enterprises/:enterpriseId/tourism/packages/:packageId', async ({ params, request }) => {
+    const { packageId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const pkg = mockTourPackages.find((p) => p.id === packageId);
+    if (!pkg) {
+      return HttpResponse.json({ success: false, message: 'Package not found' }, { status: 404 });
+    }
+    Object.assign(pkg, body);
+    return HttpResponse.json({
+      success: true,
+      message: 'Tour package updated successfully',
+      data: pkg,
+    });
+  }),
+
+  http.delete('*/api/v1/enterprises/:enterpriseId/tourism/packages/:packageId', ({ params }) => {
+    const idx = mockTourPackages.findIndex((p) => p.id === params.packageId);
+    if (idx !== -1) {
+      mockTourPackages.splice(idx, 1);
+    }
+    return HttpResponse.json({
+      success: true,
+      message: 'Tour package deleted successfully',
+    });
+  }),
+
+  // Enterprise & Public: Bookings
+  http.get('*/api/v1/bookings/enterprises/:enterpriseId', ({ params }) => {
+    const bookings = mockEnterpriseBookings.filter(
+      (b) => !b.enterpriseId || b.enterpriseId === params.enterpriseId
+    );
+    return HttpResponse.json({
+      success: true,
+      data: bookings.length > 0 ? bookings : mockEnterpriseBookings,
+    });
+  }),
+
+  http.get('*/api/v1/bookings/my', () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockEnterpriseBookings,
+    });
+  }),
+
+  http.get('*/api/v1/bookings/:id', ({ params }) => {
+    const booking = mockEnterpriseBookings.find((b) => b.id === params.id) || mockEnterpriseBookings[0];
+    return HttpResponse.json({
+      success: true,
+      data: booking,
+    });
+  }),
+
+  http.patch('*/api/v1/bookings/:id/status', async ({ params, request }) => {
+    const { id } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const booking = mockEnterpriseBookings.find((b) => b.id === id);
+    if (!booking) {
+      return HttpResponse.json({ success: false, message: 'Booking not found' }, { status: 404 });
+    }
+    if (body.status) booking.status = body.status;
+    if (body.assignedGuideId) {
+      booking.assignedGuideId = body.assignedGuideId;
+      const guide = mockGuides.find((g) => g.id === body.assignedGuideId);
+      if (guide) (booking as any).assignedGuideName = guide.fullName;
+    }
+    return HttpResponse.json({
+      success: true,
+      message: `Booking ${id} status updated successfully`,
+      data: booking,
+    });
+  }),
+
+  // Pricing: Calculate transparent breakdown
+  http.get('*/api/v1/pricing/calculate', ({ request }) => {
+    const url = new URL(request.url);
+    const baseAmount = Number(url.searchParams.get('baseAmount') || 0);
+    const vat = Math.round(baseAmount * 0.15 * 100) / 100;
+    const fee = Math.round(baseAmount * 0.05 * 100) / 100;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        subtotal: baseAmount,
+        breakdown: [
+          {
+            code: 'VAT',
+            label: 'Value Added Tax (15%)',
+            ruleType: 'PERCENTAGE',
+            rateOrValue: 15,
+            amount: vat,
+          },
+          {
+            code: 'PLATFORM_FEE',
+            label: 'Platform & Community Development Fee (5%)',
+            ruleType: 'PERCENTAGE',
+            rateOrValue: 5,
+            amount: fee,
+          },
+        ],
+        total: Math.round((baseAmount + vat + fee) * 100) / 100,
+        currency: 'ETB',
+      },
+    });
+  }),
 ];
+

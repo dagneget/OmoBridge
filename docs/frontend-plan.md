@@ -181,7 +181,7 @@ Update the counts when you finish a task.
 | FP6 | Payments and live tracking | 4 / 7 |
 | FP7 | Traceability | 0 / 4 |
 | FP8 | Enterprise: farmers, supply, farmer payments | 10 / 10 |
-| FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 0 / 15 |
+| FP9 | Enterprise: inventory, production, products, orders, tourism, finance, reports | 1 / 15 |
 | FP10 | Farmer dashboard | 0 / 5 |
 | FP11 | Delivery provider app | 0 / 8 |
 | FP12 | Guide dashboard | 0 / 4 |
@@ -190,7 +190,7 @@ Update the counts when you finish a task.
 | FP15 | Offline and PWA hardening | 0 / 6 |
 | FP16 | Languages and accessibility | 0 / 6 |
 | FP17 | Quality, tools and release | 1 / 9 |
-| | **Total** | **65 / 134** |
+| | **Total** | **66 / 134** |
 
 ### What can run in parallel
 
@@ -736,11 +736,12 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
 
 ### FP9: Enterprise: inventory, production, products, orders, tourism, finance, reports
 
-- [ ] **F-901 · Inventory lots and movements** · T1
+- [x] **F-901 · Inventory lots and movements** · T1
   Needs: F-801 · Backend: B-503
   Build: lots with balances, filters, movement history per lot.
   Done when: renders and filters correctly.
-  Owner: —
+  Owner: @antigravity · Completed: 2026-10-18
+  Test: `pnpm test src/test/inventoryLots.test.tsx` (10/10 passed)
 
 - [ ] **F-902 · Adjustments, transfers, disposals** · T2
   Needs: F-901 · Backend: B-502
@@ -754,11 +755,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
   Done when: a mismatch is highlighted in a test.
   Owner: —
 
-- [ ] **F-904 · Production batch wizard** · T1
+- [~] **F-904 · Production batch wizard** · T1
   Needs: F-901 · Backend: B-602
   Build: select lots and quantities, enter outputs and losses, unit and conversion note, live input = outputs + losses check, costs.
   Done when: imbalance is blocked and server errors are shown.
-  Owner: —
+  Owner: @antigravity · Started: 2026-10-18
 
 - [ ] **F-905 · Batch detail and lifecycle** · T1
   Needs: F-904 · Backend: B-603, B-606
@@ -830,11 +831,11 @@ Format: `Needs` lists frontend tasks that must be `[x]` first. `Backend` lists t
 
 ### FP10: Farmer dashboard
 
-- [ ] **F-1001 · Farmer home** · T1
+- [~] **F-1001 · Farmer home** · T1
   Needs: F-207 · Backend: B-408, B-402
   Build: balance, recent deliveries, today's buying prices, large icons.
   Done when: renders with seed data.
-  Owner: —
+  Owner: @kiro · Started: 2026-10-18
 
 - [ ] **F-1002 · Deliveries and receipts** · T1
   Needs: F-1001 · Backend: B-408
@@ -1310,6 +1311,7 @@ Activity: 2026-10-18 · @claude-agent · F-806 · Completed · Farmer payables l
 Activity: 2026-10-18 · @claude-agent · F-807 · Completed · Payout disbursement execution modal supporting Telebirr mobile wallet and cash-via-agent channels, overpayment balance guard, idempotency key generation, and settlement ledger notifications. 43 test files (236 tests) pass, typecheck/lint/build clean.
 Activity: 2026-10-18 · @claude-agent · F-808 · Completed · Unpaid delivery cancellation with audit reason capture preserving historical visibility and ledger adjustments. 43 test files (236 tests) pass, typecheck/lint/build clean.
 
+Activity: 2026-10-18 · @kiro · F-1001 · Claimed · Farmer home dashboard — balance, recent deliveries, today's buying prices, large icons. Backend: GET /api/v1/farmers/{farmerId}/balance, /deliveries, /payments; GET /api/v1/buying-prices/enterprises/{enterpriseId} (public). Branch: task/F-1001-farmer-home.
 ## Integration milestones (outside the 134 feature tasks)
 
 - [x] **I-01 · Publish the four-agent integration baseline**

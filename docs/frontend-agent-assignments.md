@@ -183,7 +183,6 @@ Send each agent this document and the repository path. The common instructions a
 
 Allocation check: **17 + 17 + 23 + 23 = 80 unfinished tasks, each assigned exactly once.** This document does not start any of the new agents or claim their tasks.
 
-
 ## Published integration baseline · 2026-10-18
 
 Use `integration/four-agent-baseline` (verified source `d388615`); see [baseline handoff](frontend-integration-baseline.md). It includes primary through `37dc470`, Codex buyer flows, and shared session startup fixes. Frontend 507 tests and backend 140 tests pass; full verification details and prerequisites are in the handoff. Merge/rebase into a saved task branch from a separate worktree; do not switch the shared active checkout.

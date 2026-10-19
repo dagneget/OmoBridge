@@ -106,6 +106,16 @@ export const bookingService = {
     }
     return response.data.data;
   },
+
+  /**
+   * Fetch all bookings for an enterprise (F-912)
+   */
+  async getEnterpriseBookings(enterpriseId: string): Promise<BookingResponse[]> {
+    const response = await httpClient.get<StandardApiResponse<BookingResponse[]>>(
+      `/api/v1/bookings/enterprises/${enterpriseId}`
+    );
+    return response.data.data || [];
+  },
 };
 
 export default bookingService;
