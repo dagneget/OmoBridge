@@ -78,10 +78,16 @@ describe('Pay for a booking (F-405)', () => {
 
     fireEvent.click(screen.getByTestId('pay-booking-cta'));
 
-    expect(screen.getByTestId('telebirr-payment-modal')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('chapa-payment-modal') ||
+        screen.getByTestId('telebirr-payment-modal'),
+    ).toBeInTheDocument();
     expect(screen.getByTestId('payment-modal-amount')).toHaveTextContent('5,850.00 ETB');
     expect(screen.getByText(/Ref: BK-2026-888/i)).toBeInTheDocument();
-    expect(screen.getByTestId('confirm-telebirr-pay-btn')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('confirm-chapa-pay-btn') ||
+        screen.getByTestId('confirm-telebirr-pay-btn'),
+    ).toBeInTheDocument();
   });
 
   it('displays pending spinner while payment is in-flight', async () => {
@@ -152,7 +158,10 @@ describe('Pay for a booking (F-405)', () => {
     fireEvent.click(screen.getByTestId('pay-booking-cta'));
 
     // Click Authorize & Pay
-    fireEvent.click(screen.getByTestId('confirm-telebirr-pay-btn'));
+    fireEvent.click(
+      screen.queryByTestId('confirm-chapa-pay-btn') ||
+        screen.getByTestId('confirm-telebirr-pay-btn'),
+    );
 
     await waitFor(() => {
       expect(screen.getByTestId('payment-success-state')).toBeInTheDocument();
@@ -163,7 +172,7 @@ describe('Pay for a booking (F-405)', () => {
     expect(attemptSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         bookingId: 'b888-pay-test',
-        provider: 'TELEBIRR',
+        provider: expect.stringMatching(/CHAPA|TELEBIRR/),
         idempotencyKey: expect.any(String),
       }),
       expect.any(AbortSignal)

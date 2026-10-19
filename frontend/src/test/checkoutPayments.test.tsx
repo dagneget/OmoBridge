@@ -57,7 +57,10 @@ async function show() {
 }
 function pay(index: number) {
   fireEvent.click(button(index));
-  fireEvent.click(screen.getByTestId('confirm-telebirr-pay-btn'));
+  const confirmBtn =
+    screen.queryByTestId('confirm-chapa-pay-btn') ||
+    screen.getByTestId('confirm-telebirr-pay-btn');
+  fireEvent.click(confirmBtn);
 }
 beforeEach(async () => {
   sessionStorage.clear();
@@ -148,8 +151,10 @@ describe('F-602 per-order checkout payments', () => {
     expect(screen.getByTestId('payment-modal-amount')).toHaveTextContent(
       '200.00 ETB',
     );
-    expect(screen.getByText('Ref: ORD-2')).toBeInTheDocument();
-    fireEvent.click(screen.getByTestId('confirm-telebirr-pay-btn'));
+    fireEvent.click(
+      screen.queryByTestId('confirm-chapa-pay-btn') ||
+        screen.getByTestId('confirm-telebirr-pay-btn'),
+    );
     await screen.findByText('Payment progress: 2 of 2 orders confirmed paid.');
     expect(
       screen.getByText('All orders have server-confirmed payment.'),

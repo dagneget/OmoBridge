@@ -4,10 +4,8 @@ import com.omobridge.payments.service.PaymentGateway;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 @Slf4j
-@Service
 public class TelebirrPaymentGateway implements PaymentGateway {
 
     private final AtomicBoolean simulateFailure = new AtomicBoolean(false);

@@ -268,7 +268,7 @@ public class GoldenPathIntegrationTest extends BaseIntegrationTest {
         FarmerPaymentResponse payResp = farmerPaymentService.payFarmer(
                 enterprise.getId(),
                 enterpriseUser.getId(),
-                new FarmerPaymentRequest(enterprise.getId(), farmer.getId(), new BigDecimal("12000.00"), "TELEBIRR"),
+                new FarmerPaymentRequest(enterprise.getId(), farmer.getId(), new BigDecimal("12000.00"), "CHAPA"),
                 "IDEMP-FARM-PAY-GOLD-01"
         );
         assertThat(payResp.status()).isEqualTo(FarmerPaymentStatus.SUCCESS);
@@ -352,13 +352,13 @@ public class GoldenPathIntegrationTest extends BaseIntegrationTest {
 
         // STEP 8: Buyer completes payment via gateway
         PaymentAttemptResponse attemptResp = paymentService.createPaymentAttempt(
-                new CreatePaymentAttemptRequest(orderId, null, "TELEBIRR", "IDEMP-GOLD-PAY-1"),
+                new CreatePaymentAttemptRequest(orderId, null, "CHAPA", "IDEMP-GOLD-PAY-1"),
                 buyer
         );
         Payment payment = paymentRepository.findByOrderId(orderId).orElseThrow();
 
         paymentService.processVerifiedWebhook(
-                "TELEBIRR",
+                "CHAPA",
                 "TB-EVT-GOLD-01",
                 "PAYMENT_SUCCESS",
                 "VALID_HMAC_SHA256_TEST_SIGNATURE",

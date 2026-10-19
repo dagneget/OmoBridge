@@ -1,6 +1,12 @@
 import { reviewHandlers } from './reviewHandlers';
 import { paymentHistoryHandlers } from './paymentHistoryHandlers';
 import { http, HttpResponse } from 'msw';
+import {
+  MOCK_GUIDE_ID,
+  mockAssignedBookings,
+  mockGuideProfile,
+  mockGuideReviews,
+} from './fixtures/guide';
 import { checkoutHandler, orderConfirmationHandler, myOrdersHandler, orderPaymentHandler } from './checkoutHandler';
 import type { LoginRequest } from '../types/api';
 import { mockUsers, createMockAuthResponse, MOCK_PASSWORD, MOCK_TOKEN_PREFIX } from './fixtures/users';
@@ -141,6 +147,42 @@ export const handlers = [
     });
   }),
 
+  // Guide dashboard (F-1201..F-1203). Registered before the generic guide list
+  // below so `/me` and `/{id}` are not swallowed by it.
+  http.get('*/api/v1/tourism/guides/me', () => {
+    return HttpResponse.json({ success: true, data: mockGuideProfile });
+  }),
+
+  http.put('*/api/v1/tourism/guides/:id', async ({ params, request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+    // Mirrors the server's `isAssignedGuide` guard: another guide's id is refused.
+    if (params.id !== MOCK_GUIDE_ID) {
+      return HttpResponse.json(
+        { success: false, message: 'You do not have permission to update this guide profile' },
+        { status: 403 }
+      );
+    }
+    return HttpResponse.json({
+      success: true,
+      data: { ...mockGuideProfile, ...body },
+    });
+  }),
+
+  http.get('*/api/v1/bookings/guides/:guideId', ({ params }) => {
+    if (params.guideId !== MOCK_GUIDE_ID) {
+      return HttpResponse.json({ success: true, data: [] });
+    }
+    return HttpResponse.json({ success: true, data: mockAssignedBookings });
+  }),
+
+  http.get('*/api/v1/reviews/public/target', ({ request }) => {
+    const url = new URL(request.url);
+    if (url.searchParams.get('targetType') !== 'GUIDE') {
+      return HttpResponse.json({ success: true, data: null });
+    }
+    return HttpResponse.json({ success: true, data: mockGuideReviews });
+  }),
+
   // Tourism: Guides
   http.get('*/api/v1/tourism/guides', () => {
     return HttpResponse.json({
@@ -235,7 +277,7 @@ export const handlers = [
       message: 'Payment attempt initiated',
       data: {
         paymentId: 'pay-mock-001',
-        provider: body?.provider || 'TELEBIRR',
+        provider: body?.provider || 'CHAPA',
         status: 'PENDING',
         transactionReference: 'TXN-OMO-554433',
         idempotencyKey: body?.idempotencyKey || 'mock-idem-key',

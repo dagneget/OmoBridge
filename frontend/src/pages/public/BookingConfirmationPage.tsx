@@ -31,7 +31,7 @@ import {
 import { bookingService } from '../../features/bookings/bookingService';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
 import { formatEthiopianPhoneDisplay } from '../../utils/phone';
-import { TelebirrPaymentModal } from '../../features/payments';
+import { ChapaPaymentModal } from '../../features/payments';
 import type { BookingResponse } from '../../types/api';
 
 const STATUS_STEPS = [
@@ -537,8 +537,8 @@ export default function BookingConfirmationPage() {
       <BookingReviews bookingId={bookingId} />
       <RefundDetails bookingId={booking.id} />
 
-      {/* Telebirr Payment Modal */}
-      <TelebirrPaymentModal
+      {/* Chapa Payment Modal */}
+      <ChapaPaymentModal
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
         bookingId={booking.id}
