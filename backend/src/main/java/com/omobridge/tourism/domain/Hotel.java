@@ -1,5 +1,6 @@
 package com.omobridge.tourism.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.omobridge.common.domain.BaseEntity;
 import com.omobridge.identity.domain.Enterprise;
 import jakarta.persistence.Column;
@@ -9,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,9 +22,14 @@ import lombok.Setter;
 @Table(name = "hotels")
 public class Hotel extends BaseEntity {
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "enterprise_id", nullable = false)
     private Enterprise enterprise;
+
+    public UUID getEnterpriseId() {
+        return enterprise != null ? enterprise.getId() : null;
+    }
 
     @Column(name = "name", nullable = false, length = 200)
     private String name;
