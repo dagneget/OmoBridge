@@ -32,6 +32,9 @@ const NotFoundPage = lazy(() => import('../pages/public/NotFoundPage'));
 const JoinPage = lazy(() => import('../pages/public/JoinPage'));
 const OrdersPage = lazy(() => import('../pages/account/OrdersPage'));
 const OrderDetailPage = lazy(() => import('../pages/account/OrderDetailPage'));
+const MyReviewsPage = lazy(() => import('../pages/account/MyReviewsPage'));
+const PaymentsPage = lazy(() => import('../pages/account/PaymentsPage'));
+const PaymentRecordPage = lazy(() => import('../pages/account/PaymentRecordPage'));
 const AccountPage = lazy(() => import('../pages/account/AccountPage'));
 const MyBookingsPage = lazy(() => import('../pages/account/MyBookingsPage'));
 
@@ -115,6 +118,9 @@ export default function AppRoutes() {
             <Route path="/booking/confirmation/:id" element={<BookingConfirmationPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/account/reviews" element={<MyReviewsPage />} />
+            <Route path="/account/payments" element={<PaymentsPage />} />
+            <Route path="/account/payments/:id" element={<PaymentRecordPage />} />
             <Route path="/account/orders" element={<OrdersPage />} />
             <Route path="/account/orders/:id" element={<OrderDetailPage />} />
             <Route path="/about" element={<AboutPage />} />

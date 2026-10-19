@@ -1,3 +1,5 @@
+import { reviewHandlers } from './reviewHandlers';
+import { paymentHistoryHandlers } from './paymentHistoryHandlers';
 import { http, HttpResponse } from 'msw';
 import { checkoutHandler, orderConfirmationHandler, myOrdersHandler, orderPaymentHandler } from './checkoutHandler';
 import type { LoginRequest } from '../types/api';
@@ -64,7 +66,7 @@ const authHandlers = ['/api/v1/auth', '/api/auth'].flatMap((base) => [
       else if (identifier === 'bono@omobridge.et') user = mockUsers.producer;
       else if (identifier === 'ayke@omobridge.et') user = mockUsers.guide;
     }
-    if (!user || (body.password !== MOCK_PASSWORD && body.password !== 'Secret@123' && body.password !== 'password123')) {
+    if (!user || (body.password !== MOCK_PASSWORD && body.password !== 'Secret@123' && body.password !== 'password123' && body.password !== 'Password123!')) {
       return errorResponse(401, 'UNAUTHORIZED', 'Invalid credentials', request);
     }
     return HttpResponse.json({
@@ -85,13 +87,14 @@ const authHandlers = ['/api/v1/auth', '/api/auth'].flatMap((base) => [
     if (!user && (token === 'mock-jwt-token-for-bekele@omo.et' || token === 'mock-jwt-token-for-33333333-3333-3333-3333-333333333333' || token === 'mock-jwt-token-for-admin@southomo.org')) {
       user = mockUsers.enterprise;
     }
-
     if (!user) return errorResponse(401, 'UNAUTHORIZED', 'Authentication required', request);
     return HttpResponse.json({ success: true, data: user });
   }),
 ]);
 
 export const handlers = [
+  ...reviewHandlers,
+  ...paymentHistoryHandlers,
   ...authHandlers,
   checkoutHandler,
   orderConfirmationHandler,

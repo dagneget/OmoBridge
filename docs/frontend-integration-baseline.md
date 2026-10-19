@@ -1,6 +1,6 @@
 # Four-agent integration baseline
 
-Branch: `integration/four-agent-baseline`. Published baseline commit: `cab412f`; verified source commit: `d388615`. Date: 2026-10-18. This integrates committed primary work through `37dc470` (F-810), Codex feature history through `caed304`, and the existing guide authorization/delivery fixture cleanup branches. Later F-901, farmer, and provider work remains owned by its agents and is outside this cutoff.
+Branch: `integration/four-agent-baseline`. Verified source commit: `d388615`. Date: 2026-10-18. This integrates committed primary work through `37dc470` (F-810), Codex feature history through `caed304`, and the existing guide authorization/delivery fixture cleanup branches. Later F-901, farmer, and provider work remains owned by its agents and is outside this cutoff.
 
 The combined app includes catalog, pricing/install support, product detail, persistent cart, checkout, checkout results, buyer order history, tourism/bookings, and enterprise supply. Shared startup now verifies stored sessions once; stale profile responses and authorization errors cannot invalidate a newer login.
 

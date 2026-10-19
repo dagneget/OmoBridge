@@ -27,6 +27,31 @@ const paymentStatuses = new Set<PaymentResponse['status']>([
 ]);
 const unavailable = () =>
   new NormalizedApiError({ status: 404, message: 'Order unavailable' });
+function checkedDetail(
+  data: Schemas['ApiResponseOrderDetailResponse'],
+  orderId: string,
+  buyerId: string,
+): OrderDetailResponse {
+  const order = data.data;
+  // Fail closed before any private fields or dependent payment lookup reach the screen.
+  if (
+    order?.orderId?.toLowerCase() !== orderId.toLowerCase() ||
+    order.buyerId !== buyerId
+  )
+    throw unavailable();
+  if (
+    data.success !== true ||
+    !order.status ||
+    !orderStatuses.has(order.status) ||
+    (order.items !== undefined &&
+      (!Array.isArray(order.items) || order.items.some((item) => !item))) ||
+    (order.statusHistories !== undefined &&
+      (!Array.isArray(order.statusHistories) ||
+        order.statusHistories.some((event) => !event)))
+  )
+    throw new Error('Invalid order detail');
+  return order;
+}
 export const orderService = {
   async list(signal?: AbortSignal): Promise<OrderSummaryResponse[]> {
     const { data } = await httpClient.get<
@@ -56,26 +81,25 @@ export const orderService = {
     const { data } = await httpClient.get<
       Schemas['ApiResponseOrderDetailResponse']
     >(`/api/v1/orders/${encodeURIComponent(orderId)}`, { signal });
-    const order = data.data;
-    // Fail closed before any private fields or dependent payment lookup reach the screen.
-    if (
-      order?.orderId?.toLowerCase() !== orderId.toLowerCase() ||
-      order.buyerId !== buyerId
-    )
-      throw unavailable();
-    if (
-      data.success !== true ||
-      !order.status ||
-      !orderStatuses.has(order.status) ||
-      (order.items !== undefined &&
-        (!Array.isArray(order.items) || order.items.some((item) => !item))) ||
-      (order.statusHistories !== undefined &&
-        (!Array.isArray(order.statusHistories) ||
-          order.statusHistories.some((event) => !event)))
-    )
-      throw new Error('Invalid order detail');
+    return checkedDetail(data, orderId, buyerId);
+  },
+  async cancel(
+    orderId: string,
+    buyerId: string,
+    signal?: AbortSignal,
+  ): Promise<OrderDetailResponse> {
+    if (!validOrderId(orderId) || !buyerId) throw unavailable();
+    const { data } = await httpClient.post<
+      Schemas['ApiResponseOrderDetailResponse']
+    >(`/api/v1/orders/${encodeURIComponent(orderId)}/cancel`, undefined, {
+      signal,
+    });
+    const order = checkedDetail(data, orderId, buyerId);
+    if (order.status !== 'CANCELLED')
+      throw new Error('Cancellation was not confirmed');
     return order;
   },
+
   async payment(
     order: OrderDetailResponse,
     buyerId: string,

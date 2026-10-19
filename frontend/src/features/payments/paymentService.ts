@@ -11,13 +11,13 @@ export const paymentService = {
    * Start an idempotent payment attempt for an order or booking
    */
   async createAttempt(
-    payload: CreatePaymentAttemptRequest
+    payload: CreatePaymentAttemptRequest,
+    signal?: AbortSignal,
   ): Promise<PaymentAttemptResponse> {
-    const response = await httpClient.post<StandardApiResponse<PaymentAttemptResponse>>(
-      '/api/v1/payments/attempt',
-      payload
-    );
-    if (!response.data.data) {
+    const response = await httpClient.post<
+      StandardApiResponse<PaymentAttemptResponse>
+    >('/api/v1/payments/attempt', payload, { signal });
+    if (response.data.success !== true || !response.data.data) {
       throw new Error(response.data.message || 'Payment attempt failed');
     }
     return response.data.data;
@@ -28,9 +28,9 @@ export const paymentService = {
    */
   async getPaymentByOrderId(orderId: string): Promise<PaymentResponse> {
     const response = await httpClient.get<StandardApiResponse<PaymentResponse>>(
-      `/api/v1/payments/order/${orderId}`
+      `/api/v1/payments/order/${orderId}`,
     );
-    if (!response.data.data) {
+    if (response.data.success !== true || !response.data.data) {
       throw new Error(response.data.message || 'Payment record not found');
     }
     return response.data.data;

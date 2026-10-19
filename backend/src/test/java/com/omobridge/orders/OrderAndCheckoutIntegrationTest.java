@@ -222,6 +222,89 @@ class OrderAndCheckoutIntegrationTest extends BaseIntegrationTest {
         return saved;
     }
 
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.omobridge.orders.service.OrderService orderService;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.omobridge.payments.domain.PaymentRepository paymentRepository;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.omobridge.payments.domain.RefundRepository refundRepository;
+
+    private UUID createCancellationOrder() throws Exception {
+        var request = new CheckoutRequest("CANCEL-" + UUID.randomUUID(),
+                List.of(new CheckoutItemRequest(productA.getId(), new BigDecimal("1.00"))),
+                "Jinka cancellation test", buyerA.getPhoneNumber(), null, null, null);
+        mockMvc.perform(post("/api/v1/checkout").header("Authorization", "Bearer " + buyerAToken)
+                        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated());
+        return orderRepository.findAll().get(0).getId();
+    }
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.EnumSource(value = OrderStatus.class,
+            names = {"PLACED", "PAID", "PACKED", "IN_TRANSIT"})
+    void shouldCancelOwnOrderInAllowedState(OrderStatus target) throws Exception {
+        var id = createCancellationOrder();
+        if (target != OrderStatus.PLACED) {
+            orderService.updateOrderStatus(id, OrderStatus.PAID, "Test payment", enterpriseOwnerA);
+            if (target != OrderStatus.PAID) {
+                orderService.updateOrderStatus(id, target, "Test fulfillment", enterpriseOwnerA);
+            }
+        }
+        mockMvc.perform(post("/api/v1/orders/" + id + "/cancel")
+                        .header("Authorization", "Bearer " + buyerAToken))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.status").value("CANCELLED"))
+                .andExpect(jsonPath("$.data.buyerId").value(buyerA.getId().toString()));
+        assertThat(productRepository.findById(productA.getId()).orElseThrow().getStockReserved())
+                .isEqualByComparingTo("0.00");
+        if (target == OrderStatus.PLACED) {
+            assertThat(stockReservationRepository.findByOrderId(id)).allSatisfy(reservation ->
+                    assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.RELEASED));
+        }
+    }
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.EnumSource(value = OrderStatus.class, names = {"DELIVERED", "CANCELLED"})
+    void shouldRejectCancellationOfTerminalOrder(OrderStatus target) throws Exception {
+        var id = createCancellationOrder();
+        var order = orderRepository.findById(id).orElseThrow();
+        order.setStatus(target);
+        orderRepository.saveAndFlush(order);
+        mockMvc.perform(post("/api/v1/orders/" + id + "/cancel")
+                        .header("Authorization", "Bearer " + buyerAToken)).andExpect(status().isUnprocessableEntity());
+        assertThat(orderRepository.findById(id).orElseThrow().getStatus()).isEqualTo(target);
+    }
+
+    @Test
+    void shouldRejectForeignAndAnonymousCancellation() throws Exception {
+        var id = createCancellationOrder();
+        mockMvc.perform(post("/api/v1/orders/" + id + "/cancel")
+                        .header("Authorization", "Bearer " + buyerBToken)).andExpect(status().isNotFound());
+        mockMvc.perform(post("/api/v1/orders/" + id + "/cancel")).andExpect(status().isUnauthorized());
+        assertThat(orderRepository.findById(id).orElseThrow().getStatus()).isEqualTo(OrderStatus.PLACED);
+    }
+
+    @Test
+    @org.springframework.transaction.annotation.Transactional
+    void shouldNotInferRefundFromPaidOrderCancellation() throws Exception {
+        var id = createCancellationOrder();
+        orderService.updateOrderStatus(id, OrderStatus.PAID, "Test payment", enterpriseOwnerA);
+        var payment = new com.omobridge.payments.domain.Payment();
+        payment.setOrder(orderRepository.findById(id).orElseThrow());
+        payment.setPayer(buyerA);
+        payment.setPaymentNo("CANCEL-PAY-" + UUID.randomUUID());
+        payment.setAmount(new BigDecimal("500.00"));
+        payment.setStatus(com.omobridge.payments.domain.PaymentStatus.RELEASED);
+        var saved = paymentRepository.saveAndFlush(payment);
+        mockMvc.perform(post("/api/v1/orders/" + id + "/cancel")
+                        .header("Authorization", "Bearer " + buyerAToken)).andExpect(status().isOk());
+        assertThat(paymentRepository.findById(saved.getId()).orElseThrow().getStatus())
+                .isEqualTo(com.omobridge.payments.domain.PaymentStatus.RELEASED);
+        assertThat(refundRepository.findByPaymentId(saved.getId())).isEmpty();
+    }
+
     @Test
     @DisplayName("Single and multi-enterprise checkout with stock reservation and idempotency")
     void testCheckoutMultiEnterpriseAndIdempotency() throws Exception {

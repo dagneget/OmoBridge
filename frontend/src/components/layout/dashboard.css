@@ -106,7 +106,13 @@
   overflow-wrap: normal;
 }
 @media (max-width: 767px) {
-  .dashboard-content :where(button, select, input:not([type='checkbox']):not([type='radio']), a[class*='rounded']) {
+  .dashboard-content
+    :where(
+      button,
+      select,
+      input:not([type='checkbox']):not([type='radio']),
+      a[class*='rounded']
+    ) {
     min-height: 44px;
   }
 }

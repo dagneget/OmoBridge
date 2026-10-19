@@ -1005,3 +1005,31 @@ These are design gates, not reasons to discard the plan. Record the final decisi
 | 2026-10-18 | Buyer payments are separate from farmer supplier payments; escrow/hold-release is conditional on real provider capability | P4, P9 |
 | 2026-10-18 | Tourism scope and approval authority must be explicitly decided before related schema and workflows are implemented | P1, P3 |
 | 2026-10-18 | Important post-commit notifications/integrations use a transactional outbox with retries and idempotency | P2, P11 |
+## Backend follow-up fixes
+
+- [!] **B-FIX-001 · Guide self-profile role authorization**
+  Owner: @codex · Started: 2026-10-18
+  Implemented: TOUR_GUIDE role check and nine security-chain regression cases; docs/api.md updated.
+  Tests: Java 21 ./mvnw -Dtest=GuideProfileAuthorizationTest test → 9 passed. Full ./mvnw test → 140 tests, 0 failures, 3 errors.
+  Blocked: Full-suite verification fails in DeliveryAndTrackingIntegrationTest setup: deleting orders violates payments_order_id_fkey. No delivery/test-data cleanup changes included. Migration: none.
+  Scope: Correct GET /api/v1/tourism/guides/me to TOUR_GUIDE; verify guide success, anonymous 401, and other-role 403 using the real security chain. No schema changes.
+
+Activity: 2026-10-18 · @codex · B-FIX-001 · Implemented; verification blocked by three delivery integration setup errors. Focused authorization tests: 9 passed.
+
+- [!] **B-FIX-002 · Delivery integration test cleanup**
+  Owner: @codex · Started: 2026-10-18
+  Scope: Clear dependent payment fixtures before delivery tests delete orders. Testcontainer data only; no application/schema changes.
+  Implemented: Remove community fund, refund, provider event, payment attempt, and payment fixtures in dependency order before order cleanup.
+  Tests: Java 21 ./mvnw -Dtest=BuyerPaymentIntegrationTest,DeliveryAndTrackingIntegrationTest -Dsurefire.runOrder=alphabetical test → 7 passed; reversealphabetical → 7 passed. ReviewsAndAiIntegrationTest alone → 3 passed.
+  Blocked: Full ./mvnw test attempted twice → 138 tests, 0 failures, 1 error each time: ReviewsAndAiIntegrationTest PostgreSQL container startup failed with Docker broken pipe before test execution. Original three delivery cleanup errors are resolved. Migration: none.
+
+Activity: 2026-10-18 · @codex · B-FIX-002 · Delivery cleanup repaired and tested in both class orders; full-suite verification blocked by Docker startup for reviews (which pass in isolation).
+
+
+Payment read follow-up · F-603 · 2026-10-18 · @codex · `0f8ce5f`: added bounded authenticated payer history and receipt reads, and payer/order-owner authorization on existing order-payment lookup. No migrations; existing payer index retained. Read-only DTO mapping fetches only to-one order/booking associations; mixed-target pagination test measures at most two service SQL statements. Full backend suite: 156 passing; final payment service/controller/PostgreSQL checks: 20 passing. Payment-attempt authorization/idempotency remains a separate review item.
+
+
+Refund read follow-up · F-606 · 2026-10-18 · @codex · `f687759`: added own-payment refund summary/history and authorized booking-payment lookup. Completed-only aggregate and coverage use BigDecimal on the server; refund pages are bounded and sorted by createdAt/id descending. The refund endpoint uses a read-only repeatable-read transaction on PostgreSQL to keep summary and page reads consistent. DTO mapping fetches only to-one payment relations; measured service query budget is four including payment authorization, completed sum, page and count. No migrations or refund-write behavior changed. Backend suite: 170 passing.
+
+
+Buyer cancellation verification · F-509 · 2026-10-19 · @codex · `c45cf04`: existing bodyless buyer cancel endpoint verified for all four allowed states and both terminal states, anonymous/cross-buyer rejection, held reservation release, and unchanged RELEASED payment/no new refund after paid cancellation. OrderAndCheckoutIntegrationTest: 15 passing tests including eight new cancellation cases. No backend production or migration change.

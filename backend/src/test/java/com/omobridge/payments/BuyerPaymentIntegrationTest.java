@@ -124,6 +124,15 @@ class BuyerPaymentIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private com.omobridge.payments.service.PaymentService paymentService;
+
+    @Autowired
+    private jakarta.persistence.EntityManagerFactory entityManagerFactory;
+
+    @Autowired
+    private com.omobridge.bookings.domain.BookingRepository bookingRepository;
+
     private User buyer;
     private User enterpriseOwner;
     private Enterprise enterprise;
@@ -218,6 +227,184 @@ class BuyerPaymentIntegrationTest extends BaseIntegrationTest {
         CheckoutResponse checkoutResp = checkoutService.checkout(checkoutReq, buyer);
         UUID orderId = checkoutResp.orders().get(0).orderId();
         order = orderRepository.findById(orderId).orElseThrow();
+    }
+
+
+    private Payment saveHistoryPayment(User payer) {
+        var payment = new Payment();
+        payment.setPaymentNo("PAY-HISTORY-" + UUID.randomUUID());
+        payment.setOrder(order);
+        payment.setPayer(payer);
+        payment.setAmount(new BigDecimal("500.00"));
+        payment.setCurrency("ETB");
+        payment.setStatus(PaymentStatus.PENDING);
+        return paymentRepository.saveAndFlush(payment);
+    }
+
+    @Test
+    void shouldListOnlyOwnPaymentsWithStablePagination() throws Exception {
+        var own = saveHistoryPayment(buyer);
+        saveHistoryPayment(buyer);
+        var foreign = saveHistoryPayment(enterpriseOwner);
+        mockMvc.perform(get("/api/v1/payments").header("Authorization", "Bearer " + buyerToken)
+                        .param("size", "1").param("page", "0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content.length()").value(1))
+                .andExpect(jsonPath("$.data.totalElements").value(2))
+                .andExpect(jsonPath("$.data.totalPages").value(2))
+                .andExpect(jsonPath("$.data.isLast").value(false));
+        mockMvc.perform(get("/api/v1/payments/" + own.getId()).header("Authorization", "Bearer " + buyerToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.paymentId").value(own.getId().toString()))
+                .andExpect(jsonPath("$.data.orderNo").value(order.getOrderNo()));
+        mockMvc.perform(get("/api/v1/payments/" + foreign.getId()).header("Authorization", "Bearer " + buyerToken))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/v1/payments/" + UUID.randomUUID()).header("Authorization", "Bearer " + buyerToken))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldDenyCrossPayerOrderLookupAndRequireAuthentication() throws Exception {
+        var own = saveHistoryPayment(buyer);
+        // Even an old inconsistent payment cannot grant its payer access to another buyer's order.
+        saveHistoryPayment(enterpriseOwner);
+        mockMvc.perform(get("/api/v1/payments/order/" + order.getId())
+                        .header("Authorization", "Bearer " + enterpriseOwnerToken)).andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/v1/payments/order/" + order.getId())
+                        .header("Authorization", "Bearer " + buyerToken)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.paymentId").value(own.getId().toString()));
+        mockMvc.perform(get("/api/v1/payments")).andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/v1/payments/" + own.getId())).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void shouldReturnEmptyHistoryAndRejectUnsupportedSort() throws Exception {
+        mockMvc.perform(get("/api/v1/payments").header("Authorization", "Bearer " + buyerToken))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.content.length()").value(0))
+                .andExpect(jsonPath("$.data.totalElements").value(0));
+        mockMvc.perform(get("/api/v1/payments").header("Authorization", "Bearer " + buyerToken)
+                        .param("sort", "payer.passwordHash,asc")).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldMapHistoryWithoutPerPaymentLazyQueries() {
+        for (int index = 0; index < 4; index++) saveHistoryPayment(buyer);
+        var booking = new com.omobridge.bookings.domain.Booking();
+        booking.setBookingCode("BK-HISTORY-" + UUID.randomUUID().toString().substring(0, 8));
+        booking.setEnterprise(enterprise);
+        booking.setBuyer(buyer);
+        booking.setVisitDate(java.time.LocalDate.now().plusDays(1));
+        booking.setPartySize(1);
+        booking.setContactName("History buyer");
+        booking.setContactPhone(buyer.getPhoneNumber());
+        booking.setSubtotal(new BigDecimal("500.00"));
+        booking.setTotalAmount(new BigDecimal("500.00"));
+        booking = bookingRepository.saveAndFlush(booking);
+        var bookingPayment = new Payment();
+        bookingPayment.setPaymentNo("PAY-BOOKING-" + UUID.randomUUID());
+        bookingPayment.setBooking(booking);
+        bookingPayment.setPayer(buyer);
+        bookingPayment.setAmount(new BigDecimal("500.00"));
+        paymentRepository.saveAndFlush(bookingPayment);
+        var statistics = entityManagerFactory.unwrap(org.hibernate.SessionFactory.class).getStatistics();
+        var previouslyEnabled = statistics.isStatisticsEnabled();
+        statistics.setStatisticsEnabled(true);
+        statistics.clear();
+        try {
+            var page = paymentService.getMyPayments(buyer.getId(),
+                    org.springframework.data.domain.PageRequest.of(0, 2));
+            assertThat(page.getContent()).hasSize(2);
+            assertThat(page.getTotalElements()).isEqualTo(5);
+            assertThat(page.getContent()).anySatisfy(payment ->
+                    assertThat(payment.orderNo()).isEqualTo(order.getOrderNo()));
+            assertThat(page.getContent()).anySatisfy(payment ->
+                    assertThat(payment.bookingCode()).startsWith("BK-HISTORY-"));
+            assertThat(statistics.getPrepareStatementCount()).isLessThanOrEqualTo(2);
+        } finally {
+            statistics.setStatisticsEnabled(previouslyEnabled);
+        }
+    }
+
+
+    @Test
+    void shouldExposePartialAndFullRefundsOnlyToTheirPayer() throws Exception {
+        var payment = saveHistoryPayment(buyer);
+        payment.setStatus(PaymentStatus.RELEASED);
+        paymentRepository.saveAndFlush(payment);
+        paymentService.refundPayment(payment.getId(), new RefundRequest(new BigDecimal("100.00"), "Partial return"),
+                enterpriseOwner);
+        mockMvc.perform(get("/api/v1/payments/" + payment.getId() + "/refunds")
+                        .header("Authorization", "Bearer " + buyerToken))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.coverage").value("PARTIAL"))
+                .andExpect(jsonPath("$.data.completedRefundAmount").value(100.00))
+                .andExpect(jsonPath("$.data.notRefundedAmount").value(400.00))
+                .andExpect(jsonPath("$.data.refunds.content[0].status").value("COMPLETED"));
+        paymentService.refundPayment(payment.getId(), new RefundRequest(new BigDecimal("400.00"), "Remaining return"),
+                enterpriseOwner);
+        mockMvc.perform(get("/api/v1/payments/" + payment.getId() + "/refunds")
+                        .header("Authorization", "Bearer " + buyerToken))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.coverage").value("FULL"))
+                .andExpect(jsonPath("$.data.completedRefundAmount").value(500.00))
+                .andExpect(jsonPath("$.data.notRefundedAmount").value(0.00));
+        mockMvc.perform(get("/api/v1/payments/" + payment.getId() + "/refunds")
+                        .header("Authorization", "Bearer " + enterpriseOwnerToken)).andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/v1/payments/" + payment.getId() + "/refunds"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void shouldExcludePendingAndFailedRefundsFromTotalsWithBoundedQueries() {
+        var payment = saveHistoryPayment(buyer);
+        for (var status : com.omobridge.payments.domain.RefundStatus.values()) {
+            var refund = new com.omobridge.payments.domain.Refund();
+            refund.setPayment(payment);
+            refund.setRefundNo("REF-HISTORY-" + UUID.randomUUID());
+            refund.setAmount(new BigDecimal("100.00"));
+            refund.setStatus(status);
+            refundRepository.saveAndFlush(refund);
+        }
+        var statistics = entityManagerFactory.unwrap(org.hibernate.SessionFactory.class).getStatistics();
+        var previouslyEnabled = statistics.isStatisticsEnabled();
+        statistics.setStatisticsEnabled(true);
+        statistics.clear();
+        try {
+            var summary = paymentService.getMyRefunds(payment.getId(), buyer.getId(),
+                    org.springframework.data.domain.PageRequest.of(0, 1));
+            assertThat(summary.completedRefundAmount()).isEqualByComparingTo("100.00");
+            assertThat(summary.notRefundedAmount()).isEqualByComparingTo("400.00");
+            assertThat(summary.refunds().content()).hasSize(1);
+            assertThat(summary.refunds().totalElements()).isEqualTo(3);
+            assertThat(statistics.getPrepareStatementCount()).isLessThanOrEqualTo(4);
+        } finally {
+            statistics.setStatisticsEnabled(previouslyEnabled);
+        }
+    }
+
+    @Test
+    void shouldRequireBookingBuyerAndPayerForBookingPaymentRead() throws Exception {
+        var booking = new com.omobridge.bookings.domain.Booking();
+        booking.setBookingCode("BK-REFUND-" + UUID.randomUUID().toString().substring(0, 8));
+        booking.setEnterprise(enterprise);
+        booking.setBuyer(buyer);
+        booking.setVisitDate(java.time.LocalDate.now().plusDays(1));
+        booking.setPartySize(1);
+        booking.setContactName("Refund buyer");
+        booking.setContactPhone(buyer.getPhoneNumber());
+        booking.setSubtotal(new BigDecimal("500.00"));
+        booking.setTotalAmount(new BigDecimal("500.00"));
+        booking = bookingRepository.saveAndFlush(booking);
+        var payment = new Payment();
+        payment.setPaymentNo("PAY-BK-REFUND-" + UUID.randomUUID());
+        payment.setBooking(booking);
+        payment.setPayer(buyer);
+        payment.setAmount(new BigDecimal("500.00"));
+        payment = paymentRepository.saveAndFlush(payment);
+        mockMvc.perform(get("/api/v1/payments/booking/" + booking.getId())
+                        .header("Authorization", "Bearer " + buyerToken))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.paymentId").value(payment.getId().toString()))
+                .andExpect(jsonPath("$.data.bookingCode").value(booking.getBookingCode()));
+        mockMvc.perform(get("/api/v1/payments/booking/" + booking.getId())
+                        .header("Authorization", "Bearer " + enterpriseOwnerToken)).andExpect(status().isNotFound());
     }
 
     private User createTestUser(String phone, String name, Role role) {

@@ -69,11 +69,12 @@ export const bookingService = {
   /**
    * Fetch a single booking by ID
    */
-  async getBookingById(id: string): Promise<BookingResponse> {
+  async getBookingById(id: string, signal?: AbortSignal): Promise<BookingResponse> {
     const response = await httpClient.get<StandardApiResponse<BookingResponse>>(
-      `/api/v1/bookings/${id}`
+      `/api/v1/bookings/${id}`,
+      { signal }
     );
-    if (!response.data.data) {
+    if (response.data.success !== true || !response.data.data) {
       throw new Error(response.data.message || 'Booking not found');
     }
     return response.data.data;

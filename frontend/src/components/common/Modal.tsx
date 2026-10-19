@@ -10,6 +10,7 @@ export interface ModalProps {
   footer?: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   closeOnBackdrop?: boolean;
+  panelClassName?: string;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -21,6 +22,7 @@ export const Modal: React.FC<ModalProps> = ({
   footer,
   size = 'md',
   closeOnBackdrop = true,
+  panelClassName = '',
 }) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -64,7 +66,7 @@ export const Modal: React.FC<ModalProps> = ({
       }}
     >
       <div
-        className={`w-full ${sizeClasses[size]} bg-card text-card-foreground rounded-2xl shadow-2xl border border-border overflow-hidden flex flex-col max-h-[calc(100dvh-1rem)] sm:max-h-[90dvh]`}
+        className={`w-full ${sizeClasses[size]} bg-card text-card-foreground rounded-2xl shadow-2xl border border-border overflow-hidden flex flex-col max-h-[calc(100dvh-1rem)] sm:max-h-[90dvh] ${panelClassName}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="shrink-0 flex items-start justify-between gap-2 px-4 sm:px-6 py-4 border-b border-border">

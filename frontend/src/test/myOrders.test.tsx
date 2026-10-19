@@ -1,3 +1,4 @@
+import { refundService } from '../features/payments/refundService';
 import {
   act,
   cleanup,
@@ -94,6 +95,23 @@ function show(path = '/account/orders') {
   );
 }
 beforeEach(async () => {
+  vi.spyOn(refundService, 'get').mockResolvedValue({
+    paymentId: '55555555-5555-4555-8555-000000000001',
+    paymentAmount: 470,
+    currency: 'ETB',
+    completedRefundAmount: 0,
+    notRefundedAmount: 470,
+    coverage: 'NONE',
+    refunds: {
+      content: [],
+      pageNumber: 0,
+      pageSize: 20,
+      totalElements: 0,
+      totalPages: 0,
+      isFirst: true,
+      isLast: true,
+    },
+  });
   client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   useAuthStore.setState({
     user: { id: buyer, roles: ['BUYER_VISITOR'] },
