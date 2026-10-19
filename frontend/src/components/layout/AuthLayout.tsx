@@ -16,12 +16,17 @@ export default function AuthLayout() {
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Home</span>
         </Link>
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-emerald-700 flex items-center justify-center text-white font-bold text-sm">
-            K
-          </div>
+        <Link to="/" className="flex items-center gap-2.5">
+          <img
+            src="/kinka-logo.png"
+            alt="Kinka Logo"
+            className="w-8 h-8 rounded-full object-cover shadow-sm ring-1 ring-amber-700/20"
+          />
           <span className="font-bold text-base text-emerald-950 dark:text-emerald-300">
             Kinka
+          </span>
+          <span className="text-xs text-amber-700 dark:text-amber-400 font-ethiopic font-semibold">
+            ኪንካ
           </span>
         </Link>
       </header>

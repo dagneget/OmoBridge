@@ -15,6 +15,13 @@ export default function AboutPage() {
     <div className="w-full max-w-6xl mx-auto px-4 py-8 sm:py-12 space-y-16 animate-in fade-in" data-testid="about-page">
       {/* Hero Section */}
       <div className="text-center space-y-4 max-w-3xl mx-auto">
+        <div className="flex justify-center mb-2">
+          <img
+            src="/kinka-logo.png"
+            alt="Kinka Emblem"
+            className="w-24 h-24 rounded-full object-cover shadow-lg ring-4 ring-amber-600/30"
+          />
+        </div>
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
           <HeartHandshake className="w-3.5 h-3.5" aria-hidden="true" />
           <span>Bridging Communities in South Omo</span>

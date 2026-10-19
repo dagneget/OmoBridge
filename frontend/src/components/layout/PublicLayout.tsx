@@ -57,15 +57,17 @@ export default function PublicLayout() {
             to="/"
             className="flex items-center gap-2.5 touch-target focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-lg"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-600 to-amber-600 flex items-center justify-center text-white font-black text-xl shadow-sm">
-              O
-            </div>
+            <img
+              src="/kinka-logo.png"
+              alt="Kinka Logo"
+              className="w-10 h-10 rounded-full object-cover shadow-sm ring-1 ring-amber-700/20"
+            />
             <div className="flex flex-col">
               <span className="font-bold text-lg tracking-tight leading-none text-emerald-950 dark:text-emerald-300">
                 Kinka
               </span>
               <span className="text-[10px] text-amber-700 dark:text-amber-400 font-ethiopic font-semibold tracking-wider">
-                ኦሞብሪጅ
+                ኪንካ
               </span>
             </div>
           </Link>
@@ -193,12 +195,17 @@ export default function PublicLayout() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-emerald-700 flex items-center justify-center text-white font-bold text-sm">
-                  K
-                </div>
+              <div className="flex items-center gap-2.5">
+                <img
+                  src="/kinka-logo.png"
+                  alt="Kinka Logo"
+                  className="w-8 h-8 rounded-full object-cover shadow-sm ring-1 ring-amber-700/20"
+                />
                 <span className="font-bold text-lg text-emerald-950 dark:text-emerald-300">
                   Kinka
+                </span>
+                <span className="text-xs text-amber-700 dark:text-amber-400 font-ethiopic font-semibold">
+                  ኪንካ
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-ethiopic">

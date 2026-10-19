@@ -87,6 +87,13 @@ export default function JoinPage() {
     <div className="w-full max-w-5xl mx-auto px-4 py-8 sm:py-12 space-y-8 animate-in fade-in" data-testid="join-page">
       {/* Page Header */}
       <div className="text-center max-w-2xl mx-auto space-y-3">
+        <div className="flex justify-center mb-1">
+          <img
+            src="/kinka-logo.png"
+            alt="Kinka Logo"
+            className="w-16 h-16 rounded-full object-cover shadow-md ring-2 ring-amber-600/30"
+          />
+        </div>
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
           <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
           <span>Community-First Digital Platform</span>

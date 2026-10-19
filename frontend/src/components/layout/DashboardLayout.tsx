@@ -245,10 +245,12 @@ export default function DashboardLayout() {
       >
         {/* Brand Header */}
         <div className="min-h-16 shrink-0 flex items-center justify-between gap-2 px-4 border-b border-slate-200 dark:border-slate-800">
-          <Link to="/" className="flex min-w-0 items-center gap-2">
-            <div className="w-8 h-8 shrink-0 rounded-lg bg-emerald-700 flex items-center justify-center text-white font-bold">
-              K
-            </div>
+          <Link to="/" className="flex min-w-0 items-center gap-2.5">
+            <img
+              src="/kinka-logo.png"
+              alt="Kinka Logo"
+              className="w-8 h-8 shrink-0 rounded-full object-cover shadow-sm ring-1 ring-amber-700/20"
+            />
             <div>
               <span className="font-bold text-base text-emerald-950 dark:text-emerald-300 block leading-tight">
                 Kinka
