@@ -426,7 +426,7 @@ class BuyerPaymentIntegrationTest extends BaseIntegrationTest {
         CreatePaymentAttemptRequest request = new CreatePaymentAttemptRequest(
                 order.getId(),
                 null,
-                "TELEBIRR",
+                "CHAPA",
                 idempotencyKey
         );
 
@@ -438,7 +438,7 @@ class BuyerPaymentIntegrationTest extends BaseIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.data.status", is("SUCCESS")))
-                .andExpect(jsonPath("$.data.provider", is("TELEBIRR")));
+                .andExpect(jsonPath("$.data.provider", is("CHAPA")));
 
         assertThat(paymentAttemptRepository.count()).isEqualTo(1);
         PaymentAttempt firstAttempt = paymentAttemptRepository.findAll().get(0);
@@ -472,7 +472,7 @@ class BuyerPaymentIntegrationTest extends BaseIntegrationTest {
         );
 
         // 1. Invalid signature must be rejected
-        mockMvc.perform(post("/api/v1/integrations/payments/TELEBIRR/webhook")
+        mockMvc.perform(post("/api/v1/integrations/payments/CHAPA/webhook")
                         .param("eventId", "INVALID-EVT-" + UUID.randomUUID())
                         .param("eventType", "PAYMENT_SUCCESS")
                         .header("X-Signature", "INVALID_SIGNATURE")
@@ -482,7 +482,7 @@ class BuyerPaymentIntegrationTest extends BaseIntegrationTest {
                 .andExpect(jsonPath("$.code", is("BUSINESS_RULE_VIOLATION")));
 
         // 2. Valid signature succeeds and transitions order to PAID and payment to RELEASED
-        mockMvc.perform(post("/api/v1/integrations/payments/TELEBIRR/webhook")
+        mockMvc.perform(post("/api/v1/integrations/payments/CHAPA/webhook")
                         .param("eventId", eventId)
                         .param("eventType", "PAYMENT_SUCCESS")
                         .header("X-Signature", "VALID_HMAC_SHA256_TEST_SIGNATURE")
@@ -503,7 +503,7 @@ class BuyerPaymentIntegrationTest extends BaseIntegrationTest {
         assertThat(ledgers.get(0).getAmount()).isGreaterThan(BigDecimal.ZERO);
 
         // 3. Duplicate event is ignored idempotently without second credit to fund
-        mockMvc.perform(post("/api/v1/integrations/payments/TELEBIRR/webhook")
+        mockMvc.perform(post("/api/v1/integrations/payments/CHAPA/webhook")
                         .param("eventId", eventId)
                         .param("eventType", "PAYMENT_SUCCESS")
                         .header("X-Signature", "VALID_HMAC_SHA256_TEST_SIGNATURE")
@@ -576,7 +576,7 @@ class BuyerPaymentIntegrationTest extends BaseIntegrationTest {
         CreatePaymentAttemptRequest request = new CreatePaymentAttemptRequest(
                 order.getId(),
                 null,
-                "TELEBIRR",
+                "CHAPA",
                 key
         );
         mockMvc.perform(post("/api/v1/payments/attempt")

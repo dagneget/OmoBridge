@@ -150,7 +150,7 @@ export function usePaymentFlow({
         if (active.controller.signal.aborted) return;
       }
       const result = await paymentService.createAttempt(
-        { bookingId, orderId, provider: 'TELEBIRR', idempotencyKey },
+        { bookingId, orderId, provider: 'CHAPA', idempotencyKey },
         active.controller.signal,
       );
       if (active.controller.signal.aborted) return;

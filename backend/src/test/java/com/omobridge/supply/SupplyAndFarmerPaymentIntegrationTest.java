@@ -309,7 +309,7 @@ class SupplyAndFarmerPaymentIntegrationTest extends BaseIntegrationTest {
                 enterprise.getId(),
                 farmer1.getId(),
                 BigDecimal.valueOf(30000.00),
-                "TELEBIRR"
+                "CHAPA"
         );
         mockMvc.perform(post("/api/v1/farmer-payments")
                         .header("Authorization", "Bearer " + enterpriseToken)
@@ -324,7 +324,7 @@ class SupplyAndFarmerPaymentIntegrationTest extends BaseIntegrationTest {
                 enterprise.getId(),
                 farmer1.getId(),
                 BigDecimal.valueOf(15000.00),
-                "TELEBIRR"
+                "CHAPA"
         );
         mockMvc.perform(post("/api/v1/farmer-payments")
                         .header("Authorization", "Bearer " + enterpriseToken)
@@ -355,7 +355,7 @@ class SupplyAndFarmerPaymentIntegrationTest extends BaseIntegrationTest {
                 enterprise.getId(),
                 farmer1.getId(),
                 BigDecimal.valueOf(12000.00),
-                "TELEBIRR"
+                "CHAPA"
         );
         mockMvc.perform(post("/api/v1/farmer-payments")
                         .header("Authorization", "Bearer " + enterpriseToken)

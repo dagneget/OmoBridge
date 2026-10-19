@@ -1,6 +1,6 @@
 import { useQueries } from '@tanstack/react-query';
 import { useEffect, useId, useRef, useState } from 'react';
-import { TelebirrPaymentModal } from '../payments';
+import { ChapaPaymentModal } from '../payments';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../auth';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
@@ -247,7 +247,7 @@ export function CheckoutResult({ result, onNewCheckout }: Props) {
         </>
       )}
       {selectionActive && selectedOrder && (
-        <TelebirrPaymentModal
+        <ChapaPaymentModal
           isOpen
           onClose={() => setSelection(null)}
           orderId={selectedOrder.orderId}

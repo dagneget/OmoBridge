@@ -42,3 +42,8 @@ management:
   endpoint:
     health:
       show-details: always
+
+chapa:
+  demo: true
+  secret-key: ${CHAPA_SECRET_KEY:CHASECK_TEST-placeholder}
+  base-url: https://api.chapa.co/v1

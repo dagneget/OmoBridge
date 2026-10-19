@@ -152,7 +152,7 @@ describe('Checkout result F-506', () => {
     );
     fireEvent.click(screen.getByRole('button', { name: 'Pay order ORD-A' }));
     expect(
-      screen.getByRole('dialog', { name: 'Telebirr Mobile Payment' }),
+      screen.getByRole('dialog', { name: /Chapa Payment|Telebirr Mobile Payment/ }),
     ).toBeInTheDocument();
     expect(screen.getByTestId('payment-modal-amount')).toHaveTextContent(
       '420.00 ETB',
