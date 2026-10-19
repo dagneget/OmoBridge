@@ -248,7 +248,7 @@ export default function LoginPage() {
             to="/auth/register/enterprise"
             className="p-2.5 text-center rounded-lg border border-border hover:bg-muted font-medium text-foreground transition-colors"
           >
-            Micro-Enterprise
+            Community Hub
           </Link>
           <Link
             to="/auth/register/delivery"

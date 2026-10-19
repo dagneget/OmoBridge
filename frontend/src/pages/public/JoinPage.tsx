@@ -38,7 +38,7 @@ const ROLE_OPTIONS: RoleOption[] = [
   },
   {
     id: 'enterprise',
-    title: 'Local Micro-Enterprise',
+    title: 'Local Community Hub',
     subtitle:
       'Process harvest lots, manage inventory, publish products to buyers, and disburse farmer payments.',
     icon: Layers,

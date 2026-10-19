@@ -456,7 +456,7 @@ export default function HomePage() {
                 <Layers className="w-6 h-6" aria-hidden="true" />
               </div>
               <h3 className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
-                Micro-Enterprises
+                Community Hubs
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed">
                 Manage lot intake, track production batches, catalog SKUs, and manage tour offerings.

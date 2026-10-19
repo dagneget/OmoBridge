@@ -167,7 +167,7 @@ export default function AccountPage() {
                       {user.enterpriseName}
                     </h3>
                     <p className="text-xs text-muted-foreground">
-                      Linked Micro-Enterprise Cooperative
+                      Linked Community Hub
                     </p>
                   </div>
                 </div>

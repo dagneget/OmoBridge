@@ -23,7 +23,7 @@ export default function AboutPage() {
           About OmoBridge
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-          OmoBridge is the unified digital platform connecting rural producers, micro-enterprises, certified tour guides, and ethical travelers across the South Omo Zone of Ethiopia.
+          OmoBridge is the unified digital platform connecting rural producers, community hubs, certified tour guides, and ethical travelers across the South Omo Zone of Ethiopia.
         </p>
       </div>
 

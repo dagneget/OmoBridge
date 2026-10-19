@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeftRight } from 'lucide-react';
 
 const ROLE_DISPLAY_NAMES: Record<string, string> = {
-  [Roles.MICRO_ENTERPRISE]: 'Micro Enterprise',
+  [Roles.MICRO_ENTERPRISE]: 'Community Hub',
   [Roles.PRODUCER_FARMER]: 'Producer / Farmer',
   [Roles.DELIVERY_PROVIDER]: 'Delivery Provider',
   [Roles.TOUR_GUIDE]: 'Tour Guide',

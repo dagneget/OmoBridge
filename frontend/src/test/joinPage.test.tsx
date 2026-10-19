@@ -24,8 +24,8 @@ describe('Join OmoBridge Page (F-209)', () => {
     const farmerLink = screen.getByRole('link', { name: /register as farmer/i });
     expect(farmerLink).toHaveAttribute('href', '/register/producer');
 
-    // 2. Micro-Enterprise
-    expect(screen.getByText('Local Micro-Enterprise')).toBeInTheDocument();
+    // 2. Community Hub
+    expect(screen.getByText('Local Community Hub')).toBeInTheDocument();
     expect(
       screen.getByText(/process harvest lots, manage inventory, publish products to buyers/i)
     ).toBeInTheDocument();
