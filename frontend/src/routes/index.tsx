@@ -220,6 +220,14 @@ export default function AppRoutes() {
                 }
               />
               <Route
+                path="/dashboard/enterprise/payments"
+                element={
+                  <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>
+                    <FarmerPayablesPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
                 path="/dashboard/enterprise/inventory"
                 element={
                   <RoleGuard allowedRoles={[Roles.MICRO_ENTERPRISE, Roles.SYSTEM_ADMIN]}>

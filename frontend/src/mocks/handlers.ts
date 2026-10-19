@@ -22,12 +22,16 @@ import {
   mockDeliveries,
   mockEnterpriseOrders,
   mockInventoryLots,
+  mockInventoryLocations,
+  mockInventoryMovements,
+  mockReconciliationReports,
   mockFarmerPayables,
   mockFarmerPayments,
   mockProductionBatches,
   mockEnterpriseProducts,
   mockOrderDetails,
   mockAiReports,
+  mockEnterpriseBookings,
 } from './fixtures/enterprise';
 
 function errorResponse(status: number, code: string, message: string, request: Request) {
@@ -50,12 +54,17 @@ const authHandlers = ['/api/v1/auth', '/api/auth'].flatMap((base) => [
       return errorResponse(400, 'VALIDATION_FAILED', 'Password is required', request);
     }
     const identifier = body.phoneNumber || body.identifier;
-    const user = Object.values(mockUsers).find(
+    let user = Object.values(mockUsers).find(
       (candidate) =>
         candidate.phoneNumber === identifier ||
         ('email' in candidate && candidate.email === identifier)
     );
-    if (!user || body.password !== MOCK_PASSWORD) {
+    if (!user) {
+      if (identifier === 'dimeka@omobridge.et') user = mockUsers.enterprise;
+      else if (identifier === 'bono@omobridge.et') user = mockUsers.producer;
+      else if (identifier === 'ayke@omobridge.et') user = mockUsers.guide;
+    }
+    if (!user || (body.password !== MOCK_PASSWORD && body.password !== 'Secret@123')) {
       return errorResponse(401, 'UNAUTHORIZED', 'Invalid credentials', request);
     }
     return HttpResponse.json({
@@ -475,6 +484,171 @@ export const handlers = [
     });
   }),
 
+  // Enterprise Inventory Locations
+  http.get('*/api/v1/enterprises/:enterpriseId/inventory/locations', () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockInventoryLocations,
+    });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/inventory/locations', async ({ params, request }) => {
+    const { enterpriseId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const newLoc = {
+      id: `loc-${Date.now()}`,
+      enterpriseId: String(enterpriseId),
+      name: body?.name || 'New Storage Location',
+      locationType: body?.locationType || 'WAREHOUSE',
+      description: body?.description || '',
+      createdAt: new Date().toISOString(),
+    };
+    mockInventoryLocations.push(newLoc);
+    return HttpResponse.json(
+      {
+        success: true,
+        message: 'Location created successfully',
+        data: newLoc,
+      },
+      { status: 201 }
+    );
+  }),
+
+  // Enterprise Inventory Movements
+  http.get('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/movements', ({ params }) => {
+    const { lotId } = params;
+    return HttpResponse.json({
+      success: true,
+      data: mockInventoryMovements[String(lotId)] || [],
+    });
+  }),
+
+  // Enterprise Inventory Adjustments
+  http.post('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/adjustments', async ({ params, request }) => {
+    const { lotId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const lot = mockInventoryLots.find((l) => l.id === lotId);
+    const adjustmentQty = Number(body?.quantity || 0);
+    const isIncrease = body?.adjustmentType === 'INCREASE';
+    const newBalance = (lot?.balanceQty || 0) + (isIncrease ? adjustmentQty : -adjustmentQty);
+
+    if (lot) {
+      lot.balanceQty = Math.max(0, newBalance);
+    }
+
+    const movement = {
+      id: `mov-${Date.now()}`,
+      lotId: String(lotId),
+      movementType: 'ADJUSTMENT' as const,
+      quantity: isIncrease ? adjustmentQty : -adjustmentQty,
+      balanceAfter: lot ? lot.balanceQty : newBalance,
+      reason: body?.reason || 'Stock balance adjustment',
+      referenceType: 'MANUAL_ADJUSTMENT',
+      createdAt: new Date().toISOString(),
+    };
+
+    if (!mockInventoryMovements[String(lotId)]) {
+      mockInventoryMovements[String(lotId)] = [];
+    }
+    mockInventoryMovements[String(lotId)].unshift(movement);
+
+    return HttpResponse.json({
+      success: true,
+      message: 'Lot adjusted successfully',
+      data: movement,
+    });
+  }),
+
+  // Enterprise Inventory Transfers
+  http.post('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/transfers', async ({ params, request }) => {
+    const { lotId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const lot = mockInventoryLots.find((l) => l.id === lotId);
+    const transferQty = Number(body?.quantity || 0);
+
+    const movement = {
+      id: `mov-${Date.now()}`,
+      lotId: String(lotId),
+      movementType: 'TRANSFER_OUT' as const,
+      quantity: -transferQty,
+      balanceAfter: lot?.balanceQty || 0,
+      reason: body?.reason || 'Internal warehouse transfer',
+      referenceType: 'LOCATION_TRANSFER',
+      referenceId: body?.targetLocationId,
+      createdAt: new Date().toISOString(),
+    };
+
+    if (!mockInventoryMovements[String(lotId)]) {
+      mockInventoryMovements[String(lotId)] = [];
+    }
+    mockInventoryMovements[String(lotId)].unshift(movement);
+
+    return HttpResponse.json({
+      success: true,
+      message: 'Lot transferred successfully',
+      data: movement,
+    });
+  }),
+
+  // Enterprise Inventory Disposals
+  http.post('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/disposals', async ({ params, request }) => {
+    const { lotId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const lot = mockInventoryLots.find((l) => l.id === lotId);
+    const disposeQty = Number(body?.quantity || 0);
+
+    if (lot) {
+      lot.balanceQty = Math.max(0, (lot.balanceQty || 0) - disposeQty);
+      if (lot.balanceQty === 0) lot.status = 'DISPOSED';
+    }
+
+    const movement = {
+      id: `mov-${Date.now()}`,
+      lotId: String(lotId),
+      movementType: 'DISPOSAL' as const,
+      quantity: -disposeQty,
+      balanceAfter: lot?.balanceQty || 0,
+      reason: body?.reason || 'Scrap / damaged material disposal',
+      referenceType: 'MANUAL_DISPOSAL',
+      createdAt: new Date().toISOString(),
+    };
+
+    if (!mockInventoryMovements[String(lotId)]) {
+      mockInventoryMovements[String(lotId)] = [];
+    }
+    mockInventoryMovements[String(lotId)].unshift(movement);
+
+    return HttpResponse.json({
+      success: true,
+      message: 'Lot disposed successfully',
+      data: movement,
+    });
+  }),
+
+  // Enterprise Inventory Reconciliation
+  http.get('*/api/v1/enterprises/:enterpriseId/inventory/reconciliation', () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockReconciliationReports,
+    });
+  }),
+
+  http.get('*/api/v1/enterprises/:enterpriseId/inventory/lots/:lotId/reconciliation', ({ params }) => {
+    const { lotId } = params;
+    const report = mockReconciliationReports.find((r) => r.lotId === lotId) || {
+      lotId: String(lotId),
+      lotCode: 'LOT-UNKNOWN',
+      storedBalance: 0,
+      movementSum: 0,
+      reconciled: true,
+      note: 'Reconciled',
+    };
+    return HttpResponse.json({
+      success: true,
+      data: report,
+    });
+  }),
+
   // Farmer Portal / Payables / Payments
   http.get('*/api/v1/farmers/:farmerId/payables', () => {
     return HttpResponse.json({
@@ -857,6 +1031,151 @@ export const handlers = [
       success: true,
       message: `Report ${reportId} has been ${report.status}`,
       data: report,
+    });
+  }),
+
+  // Enterprise: Tourism Packages (CRUD)
+  http.get('*/api/v1/enterprises/:enterpriseId/tourism/packages', ({ params }) => {
+    const list = mockTourPackages.filter((p) => !p.enterpriseId || p.enterpriseId === params.enterpriseId);
+    return HttpResponse.json({
+      success: true,
+      data: list.length > 0 ? list : mockTourPackages,
+    });
+  }),
+
+  http.post('*/api/v1/enterprises/:enterpriseId/tourism/packages', async ({ params, request }) => {
+    const body = (await request.json().catch(() => ({}))) as any;
+    const newPkg = {
+      id: `pkg-${Date.now()}`,
+      enterpriseId: String(params.enterpriseId),
+      enterpriseName: 'South Omo Community Heritage Cooperative',
+      name: body.name || 'Custom Experience',
+      category: body.category || 'CULTURAL',
+      overview: body.overview || '',
+      story: body.story || '',
+      locationText: body.locationText || 'South Omo',
+      durationHours: Number(body.durationHours || 4),
+      maxGroupSize: Number(body.maxGroupSize || 8),
+      priceAmount: Number(body.priceAmount || 1500),
+      priceUnit: body.priceUnit || 'PER_PERSON',
+      currency: body.currency || 'ETB',
+      culturalRules: body.culturalRules || '',
+      safetyNotes: body.safetyNotes || '',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+    };
+    mockTourPackages.unshift(newPkg as any);
+    return HttpResponse.json(
+      {
+        success: true,
+        message: 'Tour package created successfully',
+        data: newPkg,
+      },
+      { status: 201 }
+    );
+  }),
+
+  http.put('*/api/v1/enterprises/:enterpriseId/tourism/packages/:packageId', async ({ params, request }) => {
+    const { packageId } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const pkg = mockTourPackages.find((p) => p.id === packageId);
+    if (!pkg) {
+      return HttpResponse.json({ success: false, message: 'Package not found' }, { status: 404 });
+    }
+    Object.assign(pkg, body);
+    return HttpResponse.json({
+      success: true,
+      message: 'Tour package updated successfully',
+      data: pkg,
+    });
+  }),
+
+  http.delete('*/api/v1/enterprises/:enterpriseId/tourism/packages/:packageId', ({ params }) => {
+    const idx = mockTourPackages.findIndex((p) => p.id === params.packageId);
+    if (idx !== -1) {
+      mockTourPackages.splice(idx, 1);
+    }
+    return HttpResponse.json({
+      success: true,
+      message: 'Tour package deleted successfully',
+    });
+  }),
+
+  // Enterprise & Public: Bookings
+  http.get('*/api/v1/bookings/enterprises/:enterpriseId', ({ params }) => {
+    const bookings = mockEnterpriseBookings.filter(
+      (b) => !b.enterpriseId || b.enterpriseId === params.enterpriseId
+    );
+    return HttpResponse.json({
+      success: true,
+      data: bookings.length > 0 ? bookings : mockEnterpriseBookings,
+    });
+  }),
+
+  http.get('*/api/v1/bookings/my', () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockEnterpriseBookings,
+    });
+  }),
+
+  http.get('*/api/v1/bookings/:id', ({ params }) => {
+    const booking = mockEnterpriseBookings.find((b) => b.id === params.id) || mockEnterpriseBookings[0];
+    return HttpResponse.json({
+      success: true,
+      data: booking,
+    });
+  }),
+
+  http.patch('*/api/v1/bookings/:id/status', async ({ params, request }) => {
+    const { id } = params;
+    const body = (await request.json().catch(() => ({}))) as any;
+    const booking = mockEnterpriseBookings.find((b) => b.id === id);
+    if (!booking) {
+      return HttpResponse.json({ success: false, message: 'Booking not found' }, { status: 404 });
+    }
+    if (body.status) booking.status = body.status;
+    if (body.assignedGuideId) {
+      booking.assignedGuideId = body.assignedGuideId;
+      const guide = mockGuides.find((g) => g.id === body.assignedGuideId);
+      if (guide) (booking as any).assignedGuideName = guide.fullName;
+    }
+    return HttpResponse.json({
+      success: true,
+      message: `Booking ${id} status updated successfully`,
+      data: booking,
+    });
+  }),
+
+  // Pricing: Calculate transparent breakdown
+  http.get('*/api/v1/pricing/calculate', ({ request }) => {
+    const url = new URL(request.url);
+    const baseAmount = Number(url.searchParams.get('baseAmount') || 0);
+    const vat = Math.round(baseAmount * 0.15 * 100) / 100;
+    const fee = Math.round(baseAmount * 0.05 * 100) / 100;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        subtotal: baseAmount,
+        breakdown: [
+          {
+            code: 'VAT',
+            label: 'Value Added Tax (15%)',
+            ruleType: 'PERCENTAGE',
+            rateOrValue: 15,
+            amount: vat,
+          },
+          {
+            code: 'PLATFORM_FEE',
+            label: 'Platform & Community Development Fee (5%)',
+            ruleType: 'PERCENTAGE',
+            rateOrValue: 5,
+            amount: fee,
+          },
+        ],
+        total: Math.round((baseAmount + vat + fee) * 100) / 100,
+        currency: 'ETB',
+      },
     });
   }),
 ];
