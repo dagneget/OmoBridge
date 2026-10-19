@@ -114,7 +114,7 @@ export default function RegisterEnterprisePage() {
       <div className="text-center space-y-1">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 mb-2">
           <Building2 className="w-3.5 h-3.5" aria-hidden="true" />
-          <span>Cooperative / Processing Enterprise</span>
+          <span>Cooperative / Processing Hub</span>
         </div>
         <h1 className="text-2xl font-bold text-foreground">Community Hub Registration</h1>
         <p className="text-sm text-muted-foreground">

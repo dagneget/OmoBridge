@@ -112,7 +112,9 @@ describe('Route Guards, Role Navigation & 403 Forbidden (F-207)', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Community Hub')).toBeInTheDocument();
+      // The RoleSwitcher <option> for MICRO_ENTERPRISE carries the same display
+      // label, so scope this to the sidebar link rather than any matching text.
+      expect(screen.getByRole('link', { name: 'Community Hub' })).toBeInTheDocument();
     });
 
     // Check RoleSwitcher presence and switch to Tour Guide

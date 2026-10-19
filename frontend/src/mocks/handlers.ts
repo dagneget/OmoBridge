@@ -470,7 +470,7 @@ export const handlers = [
       id: `hist-${Date.now()}`,
       fromStatus: currentStatus as any,
       toStatus: newStatus as any,
-      changedBy: 'Enterprise Manager',
+      changedBy: 'Community Hub Manager',
       reason: body.reason || `Status updated to ${newStatus}`,
       createdAt: new Date().toISOString(),
     });
